@@ -28,6 +28,7 @@ export interface NavItem {
 export const NAV_ITEMS: NavItem[] = [
   { href: "/app", label: "Dashboard", icon: "dashboard", module: null },
   { href: "/app/inventory", label: "Inventory", icon: "inventory", module: "inventory", allowCustomer: true },
+  { href: "/app/devices", label: "Devices", icon: "inventory", module: "inventory", allowCustomer: true },
   { href: "/app/catalog", label: "Catalog", icon: "catalog", module: "catalog" },
   { href: "/app/buildings", label: "Buildings", icon: "buildings", module: "buildings" },
   { href: "/app/marina", label: "Marina", icon: "marina", module: "marina", allowCustomer: true },
