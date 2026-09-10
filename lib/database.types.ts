@@ -528,6 +528,77 @@ export type Database = {
           },
         ]
       }
+      assignments: {
+        Row: {
+          boat_id: number
+          created_at: string
+          end_date: string | null
+          id: number
+          marina_id: number | null
+          reservation_id: number
+          slip_id: number | null
+          start_date: string
+          status: string
+          updated_at: string
+          xnid: string | null
+        }
+        Insert: {
+          boat_id: number
+          created_at?: string
+          end_date?: string | null
+          id?: number
+          marina_id?: number | null
+          reservation_id: number
+          slip_id?: number | null
+          start_date: string
+          status?: string
+          updated_at?: string
+          xnid?: string | null
+        }
+        Update: {
+          boat_id?: number
+          created_at?: string
+          end_date?: string | null
+          id?: number
+          marina_id?: number | null
+          reservation_id?: number
+          slip_id?: number | null
+          start_date?: string
+          status?: string
+          updated_at?: string
+          xnid?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "assignments_boat_id_fkey"
+            columns: ["boat_id"]
+            isOneToOne: false
+            referencedRelation: "boats"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assignments_marina_id_fkey"
+            columns: ["marina_id"]
+            isOneToOne: false
+            referencedRelation: "marinas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assignments_reservation_id_fkey"
+            columns: ["reservation_id"]
+            isOneToOne: false
+            referencedRelation: "reservations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assignments_slip_id_fkey"
+            columns: ["slip_id"]
+            isOneToOne: false
+            referencedRelation: "slips"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       attributes: {
         Row: {
           alert_channel: string
@@ -978,6 +1049,237 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      contract_amendments: {
+        Row: {
+          amendment_type: string
+          changed_fields: Json | null
+          contract_id: number
+          created_at: string
+          description: string | null
+          id: number
+          marina_id: number | null
+          new_amount: number | null
+          new_end_date: string | null
+          new_slip_id: number | null
+          new_start_date: string | null
+          original_amount: number | null
+          original_end_date: string | null
+          original_slip_id: number | null
+          original_start_date: string | null
+          signed_at: string | null
+          status: string
+          updated_at: string
+          xnid: string | null
+        }
+        Insert: {
+          amendment_type: string
+          changed_fields?: Json | null
+          contract_id: number
+          created_at?: string
+          description?: string | null
+          id?: number
+          marina_id?: number | null
+          new_amount?: number | null
+          new_end_date?: string | null
+          new_slip_id?: number | null
+          new_start_date?: string | null
+          original_amount?: number | null
+          original_end_date?: string | null
+          original_slip_id?: number | null
+          original_start_date?: string | null
+          signed_at?: string | null
+          status?: string
+          updated_at?: string
+          xnid?: string | null
+        }
+        Update: {
+          amendment_type?: string
+          changed_fields?: Json | null
+          contract_id?: number
+          created_at?: string
+          description?: string | null
+          id?: number
+          marina_id?: number | null
+          new_amount?: number | null
+          new_end_date?: string | null
+          new_slip_id?: number | null
+          new_start_date?: string | null
+          original_amount?: number | null
+          original_end_date?: string | null
+          original_slip_id?: number | null
+          original_start_date?: string | null
+          signed_at?: string | null
+          status?: string
+          updated_at?: string
+          xnid?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contract_amendments_contract_id_fkey"
+            columns: ["contract_id"]
+            isOneToOne: false
+            referencedRelation: "contracts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contract_amendments_marina_id_fkey"
+            columns: ["marina_id"]
+            isOneToOne: false
+            referencedRelation: "marinas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contract_amendments_new_slip_id_fkey"
+            columns: ["new_slip_id"]
+            isOneToOne: false
+            referencedRelation: "slips"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contract_amendments_original_slip_id_fkey"
+            columns: ["original_slip_id"]
+            isOneToOne: false
+            referencedRelation: "slips"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      contract_sign_tokens: {
+        Row: {
+          amendment_id: number | null
+          contract_id: number
+          created_at: string
+          expires_at: string
+          token: string
+          used_at: string | null
+        }
+        Insert: {
+          amendment_id?: number | null
+          contract_id: number
+          created_at?: string
+          expires_at: string
+          token: string
+          used_at?: string | null
+        }
+        Update: {
+          amendment_id?: number | null
+          contract_id?: number
+          created_at?: string
+          expires_at?: string
+          token?: string
+          used_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contract_sign_tokens_amendment_id_fkey"
+            columns: ["amendment_id"]
+            isOneToOne: false
+            referencedRelation: "contract_amendments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contract_sign_tokens_contract_id_fkey"
+            columns: ["contract_id"]
+            isOneToOne: false
+            referencedRelation: "contracts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      contracts: {
+        Row: {
+          boat_id: number
+          contract_type: string | null
+          created_at: string
+          id: number
+          marina_id: number | null
+          monthly_rate: number
+          original_contract_id: number | null
+          rate_plan_id: number
+          reservation_id: number | null
+          signed_at: string | null
+          slip_id: number
+          status: Database["public"]["Enums"]["contract_status"]
+          updated_at: string
+          xnid: string | null
+        }
+        Insert: {
+          boat_id: number
+          contract_type?: string | null
+          created_at?: string
+          id?: number
+          marina_id?: number | null
+          monthly_rate: number
+          original_contract_id?: number | null
+          rate_plan_id: number
+          reservation_id?: number | null
+          signed_at?: string | null
+          slip_id: number
+          status?: Database["public"]["Enums"]["contract_status"]
+          updated_at?: string
+          xnid?: string | null
+        }
+        Update: {
+          boat_id?: number
+          contract_type?: string | null
+          created_at?: string
+          id?: number
+          marina_id?: number | null
+          monthly_rate?: number
+          original_contract_id?: number | null
+          rate_plan_id?: number
+          reservation_id?: number | null
+          signed_at?: string | null
+          slip_id?: number
+          status?: Database["public"]["Enums"]["contract_status"]
+          updated_at?: string
+          xnid?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contracts_boat_id_fkey"
+            columns: ["boat_id"]
+            isOneToOne: false
+            referencedRelation: "boats"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contracts_marina_id_fkey"
+            columns: ["marina_id"]
+            isOneToOne: false
+            referencedRelation: "marinas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contracts_original_contract_id_fkey"
+            columns: ["original_contract_id"]
+            isOneToOne: false
+            referencedRelation: "contracts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contracts_rate_plan_id_fkey"
+            columns: ["rate_plan_id"]
+            isOneToOne: false
+            referencedRelation: "rate_plans"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contracts_reservation_id_fkey"
+            columns: ["reservation_id"]
+            isOneToOne: false
+            referencedRelation: "reservations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contracts_slip_id_fkey"
+            columns: ["slip_id"]
+            isOneToOne: false
+            referencedRelation: "slips"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       device_assignments: {
         Row: {
@@ -1637,6 +1939,134 @@ export type Database = {
           },
         ]
       }
+      invoices: {
+        Row: {
+          amount: number
+          billable_id: number
+          billable_type: string
+          contract_id: number | null
+          created_at: string
+          id: number
+          marina_id: number | null
+          paid_at: string | null
+          reservation_id: number | null
+          status: Database["public"]["Enums"]["invoice_status"]
+          stay_id: number | null
+          updated_at: string
+          xnid: string | null
+        }
+        Insert: {
+          amount: number
+          billable_id: number
+          billable_type: string
+          contract_id?: number | null
+          created_at?: string
+          id?: number
+          marina_id?: number | null
+          paid_at?: string | null
+          reservation_id?: number | null
+          status?: Database["public"]["Enums"]["invoice_status"]
+          stay_id?: number | null
+          updated_at?: string
+          xnid?: string | null
+        }
+        Update: {
+          amount?: number
+          billable_id?: number
+          billable_type?: string
+          contract_id?: number | null
+          created_at?: string
+          id?: number
+          marina_id?: number | null
+          paid_at?: string | null
+          reservation_id?: number | null
+          status?: Database["public"]["Enums"]["invoice_status"]
+          stay_id?: number | null
+          updated_at?: string
+          xnid?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "invoices_contract_id_fkey"
+            columns: ["contract_id"]
+            isOneToOne: false
+            referencedRelation: "contracts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invoices_marina_id_fkey"
+            columns: ["marina_id"]
+            isOneToOne: false
+            referencedRelation: "marinas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invoices_reservation_id_fkey"
+            columns: ["reservation_id"]
+            isOneToOne: false
+            referencedRelation: "reservations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invoices_stay_id_fkey"
+            columns: ["stay_id"]
+            isOneToOne: false
+            referencedRelation: "stays"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ledgers: {
+        Row: {
+          created_at: string
+          credit: number
+          debit: number
+          id: number
+          invoice_id: number | null
+          marina_id: number | null
+          memo: string | null
+          updated_at: string
+          xnid: string | null
+        }
+        Insert: {
+          created_at?: string
+          credit?: number
+          debit?: number
+          id?: number
+          invoice_id?: number | null
+          marina_id?: number | null
+          memo?: string | null
+          updated_at?: string
+          xnid?: string | null
+        }
+        Update: {
+          created_at?: string
+          credit?: number
+          debit?: number
+          id?: number
+          invoice_id?: number | null
+          marina_id?: number | null
+          memo?: string | null
+          updated_at?: string
+          xnid?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ledgers_invoice_id_fkey"
+            columns: ["invoice_id"]
+            isOneToOne: false
+            referencedRelation: "invoices"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ledgers_marina_id_fkey"
+            columns: ["marina_id"]
+            isOneToOne: false
+            referencedRelation: "marinas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       marina_alerts: {
         Row: {
           boat_id: number | null
@@ -1779,6 +2209,51 @@ export type Database = {
             columns: ["company_id"]
             isOneToOne: false
             referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      meters: {
+        Row: {
+          created_at: string
+          id: number
+          marina_id: number | null
+          reading: number
+          slip_id: number
+          updated_at: string
+          xnid: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: number
+          marina_id?: number | null
+          reading: number
+          slip_id: number
+          updated_at?: string
+          xnid?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: number
+          marina_id?: number | null
+          reading?: number
+          slip_id?: number
+          updated_at?: string
+          xnid?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "meters_marina_id_fkey"
+            columns: ["marina_id"]
+            isOneToOne: false
+            referencedRelation: "marinas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "meters_slip_id_fkey"
+            columns: ["slip_id"]
+            isOneToOne: false
+            referencedRelation: "slips"
             referencedColumns: ["id"]
           },
         ]
@@ -2170,6 +2645,129 @@ export type Database = {
         }
         Relationships: []
       }
+      pos_transactions: {
+        Row: {
+          amount: number
+          assignment_id: number | null
+          boat_id: number | null
+          contract_id: number | null
+          created_at: string
+          created_by: string | null
+          id: number
+          marina_id: number | null
+          notes: string | null
+          quantity: number
+          reservation_id: number | null
+          service_category: string | null
+          service_name: string
+          slip_id: number | null
+          stay_id: number | null
+          type: Database["public"]["Enums"]["pos_txn_type"]
+          unit_price: number | null
+          updated_at: string
+          xnid: string | null
+        }
+        Insert: {
+          amount: number
+          assignment_id?: number | null
+          boat_id?: number | null
+          contract_id?: number | null
+          created_at?: string
+          created_by?: string | null
+          id?: number
+          marina_id?: number | null
+          notes?: string | null
+          quantity?: number
+          reservation_id?: number | null
+          service_category?: string | null
+          service_name: string
+          slip_id?: number | null
+          stay_id?: number | null
+          type?: Database["public"]["Enums"]["pos_txn_type"]
+          unit_price?: number | null
+          updated_at?: string
+          xnid?: string | null
+        }
+        Update: {
+          amount?: number
+          assignment_id?: number | null
+          boat_id?: number | null
+          contract_id?: number | null
+          created_at?: string
+          created_by?: string | null
+          id?: number
+          marina_id?: number | null
+          notes?: string | null
+          quantity?: number
+          reservation_id?: number | null
+          service_category?: string | null
+          service_name?: string
+          slip_id?: number | null
+          stay_id?: number | null
+          type?: Database["public"]["Enums"]["pos_txn_type"]
+          unit_price?: number | null
+          updated_at?: string
+          xnid?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pos_transactions_assignment_id_fkey"
+            columns: ["assignment_id"]
+            isOneToOne: false
+            referencedRelation: "assignments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pos_transactions_boat_id_fkey"
+            columns: ["boat_id"]
+            isOneToOne: false
+            referencedRelation: "boats"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pos_transactions_contract_id_fkey"
+            columns: ["contract_id"]
+            isOneToOne: false
+            referencedRelation: "contracts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pos_transactions_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pos_transactions_marina_id_fkey"
+            columns: ["marina_id"]
+            isOneToOne: false
+            referencedRelation: "marinas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pos_transactions_reservation_id_fkey"
+            columns: ["reservation_id"]
+            isOneToOne: false
+            referencedRelation: "reservations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pos_transactions_slip_id_fkey"
+            columns: ["slip_id"]
+            isOneToOne: false
+            referencedRelation: "slips"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pos_transactions_stay_id_fkey"
+            columns: ["stay_id"]
+            isOneToOne: false
+            referencedRelation: "stays"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       product_plans: {
         Row: {
           plan_id: number
@@ -2489,6 +3087,279 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      quotes: {
+        Row: {
+          created_at: string
+          discount: number | null
+          discount_type: string | null
+          end_date: string | null
+          hold_expires_at: string | null
+          id: number
+          loa: number | null
+          loa_unit: string | null
+          marina_id: number | null
+          rate: number | null
+          rate_plan_id: number
+          reservation_id: number | null
+          slip_id: number | null
+          start_date: string | null
+          status: string | null
+          surcharge: number | null
+          total: number | null
+          updated_at: string
+          xnid: string | null
+        }
+        Insert: {
+          created_at?: string
+          discount?: number | null
+          discount_type?: string | null
+          end_date?: string | null
+          hold_expires_at?: string | null
+          id?: number
+          loa?: number | null
+          loa_unit?: string | null
+          marina_id?: number | null
+          rate?: number | null
+          rate_plan_id: number
+          reservation_id?: number | null
+          slip_id?: number | null
+          start_date?: string | null
+          status?: string | null
+          surcharge?: number | null
+          total?: number | null
+          updated_at?: string
+          xnid?: string | null
+        }
+        Update: {
+          created_at?: string
+          discount?: number | null
+          discount_type?: string | null
+          end_date?: string | null
+          hold_expires_at?: string | null
+          id?: number
+          loa?: number | null
+          loa_unit?: string | null
+          marina_id?: number | null
+          rate?: number | null
+          rate_plan_id?: number
+          reservation_id?: number | null
+          slip_id?: number | null
+          start_date?: string | null
+          status?: string | null
+          surcharge?: number | null
+          total?: number | null
+          updated_at?: string
+          xnid?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quotes_marina_id_fkey"
+            columns: ["marina_id"]
+            isOneToOne: false
+            referencedRelation: "marinas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "quotes_rate_plan_id_fkey"
+            columns: ["rate_plan_id"]
+            isOneToOne: false
+            referencedRelation: "rate_plans"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "quotes_reservation_id_fkey"
+            columns: ["reservation_id"]
+            isOneToOne: false
+            referencedRelation: "reservations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "quotes_slip_id_fkey"
+            columns: ["slip_id"]
+            isOneToOne: false
+            referencedRelation: "slips"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      rate_plans: {
+        Row: {
+          calc_type: string | null
+          condition: Json | null
+          created_at: string
+          end_date: string | null
+          id: number
+          loa_unit: string | null
+          marina_id: number
+          name: string | null
+          rate: number | null
+          start_date: string | null
+          type: Database["public"]["Enums"]["rate_plan_type"] | null
+          updated_at: string
+          value: number | null
+        }
+        Insert: {
+          calc_type?: string | null
+          condition?: Json | null
+          created_at?: string
+          end_date?: string | null
+          id?: number
+          loa_unit?: string | null
+          marina_id: number
+          name?: string | null
+          rate?: number | null
+          start_date?: string | null
+          type?: Database["public"]["Enums"]["rate_plan_type"] | null
+          updated_at?: string
+          value?: number | null
+        }
+        Update: {
+          calc_type?: string | null
+          condition?: Json | null
+          created_at?: string
+          end_date?: string | null
+          id?: number
+          loa_unit?: string | null
+          marina_id?: number
+          name?: string | null
+          rate?: number | null
+          start_date?: string | null
+          type?: Database["public"]["Enums"]["rate_plan_type"] | null
+          updated_at?: string
+          value?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rate_plans_marina_id_fkey"
+            columns: ["marina_id"]
+            isOneToOne: false
+            referencedRelation: "marinas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      reservations: {
+        Row: {
+          billed_by: string | null
+          boat_id: number | null
+          created_at: string
+          days: number | null
+          dock_id: number | null
+          end_date: string | null
+          id: number
+          loa: number | null
+          marina_id: number | null
+          quote_id: number | null
+          rate: number | null
+          rate_plan_id: number | null
+          slip_id: number | null
+          start_date: string | null
+          status: string
+          subtotal: number
+          tax: number
+          total: number
+          updated_at: string
+          user_id: string | null
+          xnid: string | null
+        }
+        Insert: {
+          billed_by?: string | null
+          boat_id?: number | null
+          created_at?: string
+          days?: number | null
+          dock_id?: number | null
+          end_date?: string | null
+          id?: number
+          loa?: number | null
+          marina_id?: number | null
+          quote_id?: number | null
+          rate?: number | null
+          rate_plan_id?: number | null
+          slip_id?: number | null
+          start_date?: string | null
+          status?: string
+          subtotal?: number
+          tax?: number
+          total?: number
+          updated_at?: string
+          user_id?: string | null
+          xnid?: string | null
+        }
+        Update: {
+          billed_by?: string | null
+          boat_id?: number | null
+          created_at?: string
+          days?: number | null
+          dock_id?: number | null
+          end_date?: string | null
+          id?: number
+          loa?: number | null
+          marina_id?: number | null
+          quote_id?: number | null
+          rate?: number | null
+          rate_plan_id?: number | null
+          slip_id?: number | null
+          start_date?: string | null
+          status?: string
+          subtotal?: number
+          tax?: number
+          total?: number
+          updated_at?: string
+          user_id?: string | null
+          xnid?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reservations_boat_id_fkey"
+            columns: ["boat_id"]
+            isOneToOne: false
+            referencedRelation: "boats"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reservations_dock_id_fkey"
+            columns: ["dock_id"]
+            isOneToOne: false
+            referencedRelation: "docks"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reservations_marina_id_fkey"
+            columns: ["marina_id"]
+            isOneToOne: false
+            referencedRelation: "marinas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reservations_quote_id_fkey"
+            columns: ["quote_id"]
+            isOneToOne: false
+            referencedRelation: "quotes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reservations_rate_plan_id_fkey"
+            columns: ["rate_plan_id"]
+            isOneToOne: false
+            referencedRelation: "rate_plans"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reservations_slip_id_fkey"
+            columns: ["slip_id"]
+            isOneToOne: false
+            referencedRelation: "slips"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reservations_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       role_permissions: {
         Row: {
@@ -2851,6 +3722,100 @@ export type Database = {
             columns: ["marina_id"]
             isOneToOne: false
             referencedRelation: "marinas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "slips_rate_plan_id_fkey"
+            columns: ["rate_plan_id"]
+            isOneToOne: false
+            referencedRelation: "rate_plans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      stays: {
+        Row: {
+          actual_arrival: string | null
+          actual_departure: string | null
+          assignment_id: number
+          boat_id: number
+          created_at: string
+          expected_arrival: string | null
+          expected_departure: string | null
+          id: number
+          marina_id: number | null
+          reservation_id: number
+          slip_id: number | null
+          status: string
+          updated_at: string
+          xnid: string | null
+        }
+        Insert: {
+          actual_arrival?: string | null
+          actual_departure?: string | null
+          assignment_id: number
+          boat_id: number
+          created_at?: string
+          expected_arrival?: string | null
+          expected_departure?: string | null
+          id?: number
+          marina_id?: number | null
+          reservation_id: number
+          slip_id?: number | null
+          status?: string
+          updated_at?: string
+          xnid?: string | null
+        }
+        Update: {
+          actual_arrival?: string | null
+          actual_departure?: string | null
+          assignment_id?: number
+          boat_id?: number
+          created_at?: string
+          expected_arrival?: string | null
+          expected_departure?: string | null
+          id?: number
+          marina_id?: number | null
+          reservation_id?: number
+          slip_id?: number | null
+          status?: string
+          updated_at?: string
+          xnid?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "stays_assignment_id_fkey"
+            columns: ["assignment_id"]
+            isOneToOne: false
+            referencedRelation: "assignments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "stays_boat_id_fkey"
+            columns: ["boat_id"]
+            isOneToOne: false
+            referencedRelation: "boats"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "stays_marina_id_fkey"
+            columns: ["marina_id"]
+            isOneToOne: false
+            referencedRelation: "marinas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "stays_reservation_id_fkey"
+            columns: ["reservation_id"]
+            isOneToOne: false
+            referencedRelation: "reservations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "stays_slip_id_fkey"
+            columns: ["slip_id"]
+            isOneToOne: false
+            referencedRelation: "slips"
             referencedColumns: ["id"]
           },
         ]
