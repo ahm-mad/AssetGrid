@@ -43,7 +43,7 @@ export function RolesMatrix({ roles, canEdit }: { roles: RoleMatrixRow[]; canEdi
       setBusy(null)
       if (!res.ok) {
         setOverrides((o) => {
-          const { [oKey]: _drop, ...rest } = o
+          const rest = { ...o }; delete rest[oKey]
           return rest
         })
         toast.error(res.error ?? "Could not save")

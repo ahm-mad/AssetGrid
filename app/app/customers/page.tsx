@@ -17,7 +17,10 @@ import { Input } from "@/components/ui/input";
 export const metadata = { title: "Customers" };
 
 export default async function CustomersPage({ searchParams }: PageProps<"/app/customers">) {
-  await requirePagePermission("commerce", "read", { allowCustomer: false });
+  const viewer = await requirePagePermission("commerce", "read", { allowCustomer: false });
+  const canCreate =
+    viewer.isSuperAdmin ||
+    viewer.permissions.some((p) => p.code === "commerce" && p.can_create);
 
   const sp = await searchParams;
   const page = Number(typeof sp.page === "string" ? sp.page : 1) || 1;
@@ -36,9 +39,14 @@ export default async function CustomersPage({ searchParams }: PageProps<"/app/cu
 
   return (
     <div className="grid gap-4">
-      <div>
-        <h1 className="text-lg font-semibold">Customers</h1>
-        <p className="text-muted-foreground text-sm">{result.total} users</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-lg font-semibold">Customers</h1>
+          <p className="text-muted-foreground text-sm">{result.total} users</p>
+        </div>
+        {canCreate ? (
+          <Button render={<Link href="/app/customers/new" />}>New user</Button>
+        ) : null}
       </div>
 
       <form className="flex gap-2" action="/app/customers">
@@ -70,7 +78,9 @@ export default async function CustomersPage({ searchParams }: PageProps<"/app/cu
               result.rows.map((u) => (
                 <TableRow key={u.id}>
                   <TableCell className="font-medium">
-                    {[u.firstName, u.lastName].filter(Boolean).join(" ") || "—"}
+                    <Link href={`/app/customers/${u.id}`} className="hover:underline">
+                      {[u.firstName, u.lastName].filter(Boolean).join(" ") || "—"}
+                    </Link>
                     {u.deletedAt ? (
                       <Badge variant="outline" className="ml-2">
                         deleted
