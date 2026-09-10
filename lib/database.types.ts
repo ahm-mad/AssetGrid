@@ -934,6 +934,63 @@ export type Database = {
         }
         Relationships: []
       }
+      neo_alarm_logs: {
+        Row: {
+          account_code: string
+          cid_code: string
+          cid_payload: string | null
+          cid_sent: boolean
+          cid_sent_at: string | null
+          created_at: string
+          error_message: string | null
+          event_code: string
+          id: number
+          point: number
+          status: Database["public"]["Enums"]["neo_alarm_status"]
+          telemetry_id: number | null
+          uc_payload: Json | null
+          uc_sent: boolean
+          uc_sent_at: string | null
+          updated_at: string
+        }
+        Insert: {
+          account_code: string
+          cid_code: string
+          cid_payload?: string | null
+          cid_sent?: boolean
+          cid_sent_at?: string | null
+          created_at?: string
+          error_message?: string | null
+          event_code: string
+          id?: number
+          point?: number
+          status?: Database["public"]["Enums"]["neo_alarm_status"]
+          telemetry_id?: number | null
+          uc_payload?: Json | null
+          uc_sent?: boolean
+          uc_sent_at?: string | null
+          updated_at?: string
+        }
+        Update: {
+          account_code?: string
+          cid_code?: string
+          cid_payload?: string | null
+          cid_sent?: boolean
+          cid_sent_at?: string | null
+          created_at?: string
+          error_message?: string | null
+          event_code?: string
+          id?: number
+          point?: number
+          status?: Database["public"]["Enums"]["neo_alarm_status"]
+          telemetry_id?: number | null
+          uc_payload?: Json | null
+          uc_sent?: boolean
+          uc_sent_at?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       notifies: {
         Row: {
           created_at: string
@@ -1793,6 +1850,4564 @@ export type Database = {
           },
         ]
       }
+      telemetry: {
+        Row: {
+          active_power: number | null
+          altitude: number | null
+          apparent_power: number | null
+          created_at: string
+          current: number | null
+          dev_eui: string
+          energy_consumption_meter_consumed: number | null
+          energy_consumption_meter_elapsed: number | null
+          external_input: boolean | null
+          gateway_id: string | null
+          humidity: number | null
+          id: number
+          inventory_device_id: number | null
+          latitude: number | null
+          legacy_id: number | null
+          legacy_mongo_id: string | null
+          light: boolean | null
+          longitude: number | null
+          luminosity: number | null
+          move: boolean | null
+          power_factor: number | null
+          raw_body: Json | null
+          raw_packet: string | null
+          raw_source: string
+          reactive_power: number | null
+          reed_state: number | null
+          temperature: number | null
+          updated_at: string
+          user_device_id: number | null
+          user_id: string | null
+          voltage: number | null
+          xup_decoded_edr: Json | null
+          xup_encoded_edr: string | null
+        }
+        Insert: {
+          active_power?: number | null
+          altitude?: number | null
+          apparent_power?: number | null
+          created_at: string
+          current?: number | null
+          dev_eui: string
+          energy_consumption_meter_consumed?: number | null
+          energy_consumption_meter_elapsed?: number | null
+          external_input?: boolean | null
+          gateway_id?: string | null
+          humidity?: number | null
+          id?: number
+          inventory_device_id?: number | null
+          latitude?: number | null
+          legacy_id?: number | null
+          legacy_mongo_id?: string | null
+          light?: boolean | null
+          longitude?: number | null
+          luminosity?: number | null
+          move?: boolean | null
+          power_factor?: number | null
+          raw_body?: Json | null
+          raw_packet?: string | null
+          raw_source?: string
+          reactive_power?: number | null
+          reed_state?: number | null
+          temperature?: number | null
+          updated_at?: string
+          user_device_id?: number | null
+          user_id?: string | null
+          voltage?: number | null
+          xup_decoded_edr?: Json | null
+          xup_encoded_edr?: string | null
+        }
+        Update: {
+          active_power?: number | null
+          altitude?: number | null
+          apparent_power?: number | null
+          created_at?: string
+          current?: number | null
+          dev_eui?: string
+          energy_consumption_meter_consumed?: number | null
+          energy_consumption_meter_elapsed?: number | null
+          external_input?: boolean | null
+          gateway_id?: string | null
+          humidity?: number | null
+          id?: number
+          inventory_device_id?: number | null
+          latitude?: number | null
+          legacy_id?: number | null
+          legacy_mongo_id?: string | null
+          light?: boolean | null
+          longitude?: number | null
+          luminosity?: number | null
+          move?: boolean | null
+          power_factor?: number | null
+          raw_body?: Json | null
+          raw_packet?: string | null
+          raw_source?: string
+          reactive_power?: number | null
+          reed_state?: number | null
+          temperature?: number | null
+          updated_at?: string
+          user_device_id?: number | null
+          user_id?: string | null
+          voltage?: number | null
+          xup_decoded_edr?: Json | null
+          xup_encoded_edr?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "telemetry_inventory_device_id_fkey"
+            columns: ["inventory_device_id"]
+            isOneToOne: false
+            referencedRelation: "inventory_devices"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "telemetry_user_device_id_fkey"
+            columns: ["user_device_id"]
+            isOneToOne: false
+            referencedRelation: "user_devices"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "telemetry_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      telemetry_2024_01: {
+        Row: {
+          active_power: number | null
+          altitude: number | null
+          apparent_power: number | null
+          created_at: string
+          current: number | null
+          dev_eui: string
+          energy_consumption_meter_consumed: number | null
+          energy_consumption_meter_elapsed: number | null
+          external_input: boolean | null
+          gateway_id: string | null
+          humidity: number | null
+          id: number
+          inventory_device_id: number | null
+          latitude: number | null
+          legacy_id: number | null
+          legacy_mongo_id: string | null
+          light: boolean | null
+          longitude: number | null
+          luminosity: number | null
+          move: boolean | null
+          power_factor: number | null
+          raw_body: Json | null
+          raw_packet: string | null
+          raw_source: string
+          reactive_power: number | null
+          reed_state: number | null
+          temperature: number | null
+          updated_at: string
+          user_device_id: number | null
+          user_id: string | null
+          voltage: number | null
+          xup_decoded_edr: Json | null
+          xup_encoded_edr: string | null
+        }
+        Insert: {
+          active_power?: number | null
+          altitude?: number | null
+          apparent_power?: number | null
+          created_at: string
+          current?: number | null
+          dev_eui: string
+          energy_consumption_meter_consumed?: number | null
+          energy_consumption_meter_elapsed?: number | null
+          external_input?: boolean | null
+          gateway_id?: string | null
+          humidity?: number | null
+          id?: number
+          inventory_device_id?: number | null
+          latitude?: number | null
+          legacy_id?: number | null
+          legacy_mongo_id?: string | null
+          light?: boolean | null
+          longitude?: number | null
+          luminosity?: number | null
+          move?: boolean | null
+          power_factor?: number | null
+          raw_body?: Json | null
+          raw_packet?: string | null
+          raw_source?: string
+          reactive_power?: number | null
+          reed_state?: number | null
+          temperature?: number | null
+          updated_at?: string
+          user_device_id?: number | null
+          user_id?: string | null
+          voltage?: number | null
+          xup_decoded_edr?: Json | null
+          xup_encoded_edr?: string | null
+        }
+        Update: {
+          active_power?: number | null
+          altitude?: number | null
+          apparent_power?: number | null
+          created_at?: string
+          current?: number | null
+          dev_eui?: string
+          energy_consumption_meter_consumed?: number | null
+          energy_consumption_meter_elapsed?: number | null
+          external_input?: boolean | null
+          gateway_id?: string | null
+          humidity?: number | null
+          id?: number
+          inventory_device_id?: number | null
+          latitude?: number | null
+          legacy_id?: number | null
+          legacy_mongo_id?: string | null
+          light?: boolean | null
+          longitude?: number | null
+          luminosity?: number | null
+          move?: boolean | null
+          power_factor?: number | null
+          raw_body?: Json | null
+          raw_packet?: string | null
+          raw_source?: string
+          reactive_power?: number | null
+          reed_state?: number | null
+          temperature?: number | null
+          updated_at?: string
+          user_device_id?: number | null
+          user_id?: string | null
+          voltage?: number | null
+          xup_decoded_edr?: Json | null
+          xup_encoded_edr?: string | null
+        }
+        Relationships: []
+      }
+      telemetry_2024_02: {
+        Row: {
+          active_power: number | null
+          altitude: number | null
+          apparent_power: number | null
+          created_at: string
+          current: number | null
+          dev_eui: string
+          energy_consumption_meter_consumed: number | null
+          energy_consumption_meter_elapsed: number | null
+          external_input: boolean | null
+          gateway_id: string | null
+          humidity: number | null
+          id: number
+          inventory_device_id: number | null
+          latitude: number | null
+          legacy_id: number | null
+          legacy_mongo_id: string | null
+          light: boolean | null
+          longitude: number | null
+          luminosity: number | null
+          move: boolean | null
+          power_factor: number | null
+          raw_body: Json | null
+          raw_packet: string | null
+          raw_source: string
+          reactive_power: number | null
+          reed_state: number | null
+          temperature: number | null
+          updated_at: string
+          user_device_id: number | null
+          user_id: string | null
+          voltage: number | null
+          xup_decoded_edr: Json | null
+          xup_encoded_edr: string | null
+        }
+        Insert: {
+          active_power?: number | null
+          altitude?: number | null
+          apparent_power?: number | null
+          created_at: string
+          current?: number | null
+          dev_eui: string
+          energy_consumption_meter_consumed?: number | null
+          energy_consumption_meter_elapsed?: number | null
+          external_input?: boolean | null
+          gateway_id?: string | null
+          humidity?: number | null
+          id?: number
+          inventory_device_id?: number | null
+          latitude?: number | null
+          legacy_id?: number | null
+          legacy_mongo_id?: string | null
+          light?: boolean | null
+          longitude?: number | null
+          luminosity?: number | null
+          move?: boolean | null
+          power_factor?: number | null
+          raw_body?: Json | null
+          raw_packet?: string | null
+          raw_source?: string
+          reactive_power?: number | null
+          reed_state?: number | null
+          temperature?: number | null
+          updated_at?: string
+          user_device_id?: number | null
+          user_id?: string | null
+          voltage?: number | null
+          xup_decoded_edr?: Json | null
+          xup_encoded_edr?: string | null
+        }
+        Update: {
+          active_power?: number | null
+          altitude?: number | null
+          apparent_power?: number | null
+          created_at?: string
+          current?: number | null
+          dev_eui?: string
+          energy_consumption_meter_consumed?: number | null
+          energy_consumption_meter_elapsed?: number | null
+          external_input?: boolean | null
+          gateway_id?: string | null
+          humidity?: number | null
+          id?: number
+          inventory_device_id?: number | null
+          latitude?: number | null
+          legacy_id?: number | null
+          legacy_mongo_id?: string | null
+          light?: boolean | null
+          longitude?: number | null
+          luminosity?: number | null
+          move?: boolean | null
+          power_factor?: number | null
+          raw_body?: Json | null
+          raw_packet?: string | null
+          raw_source?: string
+          reactive_power?: number | null
+          reed_state?: number | null
+          temperature?: number | null
+          updated_at?: string
+          user_device_id?: number | null
+          user_id?: string | null
+          voltage?: number | null
+          xup_decoded_edr?: Json | null
+          xup_encoded_edr?: string | null
+        }
+        Relationships: []
+      }
+      telemetry_2024_03: {
+        Row: {
+          active_power: number | null
+          altitude: number | null
+          apparent_power: number | null
+          created_at: string
+          current: number | null
+          dev_eui: string
+          energy_consumption_meter_consumed: number | null
+          energy_consumption_meter_elapsed: number | null
+          external_input: boolean | null
+          gateway_id: string | null
+          humidity: number | null
+          id: number
+          inventory_device_id: number | null
+          latitude: number | null
+          legacy_id: number | null
+          legacy_mongo_id: string | null
+          light: boolean | null
+          longitude: number | null
+          luminosity: number | null
+          move: boolean | null
+          power_factor: number | null
+          raw_body: Json | null
+          raw_packet: string | null
+          raw_source: string
+          reactive_power: number | null
+          reed_state: number | null
+          temperature: number | null
+          updated_at: string
+          user_device_id: number | null
+          user_id: string | null
+          voltage: number | null
+          xup_decoded_edr: Json | null
+          xup_encoded_edr: string | null
+        }
+        Insert: {
+          active_power?: number | null
+          altitude?: number | null
+          apparent_power?: number | null
+          created_at: string
+          current?: number | null
+          dev_eui: string
+          energy_consumption_meter_consumed?: number | null
+          energy_consumption_meter_elapsed?: number | null
+          external_input?: boolean | null
+          gateway_id?: string | null
+          humidity?: number | null
+          id?: number
+          inventory_device_id?: number | null
+          latitude?: number | null
+          legacy_id?: number | null
+          legacy_mongo_id?: string | null
+          light?: boolean | null
+          longitude?: number | null
+          luminosity?: number | null
+          move?: boolean | null
+          power_factor?: number | null
+          raw_body?: Json | null
+          raw_packet?: string | null
+          raw_source?: string
+          reactive_power?: number | null
+          reed_state?: number | null
+          temperature?: number | null
+          updated_at?: string
+          user_device_id?: number | null
+          user_id?: string | null
+          voltage?: number | null
+          xup_decoded_edr?: Json | null
+          xup_encoded_edr?: string | null
+        }
+        Update: {
+          active_power?: number | null
+          altitude?: number | null
+          apparent_power?: number | null
+          created_at?: string
+          current?: number | null
+          dev_eui?: string
+          energy_consumption_meter_consumed?: number | null
+          energy_consumption_meter_elapsed?: number | null
+          external_input?: boolean | null
+          gateway_id?: string | null
+          humidity?: number | null
+          id?: number
+          inventory_device_id?: number | null
+          latitude?: number | null
+          legacy_id?: number | null
+          legacy_mongo_id?: string | null
+          light?: boolean | null
+          longitude?: number | null
+          luminosity?: number | null
+          move?: boolean | null
+          power_factor?: number | null
+          raw_body?: Json | null
+          raw_packet?: string | null
+          raw_source?: string
+          reactive_power?: number | null
+          reed_state?: number | null
+          temperature?: number | null
+          updated_at?: string
+          user_device_id?: number | null
+          user_id?: string | null
+          voltage?: number | null
+          xup_decoded_edr?: Json | null
+          xup_encoded_edr?: string | null
+        }
+        Relationships: []
+      }
+      telemetry_2024_04: {
+        Row: {
+          active_power: number | null
+          altitude: number | null
+          apparent_power: number | null
+          created_at: string
+          current: number | null
+          dev_eui: string
+          energy_consumption_meter_consumed: number | null
+          energy_consumption_meter_elapsed: number | null
+          external_input: boolean | null
+          gateway_id: string | null
+          humidity: number | null
+          id: number
+          inventory_device_id: number | null
+          latitude: number | null
+          legacy_id: number | null
+          legacy_mongo_id: string | null
+          light: boolean | null
+          longitude: number | null
+          luminosity: number | null
+          move: boolean | null
+          power_factor: number | null
+          raw_body: Json | null
+          raw_packet: string | null
+          raw_source: string
+          reactive_power: number | null
+          reed_state: number | null
+          temperature: number | null
+          updated_at: string
+          user_device_id: number | null
+          user_id: string | null
+          voltage: number | null
+          xup_decoded_edr: Json | null
+          xup_encoded_edr: string | null
+        }
+        Insert: {
+          active_power?: number | null
+          altitude?: number | null
+          apparent_power?: number | null
+          created_at: string
+          current?: number | null
+          dev_eui: string
+          energy_consumption_meter_consumed?: number | null
+          energy_consumption_meter_elapsed?: number | null
+          external_input?: boolean | null
+          gateway_id?: string | null
+          humidity?: number | null
+          id?: number
+          inventory_device_id?: number | null
+          latitude?: number | null
+          legacy_id?: number | null
+          legacy_mongo_id?: string | null
+          light?: boolean | null
+          longitude?: number | null
+          luminosity?: number | null
+          move?: boolean | null
+          power_factor?: number | null
+          raw_body?: Json | null
+          raw_packet?: string | null
+          raw_source?: string
+          reactive_power?: number | null
+          reed_state?: number | null
+          temperature?: number | null
+          updated_at?: string
+          user_device_id?: number | null
+          user_id?: string | null
+          voltage?: number | null
+          xup_decoded_edr?: Json | null
+          xup_encoded_edr?: string | null
+        }
+        Update: {
+          active_power?: number | null
+          altitude?: number | null
+          apparent_power?: number | null
+          created_at?: string
+          current?: number | null
+          dev_eui?: string
+          energy_consumption_meter_consumed?: number | null
+          energy_consumption_meter_elapsed?: number | null
+          external_input?: boolean | null
+          gateway_id?: string | null
+          humidity?: number | null
+          id?: number
+          inventory_device_id?: number | null
+          latitude?: number | null
+          legacy_id?: number | null
+          legacy_mongo_id?: string | null
+          light?: boolean | null
+          longitude?: number | null
+          luminosity?: number | null
+          move?: boolean | null
+          power_factor?: number | null
+          raw_body?: Json | null
+          raw_packet?: string | null
+          raw_source?: string
+          reactive_power?: number | null
+          reed_state?: number | null
+          temperature?: number | null
+          updated_at?: string
+          user_device_id?: number | null
+          user_id?: string | null
+          voltage?: number | null
+          xup_decoded_edr?: Json | null
+          xup_encoded_edr?: string | null
+        }
+        Relationships: []
+      }
+      telemetry_2024_05: {
+        Row: {
+          active_power: number | null
+          altitude: number | null
+          apparent_power: number | null
+          created_at: string
+          current: number | null
+          dev_eui: string
+          energy_consumption_meter_consumed: number | null
+          energy_consumption_meter_elapsed: number | null
+          external_input: boolean | null
+          gateway_id: string | null
+          humidity: number | null
+          id: number
+          inventory_device_id: number | null
+          latitude: number | null
+          legacy_id: number | null
+          legacy_mongo_id: string | null
+          light: boolean | null
+          longitude: number | null
+          luminosity: number | null
+          move: boolean | null
+          power_factor: number | null
+          raw_body: Json | null
+          raw_packet: string | null
+          raw_source: string
+          reactive_power: number | null
+          reed_state: number | null
+          temperature: number | null
+          updated_at: string
+          user_device_id: number | null
+          user_id: string | null
+          voltage: number | null
+          xup_decoded_edr: Json | null
+          xup_encoded_edr: string | null
+        }
+        Insert: {
+          active_power?: number | null
+          altitude?: number | null
+          apparent_power?: number | null
+          created_at: string
+          current?: number | null
+          dev_eui: string
+          energy_consumption_meter_consumed?: number | null
+          energy_consumption_meter_elapsed?: number | null
+          external_input?: boolean | null
+          gateway_id?: string | null
+          humidity?: number | null
+          id?: number
+          inventory_device_id?: number | null
+          latitude?: number | null
+          legacy_id?: number | null
+          legacy_mongo_id?: string | null
+          light?: boolean | null
+          longitude?: number | null
+          luminosity?: number | null
+          move?: boolean | null
+          power_factor?: number | null
+          raw_body?: Json | null
+          raw_packet?: string | null
+          raw_source?: string
+          reactive_power?: number | null
+          reed_state?: number | null
+          temperature?: number | null
+          updated_at?: string
+          user_device_id?: number | null
+          user_id?: string | null
+          voltage?: number | null
+          xup_decoded_edr?: Json | null
+          xup_encoded_edr?: string | null
+        }
+        Update: {
+          active_power?: number | null
+          altitude?: number | null
+          apparent_power?: number | null
+          created_at?: string
+          current?: number | null
+          dev_eui?: string
+          energy_consumption_meter_consumed?: number | null
+          energy_consumption_meter_elapsed?: number | null
+          external_input?: boolean | null
+          gateway_id?: string | null
+          humidity?: number | null
+          id?: number
+          inventory_device_id?: number | null
+          latitude?: number | null
+          legacy_id?: number | null
+          legacy_mongo_id?: string | null
+          light?: boolean | null
+          longitude?: number | null
+          luminosity?: number | null
+          move?: boolean | null
+          power_factor?: number | null
+          raw_body?: Json | null
+          raw_packet?: string | null
+          raw_source?: string
+          reactive_power?: number | null
+          reed_state?: number | null
+          temperature?: number | null
+          updated_at?: string
+          user_device_id?: number | null
+          user_id?: string | null
+          voltage?: number | null
+          xup_decoded_edr?: Json | null
+          xup_encoded_edr?: string | null
+        }
+        Relationships: []
+      }
+      telemetry_2024_06: {
+        Row: {
+          active_power: number | null
+          altitude: number | null
+          apparent_power: number | null
+          created_at: string
+          current: number | null
+          dev_eui: string
+          energy_consumption_meter_consumed: number | null
+          energy_consumption_meter_elapsed: number | null
+          external_input: boolean | null
+          gateway_id: string | null
+          humidity: number | null
+          id: number
+          inventory_device_id: number | null
+          latitude: number | null
+          legacy_id: number | null
+          legacy_mongo_id: string | null
+          light: boolean | null
+          longitude: number | null
+          luminosity: number | null
+          move: boolean | null
+          power_factor: number | null
+          raw_body: Json | null
+          raw_packet: string | null
+          raw_source: string
+          reactive_power: number | null
+          reed_state: number | null
+          temperature: number | null
+          updated_at: string
+          user_device_id: number | null
+          user_id: string | null
+          voltage: number | null
+          xup_decoded_edr: Json | null
+          xup_encoded_edr: string | null
+        }
+        Insert: {
+          active_power?: number | null
+          altitude?: number | null
+          apparent_power?: number | null
+          created_at: string
+          current?: number | null
+          dev_eui: string
+          energy_consumption_meter_consumed?: number | null
+          energy_consumption_meter_elapsed?: number | null
+          external_input?: boolean | null
+          gateway_id?: string | null
+          humidity?: number | null
+          id?: number
+          inventory_device_id?: number | null
+          latitude?: number | null
+          legacy_id?: number | null
+          legacy_mongo_id?: string | null
+          light?: boolean | null
+          longitude?: number | null
+          luminosity?: number | null
+          move?: boolean | null
+          power_factor?: number | null
+          raw_body?: Json | null
+          raw_packet?: string | null
+          raw_source?: string
+          reactive_power?: number | null
+          reed_state?: number | null
+          temperature?: number | null
+          updated_at?: string
+          user_device_id?: number | null
+          user_id?: string | null
+          voltage?: number | null
+          xup_decoded_edr?: Json | null
+          xup_encoded_edr?: string | null
+        }
+        Update: {
+          active_power?: number | null
+          altitude?: number | null
+          apparent_power?: number | null
+          created_at?: string
+          current?: number | null
+          dev_eui?: string
+          energy_consumption_meter_consumed?: number | null
+          energy_consumption_meter_elapsed?: number | null
+          external_input?: boolean | null
+          gateway_id?: string | null
+          humidity?: number | null
+          id?: number
+          inventory_device_id?: number | null
+          latitude?: number | null
+          legacy_id?: number | null
+          legacy_mongo_id?: string | null
+          light?: boolean | null
+          longitude?: number | null
+          luminosity?: number | null
+          move?: boolean | null
+          power_factor?: number | null
+          raw_body?: Json | null
+          raw_packet?: string | null
+          raw_source?: string
+          reactive_power?: number | null
+          reed_state?: number | null
+          temperature?: number | null
+          updated_at?: string
+          user_device_id?: number | null
+          user_id?: string | null
+          voltage?: number | null
+          xup_decoded_edr?: Json | null
+          xup_encoded_edr?: string | null
+        }
+        Relationships: []
+      }
+      telemetry_2024_07: {
+        Row: {
+          active_power: number | null
+          altitude: number | null
+          apparent_power: number | null
+          created_at: string
+          current: number | null
+          dev_eui: string
+          energy_consumption_meter_consumed: number | null
+          energy_consumption_meter_elapsed: number | null
+          external_input: boolean | null
+          gateway_id: string | null
+          humidity: number | null
+          id: number
+          inventory_device_id: number | null
+          latitude: number | null
+          legacy_id: number | null
+          legacy_mongo_id: string | null
+          light: boolean | null
+          longitude: number | null
+          luminosity: number | null
+          move: boolean | null
+          power_factor: number | null
+          raw_body: Json | null
+          raw_packet: string | null
+          raw_source: string
+          reactive_power: number | null
+          reed_state: number | null
+          temperature: number | null
+          updated_at: string
+          user_device_id: number | null
+          user_id: string | null
+          voltage: number | null
+          xup_decoded_edr: Json | null
+          xup_encoded_edr: string | null
+        }
+        Insert: {
+          active_power?: number | null
+          altitude?: number | null
+          apparent_power?: number | null
+          created_at: string
+          current?: number | null
+          dev_eui: string
+          energy_consumption_meter_consumed?: number | null
+          energy_consumption_meter_elapsed?: number | null
+          external_input?: boolean | null
+          gateway_id?: string | null
+          humidity?: number | null
+          id?: number
+          inventory_device_id?: number | null
+          latitude?: number | null
+          legacy_id?: number | null
+          legacy_mongo_id?: string | null
+          light?: boolean | null
+          longitude?: number | null
+          luminosity?: number | null
+          move?: boolean | null
+          power_factor?: number | null
+          raw_body?: Json | null
+          raw_packet?: string | null
+          raw_source?: string
+          reactive_power?: number | null
+          reed_state?: number | null
+          temperature?: number | null
+          updated_at?: string
+          user_device_id?: number | null
+          user_id?: string | null
+          voltage?: number | null
+          xup_decoded_edr?: Json | null
+          xup_encoded_edr?: string | null
+        }
+        Update: {
+          active_power?: number | null
+          altitude?: number | null
+          apparent_power?: number | null
+          created_at?: string
+          current?: number | null
+          dev_eui?: string
+          energy_consumption_meter_consumed?: number | null
+          energy_consumption_meter_elapsed?: number | null
+          external_input?: boolean | null
+          gateway_id?: string | null
+          humidity?: number | null
+          id?: number
+          inventory_device_id?: number | null
+          latitude?: number | null
+          legacy_id?: number | null
+          legacy_mongo_id?: string | null
+          light?: boolean | null
+          longitude?: number | null
+          luminosity?: number | null
+          move?: boolean | null
+          power_factor?: number | null
+          raw_body?: Json | null
+          raw_packet?: string | null
+          raw_source?: string
+          reactive_power?: number | null
+          reed_state?: number | null
+          temperature?: number | null
+          updated_at?: string
+          user_device_id?: number | null
+          user_id?: string | null
+          voltage?: number | null
+          xup_decoded_edr?: Json | null
+          xup_encoded_edr?: string | null
+        }
+        Relationships: []
+      }
+      telemetry_2024_08: {
+        Row: {
+          active_power: number | null
+          altitude: number | null
+          apparent_power: number | null
+          created_at: string
+          current: number | null
+          dev_eui: string
+          energy_consumption_meter_consumed: number | null
+          energy_consumption_meter_elapsed: number | null
+          external_input: boolean | null
+          gateway_id: string | null
+          humidity: number | null
+          id: number
+          inventory_device_id: number | null
+          latitude: number | null
+          legacy_id: number | null
+          legacy_mongo_id: string | null
+          light: boolean | null
+          longitude: number | null
+          luminosity: number | null
+          move: boolean | null
+          power_factor: number | null
+          raw_body: Json | null
+          raw_packet: string | null
+          raw_source: string
+          reactive_power: number | null
+          reed_state: number | null
+          temperature: number | null
+          updated_at: string
+          user_device_id: number | null
+          user_id: string | null
+          voltage: number | null
+          xup_decoded_edr: Json | null
+          xup_encoded_edr: string | null
+        }
+        Insert: {
+          active_power?: number | null
+          altitude?: number | null
+          apparent_power?: number | null
+          created_at: string
+          current?: number | null
+          dev_eui: string
+          energy_consumption_meter_consumed?: number | null
+          energy_consumption_meter_elapsed?: number | null
+          external_input?: boolean | null
+          gateway_id?: string | null
+          humidity?: number | null
+          id?: number
+          inventory_device_id?: number | null
+          latitude?: number | null
+          legacy_id?: number | null
+          legacy_mongo_id?: string | null
+          light?: boolean | null
+          longitude?: number | null
+          luminosity?: number | null
+          move?: boolean | null
+          power_factor?: number | null
+          raw_body?: Json | null
+          raw_packet?: string | null
+          raw_source?: string
+          reactive_power?: number | null
+          reed_state?: number | null
+          temperature?: number | null
+          updated_at?: string
+          user_device_id?: number | null
+          user_id?: string | null
+          voltage?: number | null
+          xup_decoded_edr?: Json | null
+          xup_encoded_edr?: string | null
+        }
+        Update: {
+          active_power?: number | null
+          altitude?: number | null
+          apparent_power?: number | null
+          created_at?: string
+          current?: number | null
+          dev_eui?: string
+          energy_consumption_meter_consumed?: number | null
+          energy_consumption_meter_elapsed?: number | null
+          external_input?: boolean | null
+          gateway_id?: string | null
+          humidity?: number | null
+          id?: number
+          inventory_device_id?: number | null
+          latitude?: number | null
+          legacy_id?: number | null
+          legacy_mongo_id?: string | null
+          light?: boolean | null
+          longitude?: number | null
+          luminosity?: number | null
+          move?: boolean | null
+          power_factor?: number | null
+          raw_body?: Json | null
+          raw_packet?: string | null
+          raw_source?: string
+          reactive_power?: number | null
+          reed_state?: number | null
+          temperature?: number | null
+          updated_at?: string
+          user_device_id?: number | null
+          user_id?: string | null
+          voltage?: number | null
+          xup_decoded_edr?: Json | null
+          xup_encoded_edr?: string | null
+        }
+        Relationships: []
+      }
+      telemetry_2024_09: {
+        Row: {
+          active_power: number | null
+          altitude: number | null
+          apparent_power: number | null
+          created_at: string
+          current: number | null
+          dev_eui: string
+          energy_consumption_meter_consumed: number | null
+          energy_consumption_meter_elapsed: number | null
+          external_input: boolean | null
+          gateway_id: string | null
+          humidity: number | null
+          id: number
+          inventory_device_id: number | null
+          latitude: number | null
+          legacy_id: number | null
+          legacy_mongo_id: string | null
+          light: boolean | null
+          longitude: number | null
+          luminosity: number | null
+          move: boolean | null
+          power_factor: number | null
+          raw_body: Json | null
+          raw_packet: string | null
+          raw_source: string
+          reactive_power: number | null
+          reed_state: number | null
+          temperature: number | null
+          updated_at: string
+          user_device_id: number | null
+          user_id: string | null
+          voltage: number | null
+          xup_decoded_edr: Json | null
+          xup_encoded_edr: string | null
+        }
+        Insert: {
+          active_power?: number | null
+          altitude?: number | null
+          apparent_power?: number | null
+          created_at: string
+          current?: number | null
+          dev_eui: string
+          energy_consumption_meter_consumed?: number | null
+          energy_consumption_meter_elapsed?: number | null
+          external_input?: boolean | null
+          gateway_id?: string | null
+          humidity?: number | null
+          id?: number
+          inventory_device_id?: number | null
+          latitude?: number | null
+          legacy_id?: number | null
+          legacy_mongo_id?: string | null
+          light?: boolean | null
+          longitude?: number | null
+          luminosity?: number | null
+          move?: boolean | null
+          power_factor?: number | null
+          raw_body?: Json | null
+          raw_packet?: string | null
+          raw_source?: string
+          reactive_power?: number | null
+          reed_state?: number | null
+          temperature?: number | null
+          updated_at?: string
+          user_device_id?: number | null
+          user_id?: string | null
+          voltage?: number | null
+          xup_decoded_edr?: Json | null
+          xup_encoded_edr?: string | null
+        }
+        Update: {
+          active_power?: number | null
+          altitude?: number | null
+          apparent_power?: number | null
+          created_at?: string
+          current?: number | null
+          dev_eui?: string
+          energy_consumption_meter_consumed?: number | null
+          energy_consumption_meter_elapsed?: number | null
+          external_input?: boolean | null
+          gateway_id?: string | null
+          humidity?: number | null
+          id?: number
+          inventory_device_id?: number | null
+          latitude?: number | null
+          legacy_id?: number | null
+          legacy_mongo_id?: string | null
+          light?: boolean | null
+          longitude?: number | null
+          luminosity?: number | null
+          move?: boolean | null
+          power_factor?: number | null
+          raw_body?: Json | null
+          raw_packet?: string | null
+          raw_source?: string
+          reactive_power?: number | null
+          reed_state?: number | null
+          temperature?: number | null
+          updated_at?: string
+          user_device_id?: number | null
+          user_id?: string | null
+          voltage?: number | null
+          xup_decoded_edr?: Json | null
+          xup_encoded_edr?: string | null
+        }
+        Relationships: []
+      }
+      telemetry_2024_10: {
+        Row: {
+          active_power: number | null
+          altitude: number | null
+          apparent_power: number | null
+          created_at: string
+          current: number | null
+          dev_eui: string
+          energy_consumption_meter_consumed: number | null
+          energy_consumption_meter_elapsed: number | null
+          external_input: boolean | null
+          gateway_id: string | null
+          humidity: number | null
+          id: number
+          inventory_device_id: number | null
+          latitude: number | null
+          legacy_id: number | null
+          legacy_mongo_id: string | null
+          light: boolean | null
+          longitude: number | null
+          luminosity: number | null
+          move: boolean | null
+          power_factor: number | null
+          raw_body: Json | null
+          raw_packet: string | null
+          raw_source: string
+          reactive_power: number | null
+          reed_state: number | null
+          temperature: number | null
+          updated_at: string
+          user_device_id: number | null
+          user_id: string | null
+          voltage: number | null
+          xup_decoded_edr: Json | null
+          xup_encoded_edr: string | null
+        }
+        Insert: {
+          active_power?: number | null
+          altitude?: number | null
+          apparent_power?: number | null
+          created_at: string
+          current?: number | null
+          dev_eui: string
+          energy_consumption_meter_consumed?: number | null
+          energy_consumption_meter_elapsed?: number | null
+          external_input?: boolean | null
+          gateway_id?: string | null
+          humidity?: number | null
+          id?: number
+          inventory_device_id?: number | null
+          latitude?: number | null
+          legacy_id?: number | null
+          legacy_mongo_id?: string | null
+          light?: boolean | null
+          longitude?: number | null
+          luminosity?: number | null
+          move?: boolean | null
+          power_factor?: number | null
+          raw_body?: Json | null
+          raw_packet?: string | null
+          raw_source?: string
+          reactive_power?: number | null
+          reed_state?: number | null
+          temperature?: number | null
+          updated_at?: string
+          user_device_id?: number | null
+          user_id?: string | null
+          voltage?: number | null
+          xup_decoded_edr?: Json | null
+          xup_encoded_edr?: string | null
+        }
+        Update: {
+          active_power?: number | null
+          altitude?: number | null
+          apparent_power?: number | null
+          created_at?: string
+          current?: number | null
+          dev_eui?: string
+          energy_consumption_meter_consumed?: number | null
+          energy_consumption_meter_elapsed?: number | null
+          external_input?: boolean | null
+          gateway_id?: string | null
+          humidity?: number | null
+          id?: number
+          inventory_device_id?: number | null
+          latitude?: number | null
+          legacy_id?: number | null
+          legacy_mongo_id?: string | null
+          light?: boolean | null
+          longitude?: number | null
+          luminosity?: number | null
+          move?: boolean | null
+          power_factor?: number | null
+          raw_body?: Json | null
+          raw_packet?: string | null
+          raw_source?: string
+          reactive_power?: number | null
+          reed_state?: number | null
+          temperature?: number | null
+          updated_at?: string
+          user_device_id?: number | null
+          user_id?: string | null
+          voltage?: number | null
+          xup_decoded_edr?: Json | null
+          xup_encoded_edr?: string | null
+        }
+        Relationships: []
+      }
+      telemetry_2024_11: {
+        Row: {
+          active_power: number | null
+          altitude: number | null
+          apparent_power: number | null
+          created_at: string
+          current: number | null
+          dev_eui: string
+          energy_consumption_meter_consumed: number | null
+          energy_consumption_meter_elapsed: number | null
+          external_input: boolean | null
+          gateway_id: string | null
+          humidity: number | null
+          id: number
+          inventory_device_id: number | null
+          latitude: number | null
+          legacy_id: number | null
+          legacy_mongo_id: string | null
+          light: boolean | null
+          longitude: number | null
+          luminosity: number | null
+          move: boolean | null
+          power_factor: number | null
+          raw_body: Json | null
+          raw_packet: string | null
+          raw_source: string
+          reactive_power: number | null
+          reed_state: number | null
+          temperature: number | null
+          updated_at: string
+          user_device_id: number | null
+          user_id: string | null
+          voltage: number | null
+          xup_decoded_edr: Json | null
+          xup_encoded_edr: string | null
+        }
+        Insert: {
+          active_power?: number | null
+          altitude?: number | null
+          apparent_power?: number | null
+          created_at: string
+          current?: number | null
+          dev_eui: string
+          energy_consumption_meter_consumed?: number | null
+          energy_consumption_meter_elapsed?: number | null
+          external_input?: boolean | null
+          gateway_id?: string | null
+          humidity?: number | null
+          id?: number
+          inventory_device_id?: number | null
+          latitude?: number | null
+          legacy_id?: number | null
+          legacy_mongo_id?: string | null
+          light?: boolean | null
+          longitude?: number | null
+          luminosity?: number | null
+          move?: boolean | null
+          power_factor?: number | null
+          raw_body?: Json | null
+          raw_packet?: string | null
+          raw_source?: string
+          reactive_power?: number | null
+          reed_state?: number | null
+          temperature?: number | null
+          updated_at?: string
+          user_device_id?: number | null
+          user_id?: string | null
+          voltage?: number | null
+          xup_decoded_edr?: Json | null
+          xup_encoded_edr?: string | null
+        }
+        Update: {
+          active_power?: number | null
+          altitude?: number | null
+          apparent_power?: number | null
+          created_at?: string
+          current?: number | null
+          dev_eui?: string
+          energy_consumption_meter_consumed?: number | null
+          energy_consumption_meter_elapsed?: number | null
+          external_input?: boolean | null
+          gateway_id?: string | null
+          humidity?: number | null
+          id?: number
+          inventory_device_id?: number | null
+          latitude?: number | null
+          legacy_id?: number | null
+          legacy_mongo_id?: string | null
+          light?: boolean | null
+          longitude?: number | null
+          luminosity?: number | null
+          move?: boolean | null
+          power_factor?: number | null
+          raw_body?: Json | null
+          raw_packet?: string | null
+          raw_source?: string
+          reactive_power?: number | null
+          reed_state?: number | null
+          temperature?: number | null
+          updated_at?: string
+          user_device_id?: number | null
+          user_id?: string | null
+          voltage?: number | null
+          xup_decoded_edr?: Json | null
+          xup_encoded_edr?: string | null
+        }
+        Relationships: []
+      }
+      telemetry_2024_12: {
+        Row: {
+          active_power: number | null
+          altitude: number | null
+          apparent_power: number | null
+          created_at: string
+          current: number | null
+          dev_eui: string
+          energy_consumption_meter_consumed: number | null
+          energy_consumption_meter_elapsed: number | null
+          external_input: boolean | null
+          gateway_id: string | null
+          humidity: number | null
+          id: number
+          inventory_device_id: number | null
+          latitude: number | null
+          legacy_id: number | null
+          legacy_mongo_id: string | null
+          light: boolean | null
+          longitude: number | null
+          luminosity: number | null
+          move: boolean | null
+          power_factor: number | null
+          raw_body: Json | null
+          raw_packet: string | null
+          raw_source: string
+          reactive_power: number | null
+          reed_state: number | null
+          temperature: number | null
+          updated_at: string
+          user_device_id: number | null
+          user_id: string | null
+          voltage: number | null
+          xup_decoded_edr: Json | null
+          xup_encoded_edr: string | null
+        }
+        Insert: {
+          active_power?: number | null
+          altitude?: number | null
+          apparent_power?: number | null
+          created_at: string
+          current?: number | null
+          dev_eui: string
+          energy_consumption_meter_consumed?: number | null
+          energy_consumption_meter_elapsed?: number | null
+          external_input?: boolean | null
+          gateway_id?: string | null
+          humidity?: number | null
+          id?: number
+          inventory_device_id?: number | null
+          latitude?: number | null
+          legacy_id?: number | null
+          legacy_mongo_id?: string | null
+          light?: boolean | null
+          longitude?: number | null
+          luminosity?: number | null
+          move?: boolean | null
+          power_factor?: number | null
+          raw_body?: Json | null
+          raw_packet?: string | null
+          raw_source?: string
+          reactive_power?: number | null
+          reed_state?: number | null
+          temperature?: number | null
+          updated_at?: string
+          user_device_id?: number | null
+          user_id?: string | null
+          voltage?: number | null
+          xup_decoded_edr?: Json | null
+          xup_encoded_edr?: string | null
+        }
+        Update: {
+          active_power?: number | null
+          altitude?: number | null
+          apparent_power?: number | null
+          created_at?: string
+          current?: number | null
+          dev_eui?: string
+          energy_consumption_meter_consumed?: number | null
+          energy_consumption_meter_elapsed?: number | null
+          external_input?: boolean | null
+          gateway_id?: string | null
+          humidity?: number | null
+          id?: number
+          inventory_device_id?: number | null
+          latitude?: number | null
+          legacy_id?: number | null
+          legacy_mongo_id?: string | null
+          light?: boolean | null
+          longitude?: number | null
+          luminosity?: number | null
+          move?: boolean | null
+          power_factor?: number | null
+          raw_body?: Json | null
+          raw_packet?: string | null
+          raw_source?: string
+          reactive_power?: number | null
+          reed_state?: number | null
+          temperature?: number | null
+          updated_at?: string
+          user_device_id?: number | null
+          user_id?: string | null
+          voltage?: number | null
+          xup_decoded_edr?: Json | null
+          xup_encoded_edr?: string | null
+        }
+        Relationships: []
+      }
+      telemetry_2025_01: {
+        Row: {
+          active_power: number | null
+          altitude: number | null
+          apparent_power: number | null
+          created_at: string
+          current: number | null
+          dev_eui: string
+          energy_consumption_meter_consumed: number | null
+          energy_consumption_meter_elapsed: number | null
+          external_input: boolean | null
+          gateway_id: string | null
+          humidity: number | null
+          id: number
+          inventory_device_id: number | null
+          latitude: number | null
+          legacy_id: number | null
+          legacy_mongo_id: string | null
+          light: boolean | null
+          longitude: number | null
+          luminosity: number | null
+          move: boolean | null
+          power_factor: number | null
+          raw_body: Json | null
+          raw_packet: string | null
+          raw_source: string
+          reactive_power: number | null
+          reed_state: number | null
+          temperature: number | null
+          updated_at: string
+          user_device_id: number | null
+          user_id: string | null
+          voltage: number | null
+          xup_decoded_edr: Json | null
+          xup_encoded_edr: string | null
+        }
+        Insert: {
+          active_power?: number | null
+          altitude?: number | null
+          apparent_power?: number | null
+          created_at: string
+          current?: number | null
+          dev_eui: string
+          energy_consumption_meter_consumed?: number | null
+          energy_consumption_meter_elapsed?: number | null
+          external_input?: boolean | null
+          gateway_id?: string | null
+          humidity?: number | null
+          id?: number
+          inventory_device_id?: number | null
+          latitude?: number | null
+          legacy_id?: number | null
+          legacy_mongo_id?: string | null
+          light?: boolean | null
+          longitude?: number | null
+          luminosity?: number | null
+          move?: boolean | null
+          power_factor?: number | null
+          raw_body?: Json | null
+          raw_packet?: string | null
+          raw_source?: string
+          reactive_power?: number | null
+          reed_state?: number | null
+          temperature?: number | null
+          updated_at?: string
+          user_device_id?: number | null
+          user_id?: string | null
+          voltage?: number | null
+          xup_decoded_edr?: Json | null
+          xup_encoded_edr?: string | null
+        }
+        Update: {
+          active_power?: number | null
+          altitude?: number | null
+          apparent_power?: number | null
+          created_at?: string
+          current?: number | null
+          dev_eui?: string
+          energy_consumption_meter_consumed?: number | null
+          energy_consumption_meter_elapsed?: number | null
+          external_input?: boolean | null
+          gateway_id?: string | null
+          humidity?: number | null
+          id?: number
+          inventory_device_id?: number | null
+          latitude?: number | null
+          legacy_id?: number | null
+          legacy_mongo_id?: string | null
+          light?: boolean | null
+          longitude?: number | null
+          luminosity?: number | null
+          move?: boolean | null
+          power_factor?: number | null
+          raw_body?: Json | null
+          raw_packet?: string | null
+          raw_source?: string
+          reactive_power?: number | null
+          reed_state?: number | null
+          temperature?: number | null
+          updated_at?: string
+          user_device_id?: number | null
+          user_id?: string | null
+          voltage?: number | null
+          xup_decoded_edr?: Json | null
+          xup_encoded_edr?: string | null
+        }
+        Relationships: []
+      }
+      telemetry_2025_02: {
+        Row: {
+          active_power: number | null
+          altitude: number | null
+          apparent_power: number | null
+          created_at: string
+          current: number | null
+          dev_eui: string
+          energy_consumption_meter_consumed: number | null
+          energy_consumption_meter_elapsed: number | null
+          external_input: boolean | null
+          gateway_id: string | null
+          humidity: number | null
+          id: number
+          inventory_device_id: number | null
+          latitude: number | null
+          legacy_id: number | null
+          legacy_mongo_id: string | null
+          light: boolean | null
+          longitude: number | null
+          luminosity: number | null
+          move: boolean | null
+          power_factor: number | null
+          raw_body: Json | null
+          raw_packet: string | null
+          raw_source: string
+          reactive_power: number | null
+          reed_state: number | null
+          temperature: number | null
+          updated_at: string
+          user_device_id: number | null
+          user_id: string | null
+          voltage: number | null
+          xup_decoded_edr: Json | null
+          xup_encoded_edr: string | null
+        }
+        Insert: {
+          active_power?: number | null
+          altitude?: number | null
+          apparent_power?: number | null
+          created_at: string
+          current?: number | null
+          dev_eui: string
+          energy_consumption_meter_consumed?: number | null
+          energy_consumption_meter_elapsed?: number | null
+          external_input?: boolean | null
+          gateway_id?: string | null
+          humidity?: number | null
+          id?: number
+          inventory_device_id?: number | null
+          latitude?: number | null
+          legacy_id?: number | null
+          legacy_mongo_id?: string | null
+          light?: boolean | null
+          longitude?: number | null
+          luminosity?: number | null
+          move?: boolean | null
+          power_factor?: number | null
+          raw_body?: Json | null
+          raw_packet?: string | null
+          raw_source?: string
+          reactive_power?: number | null
+          reed_state?: number | null
+          temperature?: number | null
+          updated_at?: string
+          user_device_id?: number | null
+          user_id?: string | null
+          voltage?: number | null
+          xup_decoded_edr?: Json | null
+          xup_encoded_edr?: string | null
+        }
+        Update: {
+          active_power?: number | null
+          altitude?: number | null
+          apparent_power?: number | null
+          created_at?: string
+          current?: number | null
+          dev_eui?: string
+          energy_consumption_meter_consumed?: number | null
+          energy_consumption_meter_elapsed?: number | null
+          external_input?: boolean | null
+          gateway_id?: string | null
+          humidity?: number | null
+          id?: number
+          inventory_device_id?: number | null
+          latitude?: number | null
+          legacy_id?: number | null
+          legacy_mongo_id?: string | null
+          light?: boolean | null
+          longitude?: number | null
+          luminosity?: number | null
+          move?: boolean | null
+          power_factor?: number | null
+          raw_body?: Json | null
+          raw_packet?: string | null
+          raw_source?: string
+          reactive_power?: number | null
+          reed_state?: number | null
+          temperature?: number | null
+          updated_at?: string
+          user_device_id?: number | null
+          user_id?: string | null
+          voltage?: number | null
+          xup_decoded_edr?: Json | null
+          xup_encoded_edr?: string | null
+        }
+        Relationships: []
+      }
+      telemetry_2025_03: {
+        Row: {
+          active_power: number | null
+          altitude: number | null
+          apparent_power: number | null
+          created_at: string
+          current: number | null
+          dev_eui: string
+          energy_consumption_meter_consumed: number | null
+          energy_consumption_meter_elapsed: number | null
+          external_input: boolean | null
+          gateway_id: string | null
+          humidity: number | null
+          id: number
+          inventory_device_id: number | null
+          latitude: number | null
+          legacy_id: number | null
+          legacy_mongo_id: string | null
+          light: boolean | null
+          longitude: number | null
+          luminosity: number | null
+          move: boolean | null
+          power_factor: number | null
+          raw_body: Json | null
+          raw_packet: string | null
+          raw_source: string
+          reactive_power: number | null
+          reed_state: number | null
+          temperature: number | null
+          updated_at: string
+          user_device_id: number | null
+          user_id: string | null
+          voltage: number | null
+          xup_decoded_edr: Json | null
+          xup_encoded_edr: string | null
+        }
+        Insert: {
+          active_power?: number | null
+          altitude?: number | null
+          apparent_power?: number | null
+          created_at: string
+          current?: number | null
+          dev_eui: string
+          energy_consumption_meter_consumed?: number | null
+          energy_consumption_meter_elapsed?: number | null
+          external_input?: boolean | null
+          gateway_id?: string | null
+          humidity?: number | null
+          id?: number
+          inventory_device_id?: number | null
+          latitude?: number | null
+          legacy_id?: number | null
+          legacy_mongo_id?: string | null
+          light?: boolean | null
+          longitude?: number | null
+          luminosity?: number | null
+          move?: boolean | null
+          power_factor?: number | null
+          raw_body?: Json | null
+          raw_packet?: string | null
+          raw_source?: string
+          reactive_power?: number | null
+          reed_state?: number | null
+          temperature?: number | null
+          updated_at?: string
+          user_device_id?: number | null
+          user_id?: string | null
+          voltage?: number | null
+          xup_decoded_edr?: Json | null
+          xup_encoded_edr?: string | null
+        }
+        Update: {
+          active_power?: number | null
+          altitude?: number | null
+          apparent_power?: number | null
+          created_at?: string
+          current?: number | null
+          dev_eui?: string
+          energy_consumption_meter_consumed?: number | null
+          energy_consumption_meter_elapsed?: number | null
+          external_input?: boolean | null
+          gateway_id?: string | null
+          humidity?: number | null
+          id?: number
+          inventory_device_id?: number | null
+          latitude?: number | null
+          legacy_id?: number | null
+          legacy_mongo_id?: string | null
+          light?: boolean | null
+          longitude?: number | null
+          luminosity?: number | null
+          move?: boolean | null
+          power_factor?: number | null
+          raw_body?: Json | null
+          raw_packet?: string | null
+          raw_source?: string
+          reactive_power?: number | null
+          reed_state?: number | null
+          temperature?: number | null
+          updated_at?: string
+          user_device_id?: number | null
+          user_id?: string | null
+          voltage?: number | null
+          xup_decoded_edr?: Json | null
+          xup_encoded_edr?: string | null
+        }
+        Relationships: []
+      }
+      telemetry_2025_04: {
+        Row: {
+          active_power: number | null
+          altitude: number | null
+          apparent_power: number | null
+          created_at: string
+          current: number | null
+          dev_eui: string
+          energy_consumption_meter_consumed: number | null
+          energy_consumption_meter_elapsed: number | null
+          external_input: boolean | null
+          gateway_id: string | null
+          humidity: number | null
+          id: number
+          inventory_device_id: number | null
+          latitude: number | null
+          legacy_id: number | null
+          legacy_mongo_id: string | null
+          light: boolean | null
+          longitude: number | null
+          luminosity: number | null
+          move: boolean | null
+          power_factor: number | null
+          raw_body: Json | null
+          raw_packet: string | null
+          raw_source: string
+          reactive_power: number | null
+          reed_state: number | null
+          temperature: number | null
+          updated_at: string
+          user_device_id: number | null
+          user_id: string | null
+          voltage: number | null
+          xup_decoded_edr: Json | null
+          xup_encoded_edr: string | null
+        }
+        Insert: {
+          active_power?: number | null
+          altitude?: number | null
+          apparent_power?: number | null
+          created_at: string
+          current?: number | null
+          dev_eui: string
+          energy_consumption_meter_consumed?: number | null
+          energy_consumption_meter_elapsed?: number | null
+          external_input?: boolean | null
+          gateway_id?: string | null
+          humidity?: number | null
+          id?: number
+          inventory_device_id?: number | null
+          latitude?: number | null
+          legacy_id?: number | null
+          legacy_mongo_id?: string | null
+          light?: boolean | null
+          longitude?: number | null
+          luminosity?: number | null
+          move?: boolean | null
+          power_factor?: number | null
+          raw_body?: Json | null
+          raw_packet?: string | null
+          raw_source?: string
+          reactive_power?: number | null
+          reed_state?: number | null
+          temperature?: number | null
+          updated_at?: string
+          user_device_id?: number | null
+          user_id?: string | null
+          voltage?: number | null
+          xup_decoded_edr?: Json | null
+          xup_encoded_edr?: string | null
+        }
+        Update: {
+          active_power?: number | null
+          altitude?: number | null
+          apparent_power?: number | null
+          created_at?: string
+          current?: number | null
+          dev_eui?: string
+          energy_consumption_meter_consumed?: number | null
+          energy_consumption_meter_elapsed?: number | null
+          external_input?: boolean | null
+          gateway_id?: string | null
+          humidity?: number | null
+          id?: number
+          inventory_device_id?: number | null
+          latitude?: number | null
+          legacy_id?: number | null
+          legacy_mongo_id?: string | null
+          light?: boolean | null
+          longitude?: number | null
+          luminosity?: number | null
+          move?: boolean | null
+          power_factor?: number | null
+          raw_body?: Json | null
+          raw_packet?: string | null
+          raw_source?: string
+          reactive_power?: number | null
+          reed_state?: number | null
+          temperature?: number | null
+          updated_at?: string
+          user_device_id?: number | null
+          user_id?: string | null
+          voltage?: number | null
+          xup_decoded_edr?: Json | null
+          xup_encoded_edr?: string | null
+        }
+        Relationships: []
+      }
+      telemetry_2025_05: {
+        Row: {
+          active_power: number | null
+          altitude: number | null
+          apparent_power: number | null
+          created_at: string
+          current: number | null
+          dev_eui: string
+          energy_consumption_meter_consumed: number | null
+          energy_consumption_meter_elapsed: number | null
+          external_input: boolean | null
+          gateway_id: string | null
+          humidity: number | null
+          id: number
+          inventory_device_id: number | null
+          latitude: number | null
+          legacy_id: number | null
+          legacy_mongo_id: string | null
+          light: boolean | null
+          longitude: number | null
+          luminosity: number | null
+          move: boolean | null
+          power_factor: number | null
+          raw_body: Json | null
+          raw_packet: string | null
+          raw_source: string
+          reactive_power: number | null
+          reed_state: number | null
+          temperature: number | null
+          updated_at: string
+          user_device_id: number | null
+          user_id: string | null
+          voltage: number | null
+          xup_decoded_edr: Json | null
+          xup_encoded_edr: string | null
+        }
+        Insert: {
+          active_power?: number | null
+          altitude?: number | null
+          apparent_power?: number | null
+          created_at: string
+          current?: number | null
+          dev_eui: string
+          energy_consumption_meter_consumed?: number | null
+          energy_consumption_meter_elapsed?: number | null
+          external_input?: boolean | null
+          gateway_id?: string | null
+          humidity?: number | null
+          id?: number
+          inventory_device_id?: number | null
+          latitude?: number | null
+          legacy_id?: number | null
+          legacy_mongo_id?: string | null
+          light?: boolean | null
+          longitude?: number | null
+          luminosity?: number | null
+          move?: boolean | null
+          power_factor?: number | null
+          raw_body?: Json | null
+          raw_packet?: string | null
+          raw_source?: string
+          reactive_power?: number | null
+          reed_state?: number | null
+          temperature?: number | null
+          updated_at?: string
+          user_device_id?: number | null
+          user_id?: string | null
+          voltage?: number | null
+          xup_decoded_edr?: Json | null
+          xup_encoded_edr?: string | null
+        }
+        Update: {
+          active_power?: number | null
+          altitude?: number | null
+          apparent_power?: number | null
+          created_at?: string
+          current?: number | null
+          dev_eui?: string
+          energy_consumption_meter_consumed?: number | null
+          energy_consumption_meter_elapsed?: number | null
+          external_input?: boolean | null
+          gateway_id?: string | null
+          humidity?: number | null
+          id?: number
+          inventory_device_id?: number | null
+          latitude?: number | null
+          legacy_id?: number | null
+          legacy_mongo_id?: string | null
+          light?: boolean | null
+          longitude?: number | null
+          luminosity?: number | null
+          move?: boolean | null
+          power_factor?: number | null
+          raw_body?: Json | null
+          raw_packet?: string | null
+          raw_source?: string
+          reactive_power?: number | null
+          reed_state?: number | null
+          temperature?: number | null
+          updated_at?: string
+          user_device_id?: number | null
+          user_id?: string | null
+          voltage?: number | null
+          xup_decoded_edr?: Json | null
+          xup_encoded_edr?: string | null
+        }
+        Relationships: []
+      }
+      telemetry_2025_06: {
+        Row: {
+          active_power: number | null
+          altitude: number | null
+          apparent_power: number | null
+          created_at: string
+          current: number | null
+          dev_eui: string
+          energy_consumption_meter_consumed: number | null
+          energy_consumption_meter_elapsed: number | null
+          external_input: boolean | null
+          gateway_id: string | null
+          humidity: number | null
+          id: number
+          inventory_device_id: number | null
+          latitude: number | null
+          legacy_id: number | null
+          legacy_mongo_id: string | null
+          light: boolean | null
+          longitude: number | null
+          luminosity: number | null
+          move: boolean | null
+          power_factor: number | null
+          raw_body: Json | null
+          raw_packet: string | null
+          raw_source: string
+          reactive_power: number | null
+          reed_state: number | null
+          temperature: number | null
+          updated_at: string
+          user_device_id: number | null
+          user_id: string | null
+          voltage: number | null
+          xup_decoded_edr: Json | null
+          xup_encoded_edr: string | null
+        }
+        Insert: {
+          active_power?: number | null
+          altitude?: number | null
+          apparent_power?: number | null
+          created_at: string
+          current?: number | null
+          dev_eui: string
+          energy_consumption_meter_consumed?: number | null
+          energy_consumption_meter_elapsed?: number | null
+          external_input?: boolean | null
+          gateway_id?: string | null
+          humidity?: number | null
+          id?: number
+          inventory_device_id?: number | null
+          latitude?: number | null
+          legacy_id?: number | null
+          legacy_mongo_id?: string | null
+          light?: boolean | null
+          longitude?: number | null
+          luminosity?: number | null
+          move?: boolean | null
+          power_factor?: number | null
+          raw_body?: Json | null
+          raw_packet?: string | null
+          raw_source?: string
+          reactive_power?: number | null
+          reed_state?: number | null
+          temperature?: number | null
+          updated_at?: string
+          user_device_id?: number | null
+          user_id?: string | null
+          voltage?: number | null
+          xup_decoded_edr?: Json | null
+          xup_encoded_edr?: string | null
+        }
+        Update: {
+          active_power?: number | null
+          altitude?: number | null
+          apparent_power?: number | null
+          created_at?: string
+          current?: number | null
+          dev_eui?: string
+          energy_consumption_meter_consumed?: number | null
+          energy_consumption_meter_elapsed?: number | null
+          external_input?: boolean | null
+          gateway_id?: string | null
+          humidity?: number | null
+          id?: number
+          inventory_device_id?: number | null
+          latitude?: number | null
+          legacy_id?: number | null
+          legacy_mongo_id?: string | null
+          light?: boolean | null
+          longitude?: number | null
+          luminosity?: number | null
+          move?: boolean | null
+          power_factor?: number | null
+          raw_body?: Json | null
+          raw_packet?: string | null
+          raw_source?: string
+          reactive_power?: number | null
+          reed_state?: number | null
+          temperature?: number | null
+          updated_at?: string
+          user_device_id?: number | null
+          user_id?: string | null
+          voltage?: number | null
+          xup_decoded_edr?: Json | null
+          xup_encoded_edr?: string | null
+        }
+        Relationships: []
+      }
+      telemetry_2025_07: {
+        Row: {
+          active_power: number | null
+          altitude: number | null
+          apparent_power: number | null
+          created_at: string
+          current: number | null
+          dev_eui: string
+          energy_consumption_meter_consumed: number | null
+          energy_consumption_meter_elapsed: number | null
+          external_input: boolean | null
+          gateway_id: string | null
+          humidity: number | null
+          id: number
+          inventory_device_id: number | null
+          latitude: number | null
+          legacy_id: number | null
+          legacy_mongo_id: string | null
+          light: boolean | null
+          longitude: number | null
+          luminosity: number | null
+          move: boolean | null
+          power_factor: number | null
+          raw_body: Json | null
+          raw_packet: string | null
+          raw_source: string
+          reactive_power: number | null
+          reed_state: number | null
+          temperature: number | null
+          updated_at: string
+          user_device_id: number | null
+          user_id: string | null
+          voltage: number | null
+          xup_decoded_edr: Json | null
+          xup_encoded_edr: string | null
+        }
+        Insert: {
+          active_power?: number | null
+          altitude?: number | null
+          apparent_power?: number | null
+          created_at: string
+          current?: number | null
+          dev_eui: string
+          energy_consumption_meter_consumed?: number | null
+          energy_consumption_meter_elapsed?: number | null
+          external_input?: boolean | null
+          gateway_id?: string | null
+          humidity?: number | null
+          id?: number
+          inventory_device_id?: number | null
+          latitude?: number | null
+          legacy_id?: number | null
+          legacy_mongo_id?: string | null
+          light?: boolean | null
+          longitude?: number | null
+          luminosity?: number | null
+          move?: boolean | null
+          power_factor?: number | null
+          raw_body?: Json | null
+          raw_packet?: string | null
+          raw_source?: string
+          reactive_power?: number | null
+          reed_state?: number | null
+          temperature?: number | null
+          updated_at?: string
+          user_device_id?: number | null
+          user_id?: string | null
+          voltage?: number | null
+          xup_decoded_edr?: Json | null
+          xup_encoded_edr?: string | null
+        }
+        Update: {
+          active_power?: number | null
+          altitude?: number | null
+          apparent_power?: number | null
+          created_at?: string
+          current?: number | null
+          dev_eui?: string
+          energy_consumption_meter_consumed?: number | null
+          energy_consumption_meter_elapsed?: number | null
+          external_input?: boolean | null
+          gateway_id?: string | null
+          humidity?: number | null
+          id?: number
+          inventory_device_id?: number | null
+          latitude?: number | null
+          legacy_id?: number | null
+          legacy_mongo_id?: string | null
+          light?: boolean | null
+          longitude?: number | null
+          luminosity?: number | null
+          move?: boolean | null
+          power_factor?: number | null
+          raw_body?: Json | null
+          raw_packet?: string | null
+          raw_source?: string
+          reactive_power?: number | null
+          reed_state?: number | null
+          temperature?: number | null
+          updated_at?: string
+          user_device_id?: number | null
+          user_id?: string | null
+          voltage?: number | null
+          xup_decoded_edr?: Json | null
+          xup_encoded_edr?: string | null
+        }
+        Relationships: []
+      }
+      telemetry_2025_08: {
+        Row: {
+          active_power: number | null
+          altitude: number | null
+          apparent_power: number | null
+          created_at: string
+          current: number | null
+          dev_eui: string
+          energy_consumption_meter_consumed: number | null
+          energy_consumption_meter_elapsed: number | null
+          external_input: boolean | null
+          gateway_id: string | null
+          humidity: number | null
+          id: number
+          inventory_device_id: number | null
+          latitude: number | null
+          legacy_id: number | null
+          legacy_mongo_id: string | null
+          light: boolean | null
+          longitude: number | null
+          luminosity: number | null
+          move: boolean | null
+          power_factor: number | null
+          raw_body: Json | null
+          raw_packet: string | null
+          raw_source: string
+          reactive_power: number | null
+          reed_state: number | null
+          temperature: number | null
+          updated_at: string
+          user_device_id: number | null
+          user_id: string | null
+          voltage: number | null
+          xup_decoded_edr: Json | null
+          xup_encoded_edr: string | null
+        }
+        Insert: {
+          active_power?: number | null
+          altitude?: number | null
+          apparent_power?: number | null
+          created_at: string
+          current?: number | null
+          dev_eui: string
+          energy_consumption_meter_consumed?: number | null
+          energy_consumption_meter_elapsed?: number | null
+          external_input?: boolean | null
+          gateway_id?: string | null
+          humidity?: number | null
+          id?: number
+          inventory_device_id?: number | null
+          latitude?: number | null
+          legacy_id?: number | null
+          legacy_mongo_id?: string | null
+          light?: boolean | null
+          longitude?: number | null
+          luminosity?: number | null
+          move?: boolean | null
+          power_factor?: number | null
+          raw_body?: Json | null
+          raw_packet?: string | null
+          raw_source?: string
+          reactive_power?: number | null
+          reed_state?: number | null
+          temperature?: number | null
+          updated_at?: string
+          user_device_id?: number | null
+          user_id?: string | null
+          voltage?: number | null
+          xup_decoded_edr?: Json | null
+          xup_encoded_edr?: string | null
+        }
+        Update: {
+          active_power?: number | null
+          altitude?: number | null
+          apparent_power?: number | null
+          created_at?: string
+          current?: number | null
+          dev_eui?: string
+          energy_consumption_meter_consumed?: number | null
+          energy_consumption_meter_elapsed?: number | null
+          external_input?: boolean | null
+          gateway_id?: string | null
+          humidity?: number | null
+          id?: number
+          inventory_device_id?: number | null
+          latitude?: number | null
+          legacy_id?: number | null
+          legacy_mongo_id?: string | null
+          light?: boolean | null
+          longitude?: number | null
+          luminosity?: number | null
+          move?: boolean | null
+          power_factor?: number | null
+          raw_body?: Json | null
+          raw_packet?: string | null
+          raw_source?: string
+          reactive_power?: number | null
+          reed_state?: number | null
+          temperature?: number | null
+          updated_at?: string
+          user_device_id?: number | null
+          user_id?: string | null
+          voltage?: number | null
+          xup_decoded_edr?: Json | null
+          xup_encoded_edr?: string | null
+        }
+        Relationships: []
+      }
+      telemetry_2025_09: {
+        Row: {
+          active_power: number | null
+          altitude: number | null
+          apparent_power: number | null
+          created_at: string
+          current: number | null
+          dev_eui: string
+          energy_consumption_meter_consumed: number | null
+          energy_consumption_meter_elapsed: number | null
+          external_input: boolean | null
+          gateway_id: string | null
+          humidity: number | null
+          id: number
+          inventory_device_id: number | null
+          latitude: number | null
+          legacy_id: number | null
+          legacy_mongo_id: string | null
+          light: boolean | null
+          longitude: number | null
+          luminosity: number | null
+          move: boolean | null
+          power_factor: number | null
+          raw_body: Json | null
+          raw_packet: string | null
+          raw_source: string
+          reactive_power: number | null
+          reed_state: number | null
+          temperature: number | null
+          updated_at: string
+          user_device_id: number | null
+          user_id: string | null
+          voltage: number | null
+          xup_decoded_edr: Json | null
+          xup_encoded_edr: string | null
+        }
+        Insert: {
+          active_power?: number | null
+          altitude?: number | null
+          apparent_power?: number | null
+          created_at: string
+          current?: number | null
+          dev_eui: string
+          energy_consumption_meter_consumed?: number | null
+          energy_consumption_meter_elapsed?: number | null
+          external_input?: boolean | null
+          gateway_id?: string | null
+          humidity?: number | null
+          id?: number
+          inventory_device_id?: number | null
+          latitude?: number | null
+          legacy_id?: number | null
+          legacy_mongo_id?: string | null
+          light?: boolean | null
+          longitude?: number | null
+          luminosity?: number | null
+          move?: boolean | null
+          power_factor?: number | null
+          raw_body?: Json | null
+          raw_packet?: string | null
+          raw_source?: string
+          reactive_power?: number | null
+          reed_state?: number | null
+          temperature?: number | null
+          updated_at?: string
+          user_device_id?: number | null
+          user_id?: string | null
+          voltage?: number | null
+          xup_decoded_edr?: Json | null
+          xup_encoded_edr?: string | null
+        }
+        Update: {
+          active_power?: number | null
+          altitude?: number | null
+          apparent_power?: number | null
+          created_at?: string
+          current?: number | null
+          dev_eui?: string
+          energy_consumption_meter_consumed?: number | null
+          energy_consumption_meter_elapsed?: number | null
+          external_input?: boolean | null
+          gateway_id?: string | null
+          humidity?: number | null
+          id?: number
+          inventory_device_id?: number | null
+          latitude?: number | null
+          legacy_id?: number | null
+          legacy_mongo_id?: string | null
+          light?: boolean | null
+          longitude?: number | null
+          luminosity?: number | null
+          move?: boolean | null
+          power_factor?: number | null
+          raw_body?: Json | null
+          raw_packet?: string | null
+          raw_source?: string
+          reactive_power?: number | null
+          reed_state?: number | null
+          temperature?: number | null
+          updated_at?: string
+          user_device_id?: number | null
+          user_id?: string | null
+          voltage?: number | null
+          xup_decoded_edr?: Json | null
+          xup_encoded_edr?: string | null
+        }
+        Relationships: []
+      }
+      telemetry_2025_10: {
+        Row: {
+          active_power: number | null
+          altitude: number | null
+          apparent_power: number | null
+          created_at: string
+          current: number | null
+          dev_eui: string
+          energy_consumption_meter_consumed: number | null
+          energy_consumption_meter_elapsed: number | null
+          external_input: boolean | null
+          gateway_id: string | null
+          humidity: number | null
+          id: number
+          inventory_device_id: number | null
+          latitude: number | null
+          legacy_id: number | null
+          legacy_mongo_id: string | null
+          light: boolean | null
+          longitude: number | null
+          luminosity: number | null
+          move: boolean | null
+          power_factor: number | null
+          raw_body: Json | null
+          raw_packet: string | null
+          raw_source: string
+          reactive_power: number | null
+          reed_state: number | null
+          temperature: number | null
+          updated_at: string
+          user_device_id: number | null
+          user_id: string | null
+          voltage: number | null
+          xup_decoded_edr: Json | null
+          xup_encoded_edr: string | null
+        }
+        Insert: {
+          active_power?: number | null
+          altitude?: number | null
+          apparent_power?: number | null
+          created_at: string
+          current?: number | null
+          dev_eui: string
+          energy_consumption_meter_consumed?: number | null
+          energy_consumption_meter_elapsed?: number | null
+          external_input?: boolean | null
+          gateway_id?: string | null
+          humidity?: number | null
+          id?: number
+          inventory_device_id?: number | null
+          latitude?: number | null
+          legacy_id?: number | null
+          legacy_mongo_id?: string | null
+          light?: boolean | null
+          longitude?: number | null
+          luminosity?: number | null
+          move?: boolean | null
+          power_factor?: number | null
+          raw_body?: Json | null
+          raw_packet?: string | null
+          raw_source?: string
+          reactive_power?: number | null
+          reed_state?: number | null
+          temperature?: number | null
+          updated_at?: string
+          user_device_id?: number | null
+          user_id?: string | null
+          voltage?: number | null
+          xup_decoded_edr?: Json | null
+          xup_encoded_edr?: string | null
+        }
+        Update: {
+          active_power?: number | null
+          altitude?: number | null
+          apparent_power?: number | null
+          created_at?: string
+          current?: number | null
+          dev_eui?: string
+          energy_consumption_meter_consumed?: number | null
+          energy_consumption_meter_elapsed?: number | null
+          external_input?: boolean | null
+          gateway_id?: string | null
+          humidity?: number | null
+          id?: number
+          inventory_device_id?: number | null
+          latitude?: number | null
+          legacy_id?: number | null
+          legacy_mongo_id?: string | null
+          light?: boolean | null
+          longitude?: number | null
+          luminosity?: number | null
+          move?: boolean | null
+          power_factor?: number | null
+          raw_body?: Json | null
+          raw_packet?: string | null
+          raw_source?: string
+          reactive_power?: number | null
+          reed_state?: number | null
+          temperature?: number | null
+          updated_at?: string
+          user_device_id?: number | null
+          user_id?: string | null
+          voltage?: number | null
+          xup_decoded_edr?: Json | null
+          xup_encoded_edr?: string | null
+        }
+        Relationships: []
+      }
+      telemetry_2025_11: {
+        Row: {
+          active_power: number | null
+          altitude: number | null
+          apparent_power: number | null
+          created_at: string
+          current: number | null
+          dev_eui: string
+          energy_consumption_meter_consumed: number | null
+          energy_consumption_meter_elapsed: number | null
+          external_input: boolean | null
+          gateway_id: string | null
+          humidity: number | null
+          id: number
+          inventory_device_id: number | null
+          latitude: number | null
+          legacy_id: number | null
+          legacy_mongo_id: string | null
+          light: boolean | null
+          longitude: number | null
+          luminosity: number | null
+          move: boolean | null
+          power_factor: number | null
+          raw_body: Json | null
+          raw_packet: string | null
+          raw_source: string
+          reactive_power: number | null
+          reed_state: number | null
+          temperature: number | null
+          updated_at: string
+          user_device_id: number | null
+          user_id: string | null
+          voltage: number | null
+          xup_decoded_edr: Json | null
+          xup_encoded_edr: string | null
+        }
+        Insert: {
+          active_power?: number | null
+          altitude?: number | null
+          apparent_power?: number | null
+          created_at: string
+          current?: number | null
+          dev_eui: string
+          energy_consumption_meter_consumed?: number | null
+          energy_consumption_meter_elapsed?: number | null
+          external_input?: boolean | null
+          gateway_id?: string | null
+          humidity?: number | null
+          id?: number
+          inventory_device_id?: number | null
+          latitude?: number | null
+          legacy_id?: number | null
+          legacy_mongo_id?: string | null
+          light?: boolean | null
+          longitude?: number | null
+          luminosity?: number | null
+          move?: boolean | null
+          power_factor?: number | null
+          raw_body?: Json | null
+          raw_packet?: string | null
+          raw_source?: string
+          reactive_power?: number | null
+          reed_state?: number | null
+          temperature?: number | null
+          updated_at?: string
+          user_device_id?: number | null
+          user_id?: string | null
+          voltage?: number | null
+          xup_decoded_edr?: Json | null
+          xup_encoded_edr?: string | null
+        }
+        Update: {
+          active_power?: number | null
+          altitude?: number | null
+          apparent_power?: number | null
+          created_at?: string
+          current?: number | null
+          dev_eui?: string
+          energy_consumption_meter_consumed?: number | null
+          energy_consumption_meter_elapsed?: number | null
+          external_input?: boolean | null
+          gateway_id?: string | null
+          humidity?: number | null
+          id?: number
+          inventory_device_id?: number | null
+          latitude?: number | null
+          legacy_id?: number | null
+          legacy_mongo_id?: string | null
+          light?: boolean | null
+          longitude?: number | null
+          luminosity?: number | null
+          move?: boolean | null
+          power_factor?: number | null
+          raw_body?: Json | null
+          raw_packet?: string | null
+          raw_source?: string
+          reactive_power?: number | null
+          reed_state?: number | null
+          temperature?: number | null
+          updated_at?: string
+          user_device_id?: number | null
+          user_id?: string | null
+          voltage?: number | null
+          xup_decoded_edr?: Json | null
+          xup_encoded_edr?: string | null
+        }
+        Relationships: []
+      }
+      telemetry_2025_12: {
+        Row: {
+          active_power: number | null
+          altitude: number | null
+          apparent_power: number | null
+          created_at: string
+          current: number | null
+          dev_eui: string
+          energy_consumption_meter_consumed: number | null
+          energy_consumption_meter_elapsed: number | null
+          external_input: boolean | null
+          gateway_id: string | null
+          humidity: number | null
+          id: number
+          inventory_device_id: number | null
+          latitude: number | null
+          legacy_id: number | null
+          legacy_mongo_id: string | null
+          light: boolean | null
+          longitude: number | null
+          luminosity: number | null
+          move: boolean | null
+          power_factor: number | null
+          raw_body: Json | null
+          raw_packet: string | null
+          raw_source: string
+          reactive_power: number | null
+          reed_state: number | null
+          temperature: number | null
+          updated_at: string
+          user_device_id: number | null
+          user_id: string | null
+          voltage: number | null
+          xup_decoded_edr: Json | null
+          xup_encoded_edr: string | null
+        }
+        Insert: {
+          active_power?: number | null
+          altitude?: number | null
+          apparent_power?: number | null
+          created_at: string
+          current?: number | null
+          dev_eui: string
+          energy_consumption_meter_consumed?: number | null
+          energy_consumption_meter_elapsed?: number | null
+          external_input?: boolean | null
+          gateway_id?: string | null
+          humidity?: number | null
+          id?: number
+          inventory_device_id?: number | null
+          latitude?: number | null
+          legacy_id?: number | null
+          legacy_mongo_id?: string | null
+          light?: boolean | null
+          longitude?: number | null
+          luminosity?: number | null
+          move?: boolean | null
+          power_factor?: number | null
+          raw_body?: Json | null
+          raw_packet?: string | null
+          raw_source?: string
+          reactive_power?: number | null
+          reed_state?: number | null
+          temperature?: number | null
+          updated_at?: string
+          user_device_id?: number | null
+          user_id?: string | null
+          voltage?: number | null
+          xup_decoded_edr?: Json | null
+          xup_encoded_edr?: string | null
+        }
+        Update: {
+          active_power?: number | null
+          altitude?: number | null
+          apparent_power?: number | null
+          created_at?: string
+          current?: number | null
+          dev_eui?: string
+          energy_consumption_meter_consumed?: number | null
+          energy_consumption_meter_elapsed?: number | null
+          external_input?: boolean | null
+          gateway_id?: string | null
+          humidity?: number | null
+          id?: number
+          inventory_device_id?: number | null
+          latitude?: number | null
+          legacy_id?: number | null
+          legacy_mongo_id?: string | null
+          light?: boolean | null
+          longitude?: number | null
+          luminosity?: number | null
+          move?: boolean | null
+          power_factor?: number | null
+          raw_body?: Json | null
+          raw_packet?: string | null
+          raw_source?: string
+          reactive_power?: number | null
+          reed_state?: number | null
+          temperature?: number | null
+          updated_at?: string
+          user_device_id?: number | null
+          user_id?: string | null
+          voltage?: number | null
+          xup_decoded_edr?: Json | null
+          xup_encoded_edr?: string | null
+        }
+        Relationships: []
+      }
+      telemetry_2026_01: {
+        Row: {
+          active_power: number | null
+          altitude: number | null
+          apparent_power: number | null
+          created_at: string
+          current: number | null
+          dev_eui: string
+          energy_consumption_meter_consumed: number | null
+          energy_consumption_meter_elapsed: number | null
+          external_input: boolean | null
+          gateway_id: string | null
+          humidity: number | null
+          id: number
+          inventory_device_id: number | null
+          latitude: number | null
+          legacy_id: number | null
+          legacy_mongo_id: string | null
+          light: boolean | null
+          longitude: number | null
+          luminosity: number | null
+          move: boolean | null
+          power_factor: number | null
+          raw_body: Json | null
+          raw_packet: string | null
+          raw_source: string
+          reactive_power: number | null
+          reed_state: number | null
+          temperature: number | null
+          updated_at: string
+          user_device_id: number | null
+          user_id: string | null
+          voltage: number | null
+          xup_decoded_edr: Json | null
+          xup_encoded_edr: string | null
+        }
+        Insert: {
+          active_power?: number | null
+          altitude?: number | null
+          apparent_power?: number | null
+          created_at: string
+          current?: number | null
+          dev_eui: string
+          energy_consumption_meter_consumed?: number | null
+          energy_consumption_meter_elapsed?: number | null
+          external_input?: boolean | null
+          gateway_id?: string | null
+          humidity?: number | null
+          id?: number
+          inventory_device_id?: number | null
+          latitude?: number | null
+          legacy_id?: number | null
+          legacy_mongo_id?: string | null
+          light?: boolean | null
+          longitude?: number | null
+          luminosity?: number | null
+          move?: boolean | null
+          power_factor?: number | null
+          raw_body?: Json | null
+          raw_packet?: string | null
+          raw_source?: string
+          reactive_power?: number | null
+          reed_state?: number | null
+          temperature?: number | null
+          updated_at?: string
+          user_device_id?: number | null
+          user_id?: string | null
+          voltage?: number | null
+          xup_decoded_edr?: Json | null
+          xup_encoded_edr?: string | null
+        }
+        Update: {
+          active_power?: number | null
+          altitude?: number | null
+          apparent_power?: number | null
+          created_at?: string
+          current?: number | null
+          dev_eui?: string
+          energy_consumption_meter_consumed?: number | null
+          energy_consumption_meter_elapsed?: number | null
+          external_input?: boolean | null
+          gateway_id?: string | null
+          humidity?: number | null
+          id?: number
+          inventory_device_id?: number | null
+          latitude?: number | null
+          legacy_id?: number | null
+          legacy_mongo_id?: string | null
+          light?: boolean | null
+          longitude?: number | null
+          luminosity?: number | null
+          move?: boolean | null
+          power_factor?: number | null
+          raw_body?: Json | null
+          raw_packet?: string | null
+          raw_source?: string
+          reactive_power?: number | null
+          reed_state?: number | null
+          temperature?: number | null
+          updated_at?: string
+          user_device_id?: number | null
+          user_id?: string | null
+          voltage?: number | null
+          xup_decoded_edr?: Json | null
+          xup_encoded_edr?: string | null
+        }
+        Relationships: []
+      }
+      telemetry_2026_02: {
+        Row: {
+          active_power: number | null
+          altitude: number | null
+          apparent_power: number | null
+          created_at: string
+          current: number | null
+          dev_eui: string
+          energy_consumption_meter_consumed: number | null
+          energy_consumption_meter_elapsed: number | null
+          external_input: boolean | null
+          gateway_id: string | null
+          humidity: number | null
+          id: number
+          inventory_device_id: number | null
+          latitude: number | null
+          legacy_id: number | null
+          legacy_mongo_id: string | null
+          light: boolean | null
+          longitude: number | null
+          luminosity: number | null
+          move: boolean | null
+          power_factor: number | null
+          raw_body: Json | null
+          raw_packet: string | null
+          raw_source: string
+          reactive_power: number | null
+          reed_state: number | null
+          temperature: number | null
+          updated_at: string
+          user_device_id: number | null
+          user_id: string | null
+          voltage: number | null
+          xup_decoded_edr: Json | null
+          xup_encoded_edr: string | null
+        }
+        Insert: {
+          active_power?: number | null
+          altitude?: number | null
+          apparent_power?: number | null
+          created_at: string
+          current?: number | null
+          dev_eui: string
+          energy_consumption_meter_consumed?: number | null
+          energy_consumption_meter_elapsed?: number | null
+          external_input?: boolean | null
+          gateway_id?: string | null
+          humidity?: number | null
+          id?: number
+          inventory_device_id?: number | null
+          latitude?: number | null
+          legacy_id?: number | null
+          legacy_mongo_id?: string | null
+          light?: boolean | null
+          longitude?: number | null
+          luminosity?: number | null
+          move?: boolean | null
+          power_factor?: number | null
+          raw_body?: Json | null
+          raw_packet?: string | null
+          raw_source?: string
+          reactive_power?: number | null
+          reed_state?: number | null
+          temperature?: number | null
+          updated_at?: string
+          user_device_id?: number | null
+          user_id?: string | null
+          voltage?: number | null
+          xup_decoded_edr?: Json | null
+          xup_encoded_edr?: string | null
+        }
+        Update: {
+          active_power?: number | null
+          altitude?: number | null
+          apparent_power?: number | null
+          created_at?: string
+          current?: number | null
+          dev_eui?: string
+          energy_consumption_meter_consumed?: number | null
+          energy_consumption_meter_elapsed?: number | null
+          external_input?: boolean | null
+          gateway_id?: string | null
+          humidity?: number | null
+          id?: number
+          inventory_device_id?: number | null
+          latitude?: number | null
+          legacy_id?: number | null
+          legacy_mongo_id?: string | null
+          light?: boolean | null
+          longitude?: number | null
+          luminosity?: number | null
+          move?: boolean | null
+          power_factor?: number | null
+          raw_body?: Json | null
+          raw_packet?: string | null
+          raw_source?: string
+          reactive_power?: number | null
+          reed_state?: number | null
+          temperature?: number | null
+          updated_at?: string
+          user_device_id?: number | null
+          user_id?: string | null
+          voltage?: number | null
+          xup_decoded_edr?: Json | null
+          xup_encoded_edr?: string | null
+        }
+        Relationships: []
+      }
+      telemetry_2026_03: {
+        Row: {
+          active_power: number | null
+          altitude: number | null
+          apparent_power: number | null
+          created_at: string
+          current: number | null
+          dev_eui: string
+          energy_consumption_meter_consumed: number | null
+          energy_consumption_meter_elapsed: number | null
+          external_input: boolean | null
+          gateway_id: string | null
+          humidity: number | null
+          id: number
+          inventory_device_id: number | null
+          latitude: number | null
+          legacy_id: number | null
+          legacy_mongo_id: string | null
+          light: boolean | null
+          longitude: number | null
+          luminosity: number | null
+          move: boolean | null
+          power_factor: number | null
+          raw_body: Json | null
+          raw_packet: string | null
+          raw_source: string
+          reactive_power: number | null
+          reed_state: number | null
+          temperature: number | null
+          updated_at: string
+          user_device_id: number | null
+          user_id: string | null
+          voltage: number | null
+          xup_decoded_edr: Json | null
+          xup_encoded_edr: string | null
+        }
+        Insert: {
+          active_power?: number | null
+          altitude?: number | null
+          apparent_power?: number | null
+          created_at: string
+          current?: number | null
+          dev_eui: string
+          energy_consumption_meter_consumed?: number | null
+          energy_consumption_meter_elapsed?: number | null
+          external_input?: boolean | null
+          gateway_id?: string | null
+          humidity?: number | null
+          id?: number
+          inventory_device_id?: number | null
+          latitude?: number | null
+          legacy_id?: number | null
+          legacy_mongo_id?: string | null
+          light?: boolean | null
+          longitude?: number | null
+          luminosity?: number | null
+          move?: boolean | null
+          power_factor?: number | null
+          raw_body?: Json | null
+          raw_packet?: string | null
+          raw_source?: string
+          reactive_power?: number | null
+          reed_state?: number | null
+          temperature?: number | null
+          updated_at?: string
+          user_device_id?: number | null
+          user_id?: string | null
+          voltage?: number | null
+          xup_decoded_edr?: Json | null
+          xup_encoded_edr?: string | null
+        }
+        Update: {
+          active_power?: number | null
+          altitude?: number | null
+          apparent_power?: number | null
+          created_at?: string
+          current?: number | null
+          dev_eui?: string
+          energy_consumption_meter_consumed?: number | null
+          energy_consumption_meter_elapsed?: number | null
+          external_input?: boolean | null
+          gateway_id?: string | null
+          humidity?: number | null
+          id?: number
+          inventory_device_id?: number | null
+          latitude?: number | null
+          legacy_id?: number | null
+          legacy_mongo_id?: string | null
+          light?: boolean | null
+          longitude?: number | null
+          luminosity?: number | null
+          move?: boolean | null
+          power_factor?: number | null
+          raw_body?: Json | null
+          raw_packet?: string | null
+          raw_source?: string
+          reactive_power?: number | null
+          reed_state?: number | null
+          temperature?: number | null
+          updated_at?: string
+          user_device_id?: number | null
+          user_id?: string | null
+          voltage?: number | null
+          xup_decoded_edr?: Json | null
+          xup_encoded_edr?: string | null
+        }
+        Relationships: []
+      }
+      telemetry_2026_04: {
+        Row: {
+          active_power: number | null
+          altitude: number | null
+          apparent_power: number | null
+          created_at: string
+          current: number | null
+          dev_eui: string
+          energy_consumption_meter_consumed: number | null
+          energy_consumption_meter_elapsed: number | null
+          external_input: boolean | null
+          gateway_id: string | null
+          humidity: number | null
+          id: number
+          inventory_device_id: number | null
+          latitude: number | null
+          legacy_id: number | null
+          legacy_mongo_id: string | null
+          light: boolean | null
+          longitude: number | null
+          luminosity: number | null
+          move: boolean | null
+          power_factor: number | null
+          raw_body: Json | null
+          raw_packet: string | null
+          raw_source: string
+          reactive_power: number | null
+          reed_state: number | null
+          temperature: number | null
+          updated_at: string
+          user_device_id: number | null
+          user_id: string | null
+          voltage: number | null
+          xup_decoded_edr: Json | null
+          xup_encoded_edr: string | null
+        }
+        Insert: {
+          active_power?: number | null
+          altitude?: number | null
+          apparent_power?: number | null
+          created_at: string
+          current?: number | null
+          dev_eui: string
+          energy_consumption_meter_consumed?: number | null
+          energy_consumption_meter_elapsed?: number | null
+          external_input?: boolean | null
+          gateway_id?: string | null
+          humidity?: number | null
+          id?: number
+          inventory_device_id?: number | null
+          latitude?: number | null
+          legacy_id?: number | null
+          legacy_mongo_id?: string | null
+          light?: boolean | null
+          longitude?: number | null
+          luminosity?: number | null
+          move?: boolean | null
+          power_factor?: number | null
+          raw_body?: Json | null
+          raw_packet?: string | null
+          raw_source?: string
+          reactive_power?: number | null
+          reed_state?: number | null
+          temperature?: number | null
+          updated_at?: string
+          user_device_id?: number | null
+          user_id?: string | null
+          voltage?: number | null
+          xup_decoded_edr?: Json | null
+          xup_encoded_edr?: string | null
+        }
+        Update: {
+          active_power?: number | null
+          altitude?: number | null
+          apparent_power?: number | null
+          created_at?: string
+          current?: number | null
+          dev_eui?: string
+          energy_consumption_meter_consumed?: number | null
+          energy_consumption_meter_elapsed?: number | null
+          external_input?: boolean | null
+          gateway_id?: string | null
+          humidity?: number | null
+          id?: number
+          inventory_device_id?: number | null
+          latitude?: number | null
+          legacy_id?: number | null
+          legacy_mongo_id?: string | null
+          light?: boolean | null
+          longitude?: number | null
+          luminosity?: number | null
+          move?: boolean | null
+          power_factor?: number | null
+          raw_body?: Json | null
+          raw_packet?: string | null
+          raw_source?: string
+          reactive_power?: number | null
+          reed_state?: number | null
+          temperature?: number | null
+          updated_at?: string
+          user_device_id?: number | null
+          user_id?: string | null
+          voltage?: number | null
+          xup_decoded_edr?: Json | null
+          xup_encoded_edr?: string | null
+        }
+        Relationships: []
+      }
+      telemetry_2026_05: {
+        Row: {
+          active_power: number | null
+          altitude: number | null
+          apparent_power: number | null
+          created_at: string
+          current: number | null
+          dev_eui: string
+          energy_consumption_meter_consumed: number | null
+          energy_consumption_meter_elapsed: number | null
+          external_input: boolean | null
+          gateway_id: string | null
+          humidity: number | null
+          id: number
+          inventory_device_id: number | null
+          latitude: number | null
+          legacy_id: number | null
+          legacy_mongo_id: string | null
+          light: boolean | null
+          longitude: number | null
+          luminosity: number | null
+          move: boolean | null
+          power_factor: number | null
+          raw_body: Json | null
+          raw_packet: string | null
+          raw_source: string
+          reactive_power: number | null
+          reed_state: number | null
+          temperature: number | null
+          updated_at: string
+          user_device_id: number | null
+          user_id: string | null
+          voltage: number | null
+          xup_decoded_edr: Json | null
+          xup_encoded_edr: string | null
+        }
+        Insert: {
+          active_power?: number | null
+          altitude?: number | null
+          apparent_power?: number | null
+          created_at: string
+          current?: number | null
+          dev_eui: string
+          energy_consumption_meter_consumed?: number | null
+          energy_consumption_meter_elapsed?: number | null
+          external_input?: boolean | null
+          gateway_id?: string | null
+          humidity?: number | null
+          id?: number
+          inventory_device_id?: number | null
+          latitude?: number | null
+          legacy_id?: number | null
+          legacy_mongo_id?: string | null
+          light?: boolean | null
+          longitude?: number | null
+          luminosity?: number | null
+          move?: boolean | null
+          power_factor?: number | null
+          raw_body?: Json | null
+          raw_packet?: string | null
+          raw_source?: string
+          reactive_power?: number | null
+          reed_state?: number | null
+          temperature?: number | null
+          updated_at?: string
+          user_device_id?: number | null
+          user_id?: string | null
+          voltage?: number | null
+          xup_decoded_edr?: Json | null
+          xup_encoded_edr?: string | null
+        }
+        Update: {
+          active_power?: number | null
+          altitude?: number | null
+          apparent_power?: number | null
+          created_at?: string
+          current?: number | null
+          dev_eui?: string
+          energy_consumption_meter_consumed?: number | null
+          energy_consumption_meter_elapsed?: number | null
+          external_input?: boolean | null
+          gateway_id?: string | null
+          humidity?: number | null
+          id?: number
+          inventory_device_id?: number | null
+          latitude?: number | null
+          legacy_id?: number | null
+          legacy_mongo_id?: string | null
+          light?: boolean | null
+          longitude?: number | null
+          luminosity?: number | null
+          move?: boolean | null
+          power_factor?: number | null
+          raw_body?: Json | null
+          raw_packet?: string | null
+          raw_source?: string
+          reactive_power?: number | null
+          reed_state?: number | null
+          temperature?: number | null
+          updated_at?: string
+          user_device_id?: number | null
+          user_id?: string | null
+          voltage?: number | null
+          xup_decoded_edr?: Json | null
+          xup_encoded_edr?: string | null
+        }
+        Relationships: []
+      }
+      telemetry_2026_06: {
+        Row: {
+          active_power: number | null
+          altitude: number | null
+          apparent_power: number | null
+          created_at: string
+          current: number | null
+          dev_eui: string
+          energy_consumption_meter_consumed: number | null
+          energy_consumption_meter_elapsed: number | null
+          external_input: boolean | null
+          gateway_id: string | null
+          humidity: number | null
+          id: number
+          inventory_device_id: number | null
+          latitude: number | null
+          legacy_id: number | null
+          legacy_mongo_id: string | null
+          light: boolean | null
+          longitude: number | null
+          luminosity: number | null
+          move: boolean | null
+          power_factor: number | null
+          raw_body: Json | null
+          raw_packet: string | null
+          raw_source: string
+          reactive_power: number | null
+          reed_state: number | null
+          temperature: number | null
+          updated_at: string
+          user_device_id: number | null
+          user_id: string | null
+          voltage: number | null
+          xup_decoded_edr: Json | null
+          xup_encoded_edr: string | null
+        }
+        Insert: {
+          active_power?: number | null
+          altitude?: number | null
+          apparent_power?: number | null
+          created_at: string
+          current?: number | null
+          dev_eui: string
+          energy_consumption_meter_consumed?: number | null
+          energy_consumption_meter_elapsed?: number | null
+          external_input?: boolean | null
+          gateway_id?: string | null
+          humidity?: number | null
+          id?: number
+          inventory_device_id?: number | null
+          latitude?: number | null
+          legacy_id?: number | null
+          legacy_mongo_id?: string | null
+          light?: boolean | null
+          longitude?: number | null
+          luminosity?: number | null
+          move?: boolean | null
+          power_factor?: number | null
+          raw_body?: Json | null
+          raw_packet?: string | null
+          raw_source?: string
+          reactive_power?: number | null
+          reed_state?: number | null
+          temperature?: number | null
+          updated_at?: string
+          user_device_id?: number | null
+          user_id?: string | null
+          voltage?: number | null
+          xup_decoded_edr?: Json | null
+          xup_encoded_edr?: string | null
+        }
+        Update: {
+          active_power?: number | null
+          altitude?: number | null
+          apparent_power?: number | null
+          created_at?: string
+          current?: number | null
+          dev_eui?: string
+          energy_consumption_meter_consumed?: number | null
+          energy_consumption_meter_elapsed?: number | null
+          external_input?: boolean | null
+          gateway_id?: string | null
+          humidity?: number | null
+          id?: number
+          inventory_device_id?: number | null
+          latitude?: number | null
+          legacy_id?: number | null
+          legacy_mongo_id?: string | null
+          light?: boolean | null
+          longitude?: number | null
+          luminosity?: number | null
+          move?: boolean | null
+          power_factor?: number | null
+          raw_body?: Json | null
+          raw_packet?: string | null
+          raw_source?: string
+          reactive_power?: number | null
+          reed_state?: number | null
+          temperature?: number | null
+          updated_at?: string
+          user_device_id?: number | null
+          user_id?: string | null
+          voltage?: number | null
+          xup_decoded_edr?: Json | null
+          xup_encoded_edr?: string | null
+        }
+        Relationships: []
+      }
+      telemetry_2026_07: {
+        Row: {
+          active_power: number | null
+          altitude: number | null
+          apparent_power: number | null
+          created_at: string
+          current: number | null
+          dev_eui: string
+          energy_consumption_meter_consumed: number | null
+          energy_consumption_meter_elapsed: number | null
+          external_input: boolean | null
+          gateway_id: string | null
+          humidity: number | null
+          id: number
+          inventory_device_id: number | null
+          latitude: number | null
+          legacy_id: number | null
+          legacy_mongo_id: string | null
+          light: boolean | null
+          longitude: number | null
+          luminosity: number | null
+          move: boolean | null
+          power_factor: number | null
+          raw_body: Json | null
+          raw_packet: string | null
+          raw_source: string
+          reactive_power: number | null
+          reed_state: number | null
+          temperature: number | null
+          updated_at: string
+          user_device_id: number | null
+          user_id: string | null
+          voltage: number | null
+          xup_decoded_edr: Json | null
+          xup_encoded_edr: string | null
+        }
+        Insert: {
+          active_power?: number | null
+          altitude?: number | null
+          apparent_power?: number | null
+          created_at: string
+          current?: number | null
+          dev_eui: string
+          energy_consumption_meter_consumed?: number | null
+          energy_consumption_meter_elapsed?: number | null
+          external_input?: boolean | null
+          gateway_id?: string | null
+          humidity?: number | null
+          id?: number
+          inventory_device_id?: number | null
+          latitude?: number | null
+          legacy_id?: number | null
+          legacy_mongo_id?: string | null
+          light?: boolean | null
+          longitude?: number | null
+          luminosity?: number | null
+          move?: boolean | null
+          power_factor?: number | null
+          raw_body?: Json | null
+          raw_packet?: string | null
+          raw_source?: string
+          reactive_power?: number | null
+          reed_state?: number | null
+          temperature?: number | null
+          updated_at?: string
+          user_device_id?: number | null
+          user_id?: string | null
+          voltage?: number | null
+          xup_decoded_edr?: Json | null
+          xup_encoded_edr?: string | null
+        }
+        Update: {
+          active_power?: number | null
+          altitude?: number | null
+          apparent_power?: number | null
+          created_at?: string
+          current?: number | null
+          dev_eui?: string
+          energy_consumption_meter_consumed?: number | null
+          energy_consumption_meter_elapsed?: number | null
+          external_input?: boolean | null
+          gateway_id?: string | null
+          humidity?: number | null
+          id?: number
+          inventory_device_id?: number | null
+          latitude?: number | null
+          legacy_id?: number | null
+          legacy_mongo_id?: string | null
+          light?: boolean | null
+          longitude?: number | null
+          luminosity?: number | null
+          move?: boolean | null
+          power_factor?: number | null
+          raw_body?: Json | null
+          raw_packet?: string | null
+          raw_source?: string
+          reactive_power?: number | null
+          reed_state?: number | null
+          temperature?: number | null
+          updated_at?: string
+          user_device_id?: number | null
+          user_id?: string | null
+          voltage?: number | null
+          xup_decoded_edr?: Json | null
+          xup_encoded_edr?: string | null
+        }
+        Relationships: []
+      }
+      telemetry_2026_08: {
+        Row: {
+          active_power: number | null
+          altitude: number | null
+          apparent_power: number | null
+          created_at: string
+          current: number | null
+          dev_eui: string
+          energy_consumption_meter_consumed: number | null
+          energy_consumption_meter_elapsed: number | null
+          external_input: boolean | null
+          gateway_id: string | null
+          humidity: number | null
+          id: number
+          inventory_device_id: number | null
+          latitude: number | null
+          legacy_id: number | null
+          legacy_mongo_id: string | null
+          light: boolean | null
+          longitude: number | null
+          luminosity: number | null
+          move: boolean | null
+          power_factor: number | null
+          raw_body: Json | null
+          raw_packet: string | null
+          raw_source: string
+          reactive_power: number | null
+          reed_state: number | null
+          temperature: number | null
+          updated_at: string
+          user_device_id: number | null
+          user_id: string | null
+          voltage: number | null
+          xup_decoded_edr: Json | null
+          xup_encoded_edr: string | null
+        }
+        Insert: {
+          active_power?: number | null
+          altitude?: number | null
+          apparent_power?: number | null
+          created_at: string
+          current?: number | null
+          dev_eui: string
+          energy_consumption_meter_consumed?: number | null
+          energy_consumption_meter_elapsed?: number | null
+          external_input?: boolean | null
+          gateway_id?: string | null
+          humidity?: number | null
+          id?: number
+          inventory_device_id?: number | null
+          latitude?: number | null
+          legacy_id?: number | null
+          legacy_mongo_id?: string | null
+          light?: boolean | null
+          longitude?: number | null
+          luminosity?: number | null
+          move?: boolean | null
+          power_factor?: number | null
+          raw_body?: Json | null
+          raw_packet?: string | null
+          raw_source?: string
+          reactive_power?: number | null
+          reed_state?: number | null
+          temperature?: number | null
+          updated_at?: string
+          user_device_id?: number | null
+          user_id?: string | null
+          voltage?: number | null
+          xup_decoded_edr?: Json | null
+          xup_encoded_edr?: string | null
+        }
+        Update: {
+          active_power?: number | null
+          altitude?: number | null
+          apparent_power?: number | null
+          created_at?: string
+          current?: number | null
+          dev_eui?: string
+          energy_consumption_meter_consumed?: number | null
+          energy_consumption_meter_elapsed?: number | null
+          external_input?: boolean | null
+          gateway_id?: string | null
+          humidity?: number | null
+          id?: number
+          inventory_device_id?: number | null
+          latitude?: number | null
+          legacy_id?: number | null
+          legacy_mongo_id?: string | null
+          light?: boolean | null
+          longitude?: number | null
+          luminosity?: number | null
+          move?: boolean | null
+          power_factor?: number | null
+          raw_body?: Json | null
+          raw_packet?: string | null
+          raw_source?: string
+          reactive_power?: number | null
+          reed_state?: number | null
+          temperature?: number | null
+          updated_at?: string
+          user_device_id?: number | null
+          user_id?: string | null
+          voltage?: number | null
+          xup_decoded_edr?: Json | null
+          xup_encoded_edr?: string | null
+        }
+        Relationships: []
+      }
+      telemetry_2026_09: {
+        Row: {
+          active_power: number | null
+          altitude: number | null
+          apparent_power: number | null
+          created_at: string
+          current: number | null
+          dev_eui: string
+          energy_consumption_meter_consumed: number | null
+          energy_consumption_meter_elapsed: number | null
+          external_input: boolean | null
+          gateway_id: string | null
+          humidity: number | null
+          id: number
+          inventory_device_id: number | null
+          latitude: number | null
+          legacy_id: number | null
+          legacy_mongo_id: string | null
+          light: boolean | null
+          longitude: number | null
+          luminosity: number | null
+          move: boolean | null
+          power_factor: number | null
+          raw_body: Json | null
+          raw_packet: string | null
+          raw_source: string
+          reactive_power: number | null
+          reed_state: number | null
+          temperature: number | null
+          updated_at: string
+          user_device_id: number | null
+          user_id: string | null
+          voltage: number | null
+          xup_decoded_edr: Json | null
+          xup_encoded_edr: string | null
+        }
+        Insert: {
+          active_power?: number | null
+          altitude?: number | null
+          apparent_power?: number | null
+          created_at: string
+          current?: number | null
+          dev_eui: string
+          energy_consumption_meter_consumed?: number | null
+          energy_consumption_meter_elapsed?: number | null
+          external_input?: boolean | null
+          gateway_id?: string | null
+          humidity?: number | null
+          id?: number
+          inventory_device_id?: number | null
+          latitude?: number | null
+          legacy_id?: number | null
+          legacy_mongo_id?: string | null
+          light?: boolean | null
+          longitude?: number | null
+          luminosity?: number | null
+          move?: boolean | null
+          power_factor?: number | null
+          raw_body?: Json | null
+          raw_packet?: string | null
+          raw_source?: string
+          reactive_power?: number | null
+          reed_state?: number | null
+          temperature?: number | null
+          updated_at?: string
+          user_device_id?: number | null
+          user_id?: string | null
+          voltage?: number | null
+          xup_decoded_edr?: Json | null
+          xup_encoded_edr?: string | null
+        }
+        Update: {
+          active_power?: number | null
+          altitude?: number | null
+          apparent_power?: number | null
+          created_at?: string
+          current?: number | null
+          dev_eui?: string
+          energy_consumption_meter_consumed?: number | null
+          energy_consumption_meter_elapsed?: number | null
+          external_input?: boolean | null
+          gateway_id?: string | null
+          humidity?: number | null
+          id?: number
+          inventory_device_id?: number | null
+          latitude?: number | null
+          legacy_id?: number | null
+          legacy_mongo_id?: string | null
+          light?: boolean | null
+          longitude?: number | null
+          luminosity?: number | null
+          move?: boolean | null
+          power_factor?: number | null
+          raw_body?: Json | null
+          raw_packet?: string | null
+          raw_source?: string
+          reactive_power?: number | null
+          reed_state?: number | null
+          temperature?: number | null
+          updated_at?: string
+          user_device_id?: number | null
+          user_id?: string | null
+          voltage?: number | null
+          xup_decoded_edr?: Json | null
+          xup_encoded_edr?: string | null
+        }
+        Relationships: []
+      }
+      telemetry_2026_10: {
+        Row: {
+          active_power: number | null
+          altitude: number | null
+          apparent_power: number | null
+          created_at: string
+          current: number | null
+          dev_eui: string
+          energy_consumption_meter_consumed: number | null
+          energy_consumption_meter_elapsed: number | null
+          external_input: boolean | null
+          gateway_id: string | null
+          humidity: number | null
+          id: number
+          inventory_device_id: number | null
+          latitude: number | null
+          legacy_id: number | null
+          legacy_mongo_id: string | null
+          light: boolean | null
+          longitude: number | null
+          luminosity: number | null
+          move: boolean | null
+          power_factor: number | null
+          raw_body: Json | null
+          raw_packet: string | null
+          raw_source: string
+          reactive_power: number | null
+          reed_state: number | null
+          temperature: number | null
+          updated_at: string
+          user_device_id: number | null
+          user_id: string | null
+          voltage: number | null
+          xup_decoded_edr: Json | null
+          xup_encoded_edr: string | null
+        }
+        Insert: {
+          active_power?: number | null
+          altitude?: number | null
+          apparent_power?: number | null
+          created_at: string
+          current?: number | null
+          dev_eui: string
+          energy_consumption_meter_consumed?: number | null
+          energy_consumption_meter_elapsed?: number | null
+          external_input?: boolean | null
+          gateway_id?: string | null
+          humidity?: number | null
+          id?: number
+          inventory_device_id?: number | null
+          latitude?: number | null
+          legacy_id?: number | null
+          legacy_mongo_id?: string | null
+          light?: boolean | null
+          longitude?: number | null
+          luminosity?: number | null
+          move?: boolean | null
+          power_factor?: number | null
+          raw_body?: Json | null
+          raw_packet?: string | null
+          raw_source?: string
+          reactive_power?: number | null
+          reed_state?: number | null
+          temperature?: number | null
+          updated_at?: string
+          user_device_id?: number | null
+          user_id?: string | null
+          voltage?: number | null
+          xup_decoded_edr?: Json | null
+          xup_encoded_edr?: string | null
+        }
+        Update: {
+          active_power?: number | null
+          altitude?: number | null
+          apparent_power?: number | null
+          created_at?: string
+          current?: number | null
+          dev_eui?: string
+          energy_consumption_meter_consumed?: number | null
+          energy_consumption_meter_elapsed?: number | null
+          external_input?: boolean | null
+          gateway_id?: string | null
+          humidity?: number | null
+          id?: number
+          inventory_device_id?: number | null
+          latitude?: number | null
+          legacy_id?: number | null
+          legacy_mongo_id?: string | null
+          light?: boolean | null
+          longitude?: number | null
+          luminosity?: number | null
+          move?: boolean | null
+          power_factor?: number | null
+          raw_body?: Json | null
+          raw_packet?: string | null
+          raw_source?: string
+          reactive_power?: number | null
+          reed_state?: number | null
+          temperature?: number | null
+          updated_at?: string
+          user_device_id?: number | null
+          user_id?: string | null
+          voltage?: number | null
+          xup_decoded_edr?: Json | null
+          xup_encoded_edr?: string | null
+        }
+        Relationships: []
+      }
+      telemetry_2026_11: {
+        Row: {
+          active_power: number | null
+          altitude: number | null
+          apparent_power: number | null
+          created_at: string
+          current: number | null
+          dev_eui: string
+          energy_consumption_meter_consumed: number | null
+          energy_consumption_meter_elapsed: number | null
+          external_input: boolean | null
+          gateway_id: string | null
+          humidity: number | null
+          id: number
+          inventory_device_id: number | null
+          latitude: number | null
+          legacy_id: number | null
+          legacy_mongo_id: string | null
+          light: boolean | null
+          longitude: number | null
+          luminosity: number | null
+          move: boolean | null
+          power_factor: number | null
+          raw_body: Json | null
+          raw_packet: string | null
+          raw_source: string
+          reactive_power: number | null
+          reed_state: number | null
+          temperature: number | null
+          updated_at: string
+          user_device_id: number | null
+          user_id: string | null
+          voltage: number | null
+          xup_decoded_edr: Json | null
+          xup_encoded_edr: string | null
+        }
+        Insert: {
+          active_power?: number | null
+          altitude?: number | null
+          apparent_power?: number | null
+          created_at: string
+          current?: number | null
+          dev_eui: string
+          energy_consumption_meter_consumed?: number | null
+          energy_consumption_meter_elapsed?: number | null
+          external_input?: boolean | null
+          gateway_id?: string | null
+          humidity?: number | null
+          id?: number
+          inventory_device_id?: number | null
+          latitude?: number | null
+          legacy_id?: number | null
+          legacy_mongo_id?: string | null
+          light?: boolean | null
+          longitude?: number | null
+          luminosity?: number | null
+          move?: boolean | null
+          power_factor?: number | null
+          raw_body?: Json | null
+          raw_packet?: string | null
+          raw_source?: string
+          reactive_power?: number | null
+          reed_state?: number | null
+          temperature?: number | null
+          updated_at?: string
+          user_device_id?: number | null
+          user_id?: string | null
+          voltage?: number | null
+          xup_decoded_edr?: Json | null
+          xup_encoded_edr?: string | null
+        }
+        Update: {
+          active_power?: number | null
+          altitude?: number | null
+          apparent_power?: number | null
+          created_at?: string
+          current?: number | null
+          dev_eui?: string
+          energy_consumption_meter_consumed?: number | null
+          energy_consumption_meter_elapsed?: number | null
+          external_input?: boolean | null
+          gateway_id?: string | null
+          humidity?: number | null
+          id?: number
+          inventory_device_id?: number | null
+          latitude?: number | null
+          legacy_id?: number | null
+          legacy_mongo_id?: string | null
+          light?: boolean | null
+          longitude?: number | null
+          luminosity?: number | null
+          move?: boolean | null
+          power_factor?: number | null
+          raw_body?: Json | null
+          raw_packet?: string | null
+          raw_source?: string
+          reactive_power?: number | null
+          reed_state?: number | null
+          temperature?: number | null
+          updated_at?: string
+          user_device_id?: number | null
+          user_id?: string | null
+          voltage?: number | null
+          xup_decoded_edr?: Json | null
+          xup_encoded_edr?: string | null
+        }
+        Relationships: []
+      }
+      telemetry_2026_12: {
+        Row: {
+          active_power: number | null
+          altitude: number | null
+          apparent_power: number | null
+          created_at: string
+          current: number | null
+          dev_eui: string
+          energy_consumption_meter_consumed: number | null
+          energy_consumption_meter_elapsed: number | null
+          external_input: boolean | null
+          gateway_id: string | null
+          humidity: number | null
+          id: number
+          inventory_device_id: number | null
+          latitude: number | null
+          legacy_id: number | null
+          legacy_mongo_id: string | null
+          light: boolean | null
+          longitude: number | null
+          luminosity: number | null
+          move: boolean | null
+          power_factor: number | null
+          raw_body: Json | null
+          raw_packet: string | null
+          raw_source: string
+          reactive_power: number | null
+          reed_state: number | null
+          temperature: number | null
+          updated_at: string
+          user_device_id: number | null
+          user_id: string | null
+          voltage: number | null
+          xup_decoded_edr: Json | null
+          xup_encoded_edr: string | null
+        }
+        Insert: {
+          active_power?: number | null
+          altitude?: number | null
+          apparent_power?: number | null
+          created_at: string
+          current?: number | null
+          dev_eui: string
+          energy_consumption_meter_consumed?: number | null
+          energy_consumption_meter_elapsed?: number | null
+          external_input?: boolean | null
+          gateway_id?: string | null
+          humidity?: number | null
+          id?: number
+          inventory_device_id?: number | null
+          latitude?: number | null
+          legacy_id?: number | null
+          legacy_mongo_id?: string | null
+          light?: boolean | null
+          longitude?: number | null
+          luminosity?: number | null
+          move?: boolean | null
+          power_factor?: number | null
+          raw_body?: Json | null
+          raw_packet?: string | null
+          raw_source?: string
+          reactive_power?: number | null
+          reed_state?: number | null
+          temperature?: number | null
+          updated_at?: string
+          user_device_id?: number | null
+          user_id?: string | null
+          voltage?: number | null
+          xup_decoded_edr?: Json | null
+          xup_encoded_edr?: string | null
+        }
+        Update: {
+          active_power?: number | null
+          altitude?: number | null
+          apparent_power?: number | null
+          created_at?: string
+          current?: number | null
+          dev_eui?: string
+          energy_consumption_meter_consumed?: number | null
+          energy_consumption_meter_elapsed?: number | null
+          external_input?: boolean | null
+          gateway_id?: string | null
+          humidity?: number | null
+          id?: number
+          inventory_device_id?: number | null
+          latitude?: number | null
+          legacy_id?: number | null
+          legacy_mongo_id?: string | null
+          light?: boolean | null
+          longitude?: number | null
+          luminosity?: number | null
+          move?: boolean | null
+          power_factor?: number | null
+          raw_body?: Json | null
+          raw_packet?: string | null
+          raw_source?: string
+          reactive_power?: number | null
+          reed_state?: number | null
+          temperature?: number | null
+          updated_at?: string
+          user_device_id?: number | null
+          user_id?: string | null
+          voltage?: number | null
+          xup_decoded_edr?: Json | null
+          xup_encoded_edr?: string | null
+        }
+        Relationships: []
+      }
+      telemetry_2027_01: {
+        Row: {
+          active_power: number | null
+          altitude: number | null
+          apparent_power: number | null
+          created_at: string
+          current: number | null
+          dev_eui: string
+          energy_consumption_meter_consumed: number | null
+          energy_consumption_meter_elapsed: number | null
+          external_input: boolean | null
+          gateway_id: string | null
+          humidity: number | null
+          id: number
+          inventory_device_id: number | null
+          latitude: number | null
+          legacy_id: number | null
+          legacy_mongo_id: string | null
+          light: boolean | null
+          longitude: number | null
+          luminosity: number | null
+          move: boolean | null
+          power_factor: number | null
+          raw_body: Json | null
+          raw_packet: string | null
+          raw_source: string
+          reactive_power: number | null
+          reed_state: number | null
+          temperature: number | null
+          updated_at: string
+          user_device_id: number | null
+          user_id: string | null
+          voltage: number | null
+          xup_decoded_edr: Json | null
+          xup_encoded_edr: string | null
+        }
+        Insert: {
+          active_power?: number | null
+          altitude?: number | null
+          apparent_power?: number | null
+          created_at: string
+          current?: number | null
+          dev_eui: string
+          energy_consumption_meter_consumed?: number | null
+          energy_consumption_meter_elapsed?: number | null
+          external_input?: boolean | null
+          gateway_id?: string | null
+          humidity?: number | null
+          id?: number
+          inventory_device_id?: number | null
+          latitude?: number | null
+          legacy_id?: number | null
+          legacy_mongo_id?: string | null
+          light?: boolean | null
+          longitude?: number | null
+          luminosity?: number | null
+          move?: boolean | null
+          power_factor?: number | null
+          raw_body?: Json | null
+          raw_packet?: string | null
+          raw_source?: string
+          reactive_power?: number | null
+          reed_state?: number | null
+          temperature?: number | null
+          updated_at?: string
+          user_device_id?: number | null
+          user_id?: string | null
+          voltage?: number | null
+          xup_decoded_edr?: Json | null
+          xup_encoded_edr?: string | null
+        }
+        Update: {
+          active_power?: number | null
+          altitude?: number | null
+          apparent_power?: number | null
+          created_at?: string
+          current?: number | null
+          dev_eui?: string
+          energy_consumption_meter_consumed?: number | null
+          energy_consumption_meter_elapsed?: number | null
+          external_input?: boolean | null
+          gateway_id?: string | null
+          humidity?: number | null
+          id?: number
+          inventory_device_id?: number | null
+          latitude?: number | null
+          legacy_id?: number | null
+          legacy_mongo_id?: string | null
+          light?: boolean | null
+          longitude?: number | null
+          luminosity?: number | null
+          move?: boolean | null
+          power_factor?: number | null
+          raw_body?: Json | null
+          raw_packet?: string | null
+          raw_source?: string
+          reactive_power?: number | null
+          reed_state?: number | null
+          temperature?: number | null
+          updated_at?: string
+          user_device_id?: number | null
+          user_id?: string | null
+          voltage?: number | null
+          xup_decoded_edr?: Json | null
+          xup_encoded_edr?: string | null
+        }
+        Relationships: []
+      }
+      telemetry_2027_02: {
+        Row: {
+          active_power: number | null
+          altitude: number | null
+          apparent_power: number | null
+          created_at: string
+          current: number | null
+          dev_eui: string
+          energy_consumption_meter_consumed: number | null
+          energy_consumption_meter_elapsed: number | null
+          external_input: boolean | null
+          gateway_id: string | null
+          humidity: number | null
+          id: number
+          inventory_device_id: number | null
+          latitude: number | null
+          legacy_id: number | null
+          legacy_mongo_id: string | null
+          light: boolean | null
+          longitude: number | null
+          luminosity: number | null
+          move: boolean | null
+          power_factor: number | null
+          raw_body: Json | null
+          raw_packet: string | null
+          raw_source: string
+          reactive_power: number | null
+          reed_state: number | null
+          temperature: number | null
+          updated_at: string
+          user_device_id: number | null
+          user_id: string | null
+          voltage: number | null
+          xup_decoded_edr: Json | null
+          xup_encoded_edr: string | null
+        }
+        Insert: {
+          active_power?: number | null
+          altitude?: number | null
+          apparent_power?: number | null
+          created_at: string
+          current?: number | null
+          dev_eui: string
+          energy_consumption_meter_consumed?: number | null
+          energy_consumption_meter_elapsed?: number | null
+          external_input?: boolean | null
+          gateway_id?: string | null
+          humidity?: number | null
+          id?: number
+          inventory_device_id?: number | null
+          latitude?: number | null
+          legacy_id?: number | null
+          legacy_mongo_id?: string | null
+          light?: boolean | null
+          longitude?: number | null
+          luminosity?: number | null
+          move?: boolean | null
+          power_factor?: number | null
+          raw_body?: Json | null
+          raw_packet?: string | null
+          raw_source?: string
+          reactive_power?: number | null
+          reed_state?: number | null
+          temperature?: number | null
+          updated_at?: string
+          user_device_id?: number | null
+          user_id?: string | null
+          voltage?: number | null
+          xup_decoded_edr?: Json | null
+          xup_encoded_edr?: string | null
+        }
+        Update: {
+          active_power?: number | null
+          altitude?: number | null
+          apparent_power?: number | null
+          created_at?: string
+          current?: number | null
+          dev_eui?: string
+          energy_consumption_meter_consumed?: number | null
+          energy_consumption_meter_elapsed?: number | null
+          external_input?: boolean | null
+          gateway_id?: string | null
+          humidity?: number | null
+          id?: number
+          inventory_device_id?: number | null
+          latitude?: number | null
+          legacy_id?: number | null
+          legacy_mongo_id?: string | null
+          light?: boolean | null
+          longitude?: number | null
+          luminosity?: number | null
+          move?: boolean | null
+          power_factor?: number | null
+          raw_body?: Json | null
+          raw_packet?: string | null
+          raw_source?: string
+          reactive_power?: number | null
+          reed_state?: number | null
+          temperature?: number | null
+          updated_at?: string
+          user_device_id?: number | null
+          user_id?: string | null
+          voltage?: number | null
+          xup_decoded_edr?: Json | null
+          xup_encoded_edr?: string | null
+        }
+        Relationships: []
+      }
+      telemetry_2027_03: {
+        Row: {
+          active_power: number | null
+          altitude: number | null
+          apparent_power: number | null
+          created_at: string
+          current: number | null
+          dev_eui: string
+          energy_consumption_meter_consumed: number | null
+          energy_consumption_meter_elapsed: number | null
+          external_input: boolean | null
+          gateway_id: string | null
+          humidity: number | null
+          id: number
+          inventory_device_id: number | null
+          latitude: number | null
+          legacy_id: number | null
+          legacy_mongo_id: string | null
+          light: boolean | null
+          longitude: number | null
+          luminosity: number | null
+          move: boolean | null
+          power_factor: number | null
+          raw_body: Json | null
+          raw_packet: string | null
+          raw_source: string
+          reactive_power: number | null
+          reed_state: number | null
+          temperature: number | null
+          updated_at: string
+          user_device_id: number | null
+          user_id: string | null
+          voltage: number | null
+          xup_decoded_edr: Json | null
+          xup_encoded_edr: string | null
+        }
+        Insert: {
+          active_power?: number | null
+          altitude?: number | null
+          apparent_power?: number | null
+          created_at: string
+          current?: number | null
+          dev_eui: string
+          energy_consumption_meter_consumed?: number | null
+          energy_consumption_meter_elapsed?: number | null
+          external_input?: boolean | null
+          gateway_id?: string | null
+          humidity?: number | null
+          id?: number
+          inventory_device_id?: number | null
+          latitude?: number | null
+          legacy_id?: number | null
+          legacy_mongo_id?: string | null
+          light?: boolean | null
+          longitude?: number | null
+          luminosity?: number | null
+          move?: boolean | null
+          power_factor?: number | null
+          raw_body?: Json | null
+          raw_packet?: string | null
+          raw_source?: string
+          reactive_power?: number | null
+          reed_state?: number | null
+          temperature?: number | null
+          updated_at?: string
+          user_device_id?: number | null
+          user_id?: string | null
+          voltage?: number | null
+          xup_decoded_edr?: Json | null
+          xup_encoded_edr?: string | null
+        }
+        Update: {
+          active_power?: number | null
+          altitude?: number | null
+          apparent_power?: number | null
+          created_at?: string
+          current?: number | null
+          dev_eui?: string
+          energy_consumption_meter_consumed?: number | null
+          energy_consumption_meter_elapsed?: number | null
+          external_input?: boolean | null
+          gateway_id?: string | null
+          humidity?: number | null
+          id?: number
+          inventory_device_id?: number | null
+          latitude?: number | null
+          legacy_id?: number | null
+          legacy_mongo_id?: string | null
+          light?: boolean | null
+          longitude?: number | null
+          luminosity?: number | null
+          move?: boolean | null
+          power_factor?: number | null
+          raw_body?: Json | null
+          raw_packet?: string | null
+          raw_source?: string
+          reactive_power?: number | null
+          reed_state?: number | null
+          temperature?: number | null
+          updated_at?: string
+          user_device_id?: number | null
+          user_id?: string | null
+          voltage?: number | null
+          xup_decoded_edr?: Json | null
+          xup_encoded_edr?: string | null
+        }
+        Relationships: []
+      }
+      telemetry_2027_08: {
+        Row: {
+          active_power: number | null
+          altitude: number | null
+          apparent_power: number | null
+          created_at: string
+          current: number | null
+          dev_eui: string
+          energy_consumption_meter_consumed: number | null
+          energy_consumption_meter_elapsed: number | null
+          external_input: boolean | null
+          gateway_id: string | null
+          humidity: number | null
+          id: number
+          inventory_device_id: number | null
+          latitude: number | null
+          legacy_id: number | null
+          legacy_mongo_id: string | null
+          light: boolean | null
+          longitude: number | null
+          luminosity: number | null
+          move: boolean | null
+          power_factor: number | null
+          raw_body: Json | null
+          raw_packet: string | null
+          raw_source: string
+          reactive_power: number | null
+          reed_state: number | null
+          temperature: number | null
+          updated_at: string
+          user_device_id: number | null
+          user_id: string | null
+          voltage: number | null
+          xup_decoded_edr: Json | null
+          xup_encoded_edr: string | null
+        }
+        Insert: {
+          active_power?: number | null
+          altitude?: number | null
+          apparent_power?: number | null
+          created_at: string
+          current?: number | null
+          dev_eui: string
+          energy_consumption_meter_consumed?: number | null
+          energy_consumption_meter_elapsed?: number | null
+          external_input?: boolean | null
+          gateway_id?: string | null
+          humidity?: number | null
+          id?: number
+          inventory_device_id?: number | null
+          latitude?: number | null
+          legacy_id?: number | null
+          legacy_mongo_id?: string | null
+          light?: boolean | null
+          longitude?: number | null
+          luminosity?: number | null
+          move?: boolean | null
+          power_factor?: number | null
+          raw_body?: Json | null
+          raw_packet?: string | null
+          raw_source?: string
+          reactive_power?: number | null
+          reed_state?: number | null
+          temperature?: number | null
+          updated_at?: string
+          user_device_id?: number | null
+          user_id?: string | null
+          voltage?: number | null
+          xup_decoded_edr?: Json | null
+          xup_encoded_edr?: string | null
+        }
+        Update: {
+          active_power?: number | null
+          altitude?: number | null
+          apparent_power?: number | null
+          created_at?: string
+          current?: number | null
+          dev_eui?: string
+          energy_consumption_meter_consumed?: number | null
+          energy_consumption_meter_elapsed?: number | null
+          external_input?: boolean | null
+          gateway_id?: string | null
+          humidity?: number | null
+          id?: number
+          inventory_device_id?: number | null
+          latitude?: number | null
+          legacy_id?: number | null
+          legacy_mongo_id?: string | null
+          light?: boolean | null
+          longitude?: number | null
+          luminosity?: number | null
+          move?: boolean | null
+          power_factor?: number | null
+          raw_body?: Json | null
+          raw_packet?: string | null
+          raw_source?: string
+          reactive_power?: number | null
+          reed_state?: number | null
+          temperature?: number | null
+          updated_at?: string
+          user_device_id?: number | null
+          user_id?: string | null
+          voltage?: number | null
+          xup_decoded_edr?: Json | null
+          xup_encoded_edr?: string | null
+        }
+        Relationships: []
+      }
+      telemetry_default: {
+        Row: {
+          active_power: number | null
+          altitude: number | null
+          apparent_power: number | null
+          created_at: string
+          current: number | null
+          dev_eui: string
+          energy_consumption_meter_consumed: number | null
+          energy_consumption_meter_elapsed: number | null
+          external_input: boolean | null
+          gateway_id: string | null
+          humidity: number | null
+          id: number
+          inventory_device_id: number | null
+          latitude: number | null
+          legacy_id: number | null
+          legacy_mongo_id: string | null
+          light: boolean | null
+          longitude: number | null
+          luminosity: number | null
+          move: boolean | null
+          power_factor: number | null
+          raw_body: Json | null
+          raw_packet: string | null
+          raw_source: string
+          reactive_power: number | null
+          reed_state: number | null
+          temperature: number | null
+          updated_at: string
+          user_device_id: number | null
+          user_id: string | null
+          voltage: number | null
+          xup_decoded_edr: Json | null
+          xup_encoded_edr: string | null
+        }
+        Insert: {
+          active_power?: number | null
+          altitude?: number | null
+          apparent_power?: number | null
+          created_at: string
+          current?: number | null
+          dev_eui: string
+          energy_consumption_meter_consumed?: number | null
+          energy_consumption_meter_elapsed?: number | null
+          external_input?: boolean | null
+          gateway_id?: string | null
+          humidity?: number | null
+          id?: number
+          inventory_device_id?: number | null
+          latitude?: number | null
+          legacy_id?: number | null
+          legacy_mongo_id?: string | null
+          light?: boolean | null
+          longitude?: number | null
+          luminosity?: number | null
+          move?: boolean | null
+          power_factor?: number | null
+          raw_body?: Json | null
+          raw_packet?: string | null
+          raw_source?: string
+          reactive_power?: number | null
+          reed_state?: number | null
+          temperature?: number | null
+          updated_at?: string
+          user_device_id?: number | null
+          user_id?: string | null
+          voltage?: number | null
+          xup_decoded_edr?: Json | null
+          xup_encoded_edr?: string | null
+        }
+        Update: {
+          active_power?: number | null
+          altitude?: number | null
+          apparent_power?: number | null
+          created_at?: string
+          current?: number | null
+          dev_eui?: string
+          energy_consumption_meter_consumed?: number | null
+          energy_consumption_meter_elapsed?: number | null
+          external_input?: boolean | null
+          gateway_id?: string | null
+          humidity?: number | null
+          id?: number
+          inventory_device_id?: number | null
+          latitude?: number | null
+          legacy_id?: number | null
+          legacy_mongo_id?: string | null
+          light?: boolean | null
+          longitude?: number | null
+          luminosity?: number | null
+          move?: boolean | null
+          power_factor?: number | null
+          raw_body?: Json | null
+          raw_packet?: string | null
+          raw_source?: string
+          reactive_power?: number | null
+          reed_state?: number | null
+          temperature?: number | null
+          updated_at?: string
+          user_device_id?: number | null
+          user_id?: string | null
+          voltage?: number | null
+          xup_decoded_edr?: Json | null
+          xup_encoded_edr?: string | null
+        }
+        Relationships: []
+      }
       user_devices: {
         Row: {
           activated_at: string | null
@@ -2180,6 +6795,10 @@ export type Database = {
       auth_scope_grant_allowed: {
         Args: { p_actor?: string; p_asset_ids: number[]; p_entity: string }
         Returns: boolean
+      }
+      create_telemetry_partition: {
+        Args: { p_month: string }
+        Returns: undefined
       }
       custom_access_token_hook: { Args: { event: Json }; Returns: Json }
       gen_xnid: { Args: { prefix: string }; Returns: string }
