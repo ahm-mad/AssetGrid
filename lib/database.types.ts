@@ -9,6 +9,134 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      activation_attempt_devices: {
+        Row: {
+          activation_attempt_id: number
+          activation_status: string
+          created_at: string
+          id: number
+          provider_reference: string | null
+          provider_status: string | null
+          updated_at: string
+          validation_status: string
+          xnid: string
+        }
+        Insert: {
+          activation_attempt_id: number
+          activation_status?: string
+          created_at?: string
+          id?: number
+          provider_reference?: string | null
+          provider_status?: string | null
+          updated_at?: string
+          validation_status?: string
+          xnid: string
+        }
+        Update: {
+          activation_attempt_id?: number
+          activation_status?: string
+          created_at?: string
+          id?: number
+          provider_reference?: string | null
+          provider_status?: string | null
+          updated_at?: string
+          validation_status?: string
+          xnid?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "activation_attempt_devices_activation_attempt_id_fkey"
+            columns: ["activation_attempt_id"]
+            isOneToOne: false
+            referencedRelation: "activation_attempts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      activation_attempts: {
+        Row: {
+          billing_mode: Database["public"]["Enums"]["billing_mode"]
+          billing_xnid: string | null
+          checkout_session_id: string | null
+          completed_at: string | null
+          created_at: string
+          dealer_xnid: string | null
+          device_count: number
+          email: string
+          id: number
+          idempotency_key: string | null
+          owner_xnid: string | null
+          payment_provider: Database["public"]["Enums"]["payment_provider"]
+          plan_id: number
+          provider_customer_id: string | null
+          provider_reference_id: string | null
+          provider_subscription_id: string | null
+          session_id: string | null
+          status: Database["public"]["Enums"]["activation_attempt_status"]
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          billing_mode: Database["public"]["Enums"]["billing_mode"]
+          billing_xnid?: string | null
+          checkout_session_id?: string | null
+          completed_at?: string | null
+          created_at?: string
+          dealer_xnid?: string | null
+          device_count: number
+          email: string
+          id?: number
+          idempotency_key?: string | null
+          owner_xnid?: string | null
+          payment_provider?: Database["public"]["Enums"]["payment_provider"]
+          plan_id: number
+          provider_customer_id?: string | null
+          provider_reference_id?: string | null
+          provider_subscription_id?: string | null
+          session_id?: string | null
+          status?: Database["public"]["Enums"]["activation_attempt_status"]
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          billing_mode?: Database["public"]["Enums"]["billing_mode"]
+          billing_xnid?: string | null
+          checkout_session_id?: string | null
+          completed_at?: string | null
+          created_at?: string
+          dealer_xnid?: string | null
+          device_count?: number
+          email?: string
+          id?: number
+          idempotency_key?: string | null
+          owner_xnid?: string | null
+          payment_provider?: Database["public"]["Enums"]["payment_provider"]
+          plan_id?: number
+          provider_customer_id?: string | null
+          provider_reference_id?: string | null
+          provider_subscription_id?: string | null
+          session_id?: string | null
+          status?: Database["public"]["Enums"]["activation_attempt_status"]
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "activation_attempts_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "plans"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "activation_attempts_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       app_xup: {
         Row: {
           app_id: number
@@ -857,6 +985,107 @@ export type Database = {
         }
         Relationships: []
       }
+      payment_details: {
+        Row: {
+          address_1: string | null
+          address_2: string | null
+          card_brand: string | null
+          card_last4: string | null
+          city: string | null
+          country: string | null
+          created_at: string
+          first_name: string | null
+          id: number
+          last_name: string | null
+          month: string | null
+          payment_id: number
+          state: string | null
+          updated_at: string
+          year: string | null
+          zip_code: string | null
+        }
+        Insert: {
+          address_1?: string | null
+          address_2?: string | null
+          card_brand?: string | null
+          card_last4?: string | null
+          city?: string | null
+          country?: string | null
+          created_at?: string
+          first_name?: string | null
+          id?: number
+          last_name?: string | null
+          month?: string | null
+          payment_id: number
+          state?: string | null
+          updated_at?: string
+          year?: string | null
+          zip_code?: string | null
+        }
+        Update: {
+          address_1?: string | null
+          address_2?: string | null
+          card_brand?: string | null
+          card_last4?: string | null
+          city?: string | null
+          country?: string | null
+          created_at?: string
+          first_name?: string | null
+          id?: number
+          last_name?: string | null
+          month?: string | null
+          payment_id?: number
+          state?: string | null
+          updated_at?: string
+          year?: string | null
+          zip_code?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payment_details_payment_id_fkey"
+            columns: ["payment_id"]
+            isOneToOne: true
+            referencedRelation: "payments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      payments: {
+        Row: {
+          amount: number
+          created_at: string
+          id: number
+          payment_method: string | null
+          payment_provider: Database["public"]["Enums"]["payment_provider"]
+          provider_invoice_id: string | null
+          provider_payment_id: string | null
+          updated_at: string
+          xnid: string | null
+        }
+        Insert: {
+          amount?: number
+          created_at?: string
+          id?: number
+          payment_method?: string | null
+          payment_provider: Database["public"]["Enums"]["payment_provider"]
+          provider_invoice_id?: string | null
+          provider_payment_id?: string | null
+          updated_at?: string
+          xnid?: string | null
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          id?: number
+          payment_method?: string | null
+          payment_provider?: Database["public"]["Enums"]["payment_provider"]
+          provider_invoice_id?: string | null
+          provider_payment_id?: string | null
+          updated_at?: string
+          xnid?: string | null
+        }
+        Relationships: []
+      }
       plans: {
         Row: {
           activation_type: string
@@ -1407,6 +1636,30 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      stripe_events: {
+        Row: {
+          created_at: string
+          event_id: string
+          id: number
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          event_id: string
+          id?: number
+          type: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          event_id?: string
+          id?: number
+          type?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       subscription_entitlements: {
         Row: {
