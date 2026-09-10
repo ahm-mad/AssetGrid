@@ -63,10 +63,15 @@ export default async function MarinaDetailPage({ params }: PageProps<"/app/marin
         <Button variant="ghost" size="sm" render={<Link href="/app/marina" />}>
           ← Marinas
         </Button>
-        <h1 className="text-lg font-semibold">
-          {marina.marinaName ?? marina.marinaCode}
-          <span className="text-muted-foreground ml-2 font-mono text-sm">{marina.marinaCode}</span>
-        </h1>
+        <div className="flex items-center gap-2">
+          <h1 className="text-lg font-semibold">
+            {marina.marinaName ?? marina.marinaCode}
+            <span className="text-muted-foreground ml-2 font-mono text-sm">{marina.marinaCode}</span>
+          </h1>
+          <Button variant="outline" size="sm" render={<Link href={`/app/marina/${marinaId}/pms`} />}>
+            Property management →
+          </Button>
+        </div>
         <p className="text-muted-foreground flex flex-wrap items-center gap-2 text-sm">
           <Badge variant="secondary">{marina.onNetType || "—"}</Badge>
           {marina.companyName ? <span>{marina.companyName}</span> : null}
