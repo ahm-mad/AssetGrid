@@ -39,6 +39,7 @@ export const NAV_ITEMS: NavItem[] = [
   { href: "/app/billing", label: "Billing", icon: "reports", module: "commerce" },
   { href: "/app/roles", label: "Roles & access", icon: "roles", module: "roles_permissions" },
   { href: "/app/system", label: "System", icon: "system", module: "systems" },
+  { href: "/app/import", label: "Bulk import", icon: "system", module: "systems" },
 ]
 
 export function visibleNavItems(
