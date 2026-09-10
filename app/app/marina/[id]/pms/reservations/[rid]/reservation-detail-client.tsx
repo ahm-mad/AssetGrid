@@ -9,6 +9,11 @@ import {
   updateReservation,
   confirmReservation,
 } from "@/lib/marina/pms/actions";
+import {
+  generateContract,
+  sendContract,
+  signContract,
+} from "@/lib/marina/pms/contract-actions";
 import type { ReservationDetail } from "@/lib/marina/pms/data";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -229,20 +234,51 @@ export function ReservationDetailClient({
         </Card>
       ) : null}
 
-      {reservation.contracts.length > 0 ? (
+      {canWrite || reservation.contracts.length > 0 ? (
         <Card className="lg:col-span-2">
           <CardHeader>
             <CardTitle className="text-base">Contracts</CardTitle>
           </CardHeader>
-          <CardContent className="grid gap-1 text-sm">
+          <CardContent className="grid gap-2 text-sm">
             {reservation.contracts.map((c) => (
-              <div key={c.id}>
-                <span className="font-mono text-xs">{c.xnid}</span> · {c.status}
+              <div key={c.id} className="flex flex-wrap items-center gap-2">
+                <span className="font-mono text-xs">{c.xnid}</span>
+                <Badge variant="secondary">{c.status}</Badge>
+                {canWrite && ["required", "sent"].includes(c.status) ? (
+                  <>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      disabled={pending}
+                      onClick={() => run(() => sendContract(c.id), "Sent — signing link created.")}
+                    >
+                      Send
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      disabled={pending}
+                      onClick={() => run(() => signContract(c.id), "Signed.")}
+                    >
+                      Sign now
+                    </Button>
+                  </>
+                ) : null}
               </div>
             ))}
-            <p className="text-muted-foreground text-xs">
-              Contract documents, e-sign and billing arrive in slice 8b.
-            </p>
+            {canWrite && reservation.assignment && reservation.assignment.status !== "unassigned" ? (
+              <Button
+                size="sm"
+                disabled={pending}
+                onClick={() => run(() => generateContract(reservation.id), "Contract generated.")}
+              >
+                Generate contract
+              </Button>
+            ) : reservation.contracts.length === 0 ? (
+              <p className="text-muted-foreground text-xs">
+                Assign a slip first, then generate a contract.
+              </p>
+            ) : null}
           </CardContent>
         </Card>
       ) : null}

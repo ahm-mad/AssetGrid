@@ -1053,6 +1053,7 @@ export type Database = {
       contract_amendments: {
         Row: {
           amendment_type: string
+          applied_at: string | null
           changed_fields: Json | null
           contract_id: number
           created_at: string
@@ -1074,6 +1075,7 @@ export type Database = {
         }
         Insert: {
           amendment_type: string
+          applied_at?: string | null
           changed_fields?: Json | null
           contract_id: number
           created_at?: string
@@ -1095,6 +1097,7 @@ export type Database = {
         }
         Update: {
           amendment_type?: string
+          applied_at?: string | null
           changed_fields?: Json | null
           contract_id?: number
           created_at?: string
@@ -1192,48 +1195,69 @@ export type Database = {
           boat_id: number
           contract_type: string | null
           created_at: string
+          end_date: string | null
           id: number
           marina_id: number | null
           monthly_rate: number
           original_contract_id: number | null
+          pdf_path: string | null
+          pdf_url: string | null
           rate_plan_id: number
           reservation_id: number | null
+          signature: Json | null
           signed_at: string | null
           slip_id: number
-          status: Database["public"]["Enums"]["contract_status"]
+          start_date: string | null
+          status: string
+          structured_terms: Json | null
           updated_at: string
+          user_id: string | null
           xnid: string | null
         }
         Insert: {
           boat_id: number
           contract_type?: string | null
           created_at?: string
+          end_date?: string | null
           id?: number
           marina_id?: number | null
           monthly_rate: number
           original_contract_id?: number | null
+          pdf_path?: string | null
+          pdf_url?: string | null
           rate_plan_id: number
           reservation_id?: number | null
+          signature?: Json | null
           signed_at?: string | null
           slip_id: number
-          status?: Database["public"]["Enums"]["contract_status"]
+          start_date?: string | null
+          status?: string
+          structured_terms?: Json | null
           updated_at?: string
+          user_id?: string | null
           xnid?: string | null
         }
         Update: {
           boat_id?: number
           contract_type?: string | null
           created_at?: string
+          end_date?: string | null
           id?: number
           marina_id?: number | null
           monthly_rate?: number
           original_contract_id?: number | null
+          pdf_path?: string | null
+          pdf_url?: string | null
           rate_plan_id?: number
           reservation_id?: number | null
+          signature?: Json | null
           signed_at?: string | null
           slip_id?: number
-          status?: Database["public"]["Enums"]["contract_status"]
+          start_date?: string | null
+          status?: string
+          structured_terms?: Json | null
           updated_at?: string
+          user_id?: string | null
           xnid?: string | null
         }
         Relationships: [
@@ -1277,6 +1301,13 @@ export type Database = {
             columns: ["slip_id"]
             isOneToOne: false
             referencedRelation: "slips"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contracts_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]
