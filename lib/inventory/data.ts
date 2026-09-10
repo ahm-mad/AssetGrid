@@ -227,6 +227,105 @@ export async function getDeviceSecrets(
   }
 }
 
+// ---------------------------------------------------------------------------
+// Safeguard configurations  (SafeGuardConfigurationController)
+// ---------------------------------------------------------------------------
+export interface SafeguardConfigRow {
+  id: number
+  userId: string | null
+  inventoryDeviceId: number | null
+  userDeviceId: number | null
+  abnormalAlertLimit: number
+  alertIntervalHours: number
+  supportEmailSent: string[]
+  supportNumberSent: string[]
+  isActive: boolean
+  notificationsPaused: boolean
+  supportEmailSentAt: string | null
+  createdAt: string
+}
+
+export async function listSafeguardConfigurations(): Promise<SafeguardConfigRow[]> {
+  const supabase = await createClient()
+  const { data, error } = await supabase
+    .from('safeguard_configurations')
+    .select(
+      'id, user_id, inventory_device_id, user_device_id, abnormal_alert_limit, alert_interval_hours, support_email_sent, support_number_sent, is_active, notifications_paused, support_email_sent_at, created_at',
+    )
+    .order('id', { ascending: false })
+  if (error) throw error
+  return (data ?? []).map((c) => ({
+    id: c.id,
+    userId: c.user_id,
+    inventoryDeviceId: c.inventory_device_id,
+    userDeviceId: c.user_device_id,
+    abnormalAlertLimit: c.abnormal_alert_limit,
+    alertIntervalHours: Number(c.alert_interval_hours),
+    supportEmailSent: (c.support_email_sent as string[] | null) ?? [],
+    supportNumberSent: (c.support_number_sent as string[] | null) ?? [],
+    isActive: c.is_active,
+    notificationsPaused: c.notifications_paused,
+    supportEmailSentAt: c.support_email_sent_at,
+    createdAt: c.created_at,
+  }))
+}
+
+// ---------------------------------------------------------------------------
+// Device-health schedulers  (DeviceHealthSchedulerController — own rows only)
+// ---------------------------------------------------------------------------
+export interface DeviceHealthSchedulerRow {
+  id: number
+  scheduleTitle: string
+  timeZone: string
+  time: string
+  days: string[]
+  selectedDevices: number[]
+  createdAt: string
+}
+
+export async function listDeviceHealthSchedulers(
+  userId: string,
+): Promise<DeviceHealthSchedulerRow[]> {
+  const supabase = await createClient()
+  const { data, error } = await supabase
+    .from('device_health_schedulers')
+    .select('id, schedule_title, time_zone, time, days, selected_devices, created_at')
+    .eq('user_id', userId)
+    .order('id', { ascending: false })
+  if (error) throw error
+  return (data ?? []).map((s) => ({
+    id: s.id,
+    scheduleTitle: s.schedule_title,
+    timeZone: s.time_zone,
+    time: s.time,
+    days: (s.days as string[] | null) ?? [],
+    selectedDevices: (s.selected_devices as number[] | null) ?? [],
+    createdAt: s.created_at,
+  }))
+}
+
+/** Lightweight device pickers for the safeguard / health-scheduler forms. */
+export async function getDevicePickerOptions(): Promise<{
+  inventoryDevices: { id: number; label: string }[]
+  userDevices: { id: number; label: string }[]
+}> {
+  const supabase = await createClient()
+  const [{ data: inv }, { data: ud }] = await Promise.all([
+    supabase.from('inventory_devices').select('id, name, dev_eui').order('id').limit(500),
+    supabase.from('user_devices').select('id, device_name, dev_eui').order('id').limit(500),
+  ])
+  return {
+    inventoryDevices: (inv ?? []).map((d) => ({
+      id: d.id,
+      label: `${d.name}${d.dev_eui ? ` · ${d.dev_eui}` : ''}`,
+    })),
+    userDevices: (ud ?? []).map((d) => ({
+      id: d.id,
+      label: `${d.device_name ?? `#${d.id}`}${d.dev_eui ? ` · ${d.dev_eui}` : ''}`,
+    })),
+  }
+}
+
 /** Options for the inventory-device create/edit form. */
 export async function getInventoryFormOptions(): Promise<{
   containers: { id: number; code: string }[]
