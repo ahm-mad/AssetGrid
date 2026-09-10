@@ -7,11 +7,13 @@ import {
   listDeviceRecipients,
 } from "@/lib/messaging/data";
 import { getDevicePickerOptions } from "@/lib/inventory/data";
+import { listSmsGroups, listGroupAdmins } from "@/lib/sms/groups-data";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 import { NotificationPrefsForm } from "./notification-prefs-form";
 import { AlertWindowsTab } from "./alert-windows-tab";
 import { DeviceRecipientsTab } from "./device-recipients-tab";
+import { SmsGroupsTab } from "./sms-groups-tab";
 
 export const metadata = { title: "Messaging" };
 
@@ -23,15 +25,20 @@ export default async function MessagingPage() {
 
   const canWindows =
     viewer.isSuperAdmin || can(viewer.permissions, "rulebuilder", "read");
+  const canGroups = viewer.isSuperAdmin || can(viewer.permissions, "messaging", "read");
 
-  const [prefs, windows, recipients, options] = await Promise.all([
+  const [prefs, windows, recipients, options, smsGroups, groupAdmins] = await Promise.all([
     getMyNotificationPrefs(viewer.id),
     canWindows ? listAlertWindows() : Promise.resolve([]),
     listDeviceRecipients(),
     getDevicePickerOptions(),
+    canGroups ? listSmsGroups({ perPage: 100 }) : Promise.resolve(null),
+    canGroups ? listGroupAdmins() : Promise.resolve([]),
   ]);
 
   const canWindowsWrite = viewer.isSuperAdmin || can(viewer.permissions, "rulebuilder", "create");
+  const canGroupsWrite = viewer.isSuperAdmin || can(viewer.permissions, "messaging", "create");
+  const canGroupsDelete = viewer.isSuperAdmin || can(viewer.permissions, "messaging", "delete");
 
   return (
     <div className="grid gap-4">
@@ -47,6 +54,9 @@ export default async function MessagingPage() {
           <TabsTrigger value="prefs">My notifications</TabsTrigger>
           {canWindows ? <TabsTrigger value="windows">Alert windows</TabsTrigger> : null}
           <TabsTrigger value="recipients">Device recipients</TabsTrigger>
+          {canGroups && smsGroups ? (
+            <TabsTrigger value="groups">SMS groups ({smsGroups.rows.length})</TabsTrigger>
+          ) : null}
         </TabsList>
 
         <TabsContent value="prefs">
@@ -64,6 +74,16 @@ export default async function MessagingPage() {
         <TabsContent value="recipients">
           <DeviceRecipientsTab rows={recipients} userDevices={options.userDevices} />
         </TabsContent>
+        {canGroups && smsGroups ? (
+          <TabsContent value="groups">
+            <SmsGroupsTab
+              groups={smsGroups.rows}
+              admins={groupAdmins}
+              canWrite={canGroupsWrite}
+              canDelete={canGroupsDelete}
+            />
+          </TabsContent>
+        ) : null}
       </Tabs>
     </div>
   );

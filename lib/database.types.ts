@@ -2244,6 +2244,51 @@ export type Database = {
           },
         ]
       }
+      message_outbox: {
+        Row: {
+          body: string
+          channel: string
+          context: Json | null
+          created_at: string
+          error: string | null
+          from_address: string | null
+          id: number
+          provider: string | null
+          provider_id: string | null
+          status: string
+          subject: string | null
+          to_address: string
+        }
+        Insert: {
+          body: string
+          channel: string
+          context?: Json | null
+          created_at?: string
+          error?: string | null
+          from_address?: string | null
+          id?: number
+          provider?: string | null
+          provider_id?: string | null
+          status?: string
+          subject?: string | null
+          to_address: string
+        }
+        Update: {
+          body?: string
+          channel?: string
+          context?: Json | null
+          created_at?: string
+          error?: string | null
+          from_address?: string | null
+          id?: number
+          provider?: string | null
+          provider_id?: string | null
+          status?: string
+          subject?: string | null
+          to_address?: string
+        }
+        Relationships: []
+      }
       meters: {
         Row: {
           created_at: string
@@ -3760,6 +3805,133 @@ export type Database = {
             columns: ["rate_plan_id"]
             isOneToOne: false
             referencedRelation: "rate_plans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sms_group_broadcast_messages: {
+        Row: {
+          created_at: string
+          group_id: number | null
+          id: number
+          message: string
+          phone: string
+          topic: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          group_id?: number | null
+          id?: number
+          message: string
+          phone: string
+          topic: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          group_id?: number | null
+          id?: number
+          message?: string
+          phone?: string
+          topic?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sms_group_broadcast_messages_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "sms_groups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sms_group_registers: {
+        Row: {
+          created_at: string
+          group_id: number
+          id: number
+          phone: string
+          topic: string | null
+        }
+        Insert: {
+          created_at?: string
+          group_id: number
+          id?: number
+          phone: string
+          topic?: string | null
+        }
+        Update: {
+          created_at?: string
+          group_id?: number
+          id?: number
+          phone?: string
+          topic?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sms_group_registers_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "sms_groups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sms_groups: {
+        Row: {
+          admin_id: string | null
+          admin_number: string | null
+          company_id: number | null
+          created_at: string
+          group_assigned_num: string
+          group_name: string
+          id: number
+          msg_id: string | null
+          reg_id: string | null
+          topic: string | null
+          updated_at: string
+        }
+        Insert: {
+          admin_id?: string | null
+          admin_number?: string | null
+          company_id?: number | null
+          created_at?: string
+          group_assigned_num: string
+          group_name: string
+          id?: number
+          msg_id?: string | null
+          reg_id?: string | null
+          topic?: string | null
+          updated_at?: string
+        }
+        Update: {
+          admin_id?: string | null
+          admin_number?: string | null
+          company_id?: number | null
+          created_at?: string
+          group_assigned_num?: string
+          group_name?: string
+          id?: number
+          msg_id?: string | null
+          reg_id?: string | null
+          topic?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sms_groups_admin_id_fkey"
+            columns: ["admin_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sms_groups_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
             referencedColumns: ["id"]
           },
         ]
