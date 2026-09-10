@@ -36,6 +36,7 @@ export const NAV_ITEMS: NavItem[] = [
   { href: "/app/rules", label: "Rule builder", icon: "rules", module: "rulebuilder" },
   { href: "/app/reports", label: "Reports", icon: "reports", module: "dashboard" },
   { href: "/app/customers", label: "Customers", icon: "customers", module: "commerce" },
+  { href: "/app/billing", label: "Billing", icon: "reports", module: "commerce" },
   { href: "/app/roles", label: "Roles & access", icon: "roles", module: "roles_permissions" },
   { href: "/app/system", label: "System", icon: "system", module: "systems" },
 ]
