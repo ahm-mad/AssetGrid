@@ -137,6 +137,274 @@ export type Database = {
           },
         ]
       }
+      alert_log: {
+        Row: {
+          channel: Database["public"]["Enums"]["notification_channel"]
+          created_at: string
+          device_name: string | null
+          id: number
+          message: string
+          recipient: string
+          subject: string | null
+          telemetry_id: number | null
+          user_device_id: number | null
+          user_id: string | null
+        }
+        Insert: {
+          channel: Database["public"]["Enums"]["notification_channel"]
+          created_at?: string
+          device_name?: string | null
+          id?: number
+          message: string
+          recipient: string
+          subject?: string | null
+          telemetry_id?: number | null
+          user_device_id?: number | null
+          user_id?: string | null
+        }
+        Update: {
+          channel?: Database["public"]["Enums"]["notification_channel"]
+          created_at?: string
+          device_name?: string | null
+          id?: number
+          message?: string
+          recipient?: string
+          subject?: string | null
+          telemetry_id?: number | null
+          user_device_id?: number | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "alert_log_user_device_id_fkey"
+            columns: ["user_device_id"]
+            isOneToOne: false
+            referencedRelation: "user_devices"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "alert_log_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      alert_rules: {
+        Row: {
+          conditions: Json | null
+          created_at: string
+          devices: Json | null
+          id: number
+          is_active: boolean
+          notifie: string | null
+          title: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          conditions?: Json | null
+          created_at?: string
+          devices?: Json | null
+          id?: number
+          is_active?: boolean
+          notifie?: string | null
+          title?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          conditions?: Json | null
+          created_at?: string
+          devices?: Json | null
+          id?: number
+          is_active?: boolean
+          notifie?: string | null
+          title?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "alert_rules_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      alert_state: {
+        Row: {
+          admin_bypass: boolean
+          alerts_count_24h: number
+          attribute_id: number | null
+          created_at: string
+          dev_eui: string
+          id: number
+          inventory_device_id: number | null
+          is_alert: boolean
+          last_alert_at: string | null
+          notification: string | null
+          notification_type: string
+          notifications_paused: boolean
+          notifie_id: number | null
+          paused_until: string | null
+          prev_value: number | null
+          product_id: number | null
+          support_email_sent_at: string | null
+          triggering_reading_id: number | null
+          updated_at: string
+          user_device_id: number
+          value: number | null
+          window_started_at: string | null
+        }
+        Insert: {
+          admin_bypass?: boolean
+          alerts_count_24h?: number
+          attribute_id?: number | null
+          created_at?: string
+          dev_eui: string
+          id?: number
+          inventory_device_id?: number | null
+          is_alert?: boolean
+          last_alert_at?: string | null
+          notification?: string | null
+          notification_type?: string
+          notifications_paused?: boolean
+          notifie_id?: number | null
+          paused_until?: string | null
+          prev_value?: number | null
+          product_id?: number | null
+          support_email_sent_at?: string | null
+          triggering_reading_id?: number | null
+          updated_at?: string
+          user_device_id: number
+          value?: number | null
+          window_started_at?: string | null
+        }
+        Update: {
+          admin_bypass?: boolean
+          alerts_count_24h?: number
+          attribute_id?: number | null
+          created_at?: string
+          dev_eui?: string
+          id?: number
+          inventory_device_id?: number | null
+          is_alert?: boolean
+          last_alert_at?: string | null
+          notification?: string | null
+          notification_type?: string
+          notifications_paused?: boolean
+          notifie_id?: number | null
+          paused_until?: string | null
+          prev_value?: number | null
+          product_id?: number | null
+          support_email_sent_at?: string | null
+          triggering_reading_id?: number | null
+          updated_at?: string
+          user_device_id?: number
+          value?: number | null
+          window_started_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "alert_state_attribute_id_fkey"
+            columns: ["attribute_id"]
+            isOneToOne: false
+            referencedRelation: "attributes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "alert_state_inventory_device_id_fkey"
+            columns: ["inventory_device_id"]
+            isOneToOne: false
+            referencedRelation: "inventory_devices"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "alert_state_notifie_id_fkey"
+            columns: ["notifie_id"]
+            isOneToOne: false
+            referencedRelation: "notifies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "alert_state_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "alert_state_user_device_id_fkey"
+            columns: ["user_device_id"]
+            isOneToOne: false
+            referencedRelation: "user_devices"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      alert_windows: {
+        Row: {
+          attribute_key: string
+          building_id: number | null
+          company_id: number | null
+          created_at: string
+          days: string[] | null
+          end_time: string
+          id: number
+          inventories: Json | null
+          marina_id: number | null
+          recurrence: Database["public"]["Enums"]["scheduler_recurrence"]
+          rule_name: string | null
+          start_time: string
+          timezone: string
+          updated_at: string
+        }
+        Insert: {
+          attribute_key: string
+          building_id?: number | null
+          company_id?: number | null
+          created_at?: string
+          days?: string[] | null
+          end_time: string
+          id?: number
+          inventories?: Json | null
+          marina_id?: number | null
+          recurrence?: Database["public"]["Enums"]["scheduler_recurrence"]
+          rule_name?: string | null
+          start_time: string
+          timezone?: string
+          updated_at?: string
+        }
+        Update: {
+          attribute_key?: string
+          building_id?: number | null
+          company_id?: number | null
+          created_at?: string
+          days?: string[] | null
+          end_time?: string
+          id?: number
+          inventories?: Json | null
+          marina_id?: number | null
+          recurrence?: Database["public"]["Enums"]["scheduler_recurrence"]
+          rule_name?: string | null
+          start_time?: string
+          timezone?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "alert_windows_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       app_xup: {
         Row: {
           app_id: number
@@ -509,6 +777,51 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "device_health_schedulers_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      device_notification_recipients: {
+        Row: {
+          created_at: string
+          emails: string[]
+          id: number
+          phone_numbers: string[]
+          updated_at: string
+          user_device_id: number | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          emails?: string[]
+          id?: number
+          phone_numbers?: string[]
+          updated_at?: string
+          user_device_id?: number | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          emails?: string[]
+          id?: number
+          phone_numbers?: string[]
+          updated_at?: string
+          user_device_id?: number | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "device_notification_recipients_user_device_id_fkey"
+            columns: ["user_device_id"]
+            isOneToOne: true
+            referencedRelation: "user_devices"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "device_notification_recipients_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "profiles"
@@ -990,6 +1303,79 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      notification_prefs: {
+        Row: {
+          company_id: number | null
+          created_at: string
+          customer_email_enabled: boolean
+          customer_phone_enabled: boolean
+          device_email_enabled: boolean
+          device_phone_enabled: boolean
+          email_enabled: boolean
+          id: number
+          manager_email_enabled: boolean
+          manager_phone_enabled: boolean
+          phone_enabled: boolean
+          updated_at: string
+          user_device_id: number | null
+          user_id: string | null
+        }
+        Insert: {
+          company_id?: number | null
+          created_at?: string
+          customer_email_enabled?: boolean
+          customer_phone_enabled?: boolean
+          device_email_enabled?: boolean
+          device_phone_enabled?: boolean
+          email_enabled?: boolean
+          id?: number
+          manager_email_enabled?: boolean
+          manager_phone_enabled?: boolean
+          phone_enabled?: boolean
+          updated_at?: string
+          user_device_id?: number | null
+          user_id?: string | null
+        }
+        Update: {
+          company_id?: number | null
+          created_at?: string
+          customer_email_enabled?: boolean
+          customer_phone_enabled?: boolean
+          device_email_enabled?: boolean
+          device_phone_enabled?: boolean
+          email_enabled?: boolean
+          id?: number
+          manager_email_enabled?: boolean
+          manager_phone_enabled?: boolean
+          phone_enabled?: boolean
+          updated_at?: string
+          user_device_id?: number | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notification_prefs_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notification_prefs_user_device_id_fkey"
+            columns: ["user_device_id"]
+            isOneToOne: false
+            referencedRelation: "user_devices"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notification_prefs_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       notifies: {
         Row: {
