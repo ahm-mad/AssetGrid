@@ -9,6 +9,54 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      companies: {
+        Row: {
+          company_name: string
+          created_at: string
+          email: string
+          id: number
+          updated_at: string
+          username: string
+        }
+        Insert: {
+          company_name: string
+          created_at?: string
+          email: string
+          id?: number
+          updated_at?: string
+          username: string
+        }
+        Update: {
+          company_name?: string
+          created_at?: string
+          email?: string
+          id?: number
+          updated_at?: string
+          username?: string
+        }
+        Relationships: []
+      }
+      domains: {
+        Row: {
+          created_at: string
+          domain_url: string
+          id: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          domain_url: string
+          id?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          domain_url?: string
+          id?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       impersonation_log: {
         Row: {
           actor_id: string
@@ -215,6 +263,20 @@ export type Database = {
           xnid?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "profiles_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "profiles_domain_id_fkey"
+            columns: ["domain_id"]
+            isOneToOne: false
+            referencedRelation: "domains"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "profiles_role_type_id_fkey"
             columns: ["role_type_id"]
@@ -424,6 +486,10 @@ export type Database = {
       auth_role_title: { Args: { p_user?: string }; Returns: string }
       auth_scope_allows: {
         Args: { p_asset: number; p_entity: string; p_user?: string }
+        Returns: boolean
+      }
+      auth_scope_grant_allowed: {
+        Args: { p_actor?: string; p_asset_ids: number[]; p_entity: string }
         Returns: boolean
       }
       custom_access_token_hook: { Args: { event: Json }; Returns: Json }
