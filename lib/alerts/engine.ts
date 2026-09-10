@@ -222,6 +222,28 @@ export async function runAlertEngine(input: AlertEngineInput): Promise<void> {
     .maybeSingle()
   const deviceName = udRow?.device_name ?? null
 
+  // Is this device mounted on a boat? (for marina_alerts — the
+  // ProcessRealTimeAlert target). Resolved once.
+  let boatCtx: { boatId: number; marinaId: number } | null = null
+  if (inventoryDeviceId) {
+    const { data: bd } = await db
+      .from('boat_devices')
+      .select('boat_id, boat:boats(id, marina_id)')
+      .eq('inventory_device_id', inventoryDeviceId)
+      .limit(1)
+      .maybeSingle()
+    const boat = bd?.boat as { id: number; marina_id: number } | null
+    if (boat) boatCtx = { boatId: boat.id, marinaId: boat.marina_id }
+  }
+  const publishMarinaAlert = async (subject: string, value: unknown) => {
+    if (!boatCtx) return
+    await db.from('marina_alerts').insert({
+      marina_id: boatCtx.marinaId,
+      boat_id: boatCtx.boatId,
+      payload: { subject, value, dev_eui: input.devEui, telemetry_id: input.telemetryId } as never,
+    })
+  }
+
   // ---- safeguard config (global, active) ----
   const { data: sg } = await db
     .from('safeguard_configurations')
@@ -422,6 +444,7 @@ export async function runAlertEngine(input: AlertEngineInput): Promise<void> {
         deviceName,
         telemetryId: input.telemetryId,
       })
+      await publishMarinaAlert(attr.subject ?? 'Alert', value)
 
       // Neo: queue a pending row only when we can build an account context.
       // A building/marina site lookup is slices 6/7 — until then, record the
@@ -467,6 +490,7 @@ export async function runAlertEngine(input: AlertEngineInput): Promise<void> {
         deviceName,
         telemetryId: input.telemetryId,
       })
+      await publishMarinaAlert(rule.title ?? 'Rule Alert', null)
     }
   }
 }
