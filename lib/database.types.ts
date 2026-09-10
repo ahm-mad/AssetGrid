@@ -8970,6 +8970,27 @@ export type Database = {
       }
       custom_access_token_hook: { Args: { event: Json }; Returns: Json }
       gen_xnid: { Args: { prefix: string }; Returns: string }
+      marina_create_reservation: {
+        Args: {
+          p_boat_id: number
+          p_days: number
+          p_discount?: number
+          p_dock_id: number
+          p_end_date: string
+          p_loa: number
+          p_marina_id: number
+          p_rate: number
+          p_rate_plan_id: number
+          p_slip_id?: number
+          p_start_date: string
+          p_subtotal: number
+          p_surcharge?: number
+          p_tax: number
+          p_total: number
+          p_user_id: string
+        }
+        Returns: number
+      }
       rls_catalog_read: { Args: never; Returns: boolean }
     }
     Enums: {
