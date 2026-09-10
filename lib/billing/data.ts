@@ -365,6 +365,29 @@ export async function listPayments(params: { page?: number; perPage?: number } =
   }
 }
 
+/** Users to offer in the "start activation" picker (recent profiles). */
+export async function getActivationUserOptions(): Promise<
+  { id: string; name: string; xnid: string | null }[]
+> {
+  const supabase = await createClient()
+  const { data, error } = await supabase
+    .from('profiles')
+    .select('id, first_name, last_name, xnid, role:role_types!profiles_role_type_id_fkey(title)')
+    .is('deleted_at', null)
+    .order('created_at', { ascending: false })
+    .limit(200)
+  if (error) throw error
+  return (data ?? []).map((p) => ({
+    id: p.id,
+    name:
+      [p.first_name, p.last_name].filter(Boolean).join(' ') ||
+      (p.role as { title?: string } | null)?.title ||
+      p.xnid ||
+      p.id,
+    xnid: p.xnid,
+  }))
+}
+
 /** Devices a user could still activate (status not yet 'captured'). */
 export async function listActivatableUserDevices(
   userId: string,

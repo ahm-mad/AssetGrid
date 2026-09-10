@@ -1,7 +1,11 @@
 import Link from "next/link";
 
 import { requirePagePermission } from "@/lib/auth/page-guards";
+import { can } from "@/lib/auth/permissions";
 import { listUserDevices } from "@/lib/devices/data";
+import { getActivationUserOptions } from "@/lib/billing/data";
+
+import { ClaimDeviceDialog } from "./claim-device-dialog";
 import {
   Table,
   TableBody,
@@ -17,7 +21,12 @@ import { Input } from "@/components/ui/input";
 export const metadata = { title: "Devices" };
 
 export default async function DevicesPage({ searchParams }: PageProps<"/app/devices">) {
-  await requirePagePermission("inventory", "read", { allowCustomer: true });
+  const viewer = await requirePagePermission("inventory", "read", { allowCustomer: true });
+  const isAdmin =
+    viewer.isSuperAdmin ||
+    can(viewer.permissions, "inventory", "update") ||
+    can(viewer.permissions, "commerce", "create");
+  const userOptions = isAdmin ? await getActivationUserOptions() : [];
 
   const sp = await searchParams;
   const page = Number(typeof sp.page === "string" ? sp.page : 1) || 1;
@@ -41,9 +50,12 @@ export default async function DevicesPage({ searchParams }: PageProps<"/app/devi
             {result.total} devices activated to an end user
           </p>
         </div>
-        <Button variant="outline" size="sm" render={<Link href="/app/inventory" />}>
-          Inventory registry
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="outline" size="sm" render={<Link href="/app/inventory" />}>
+            Inventory registry
+          </Button>
+          <ClaimDeviceDialog selfId={viewer.id} users={isAdmin ? userOptions : null} />
+        </div>
       </div>
 
       <form className="flex gap-2" action="/app/devices">
