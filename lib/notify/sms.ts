@@ -1,33 +1,52 @@
 import 'server-only'
 
+import { recordOutbox } from './outbox'
+
 /**
  * Outbound SMS via Twilio. Gated on `TWILIO_SID` / `TWILIO_TOKEN` / `TWILIO_FROM`
- * — when any is missing the send is a logged no-op. Calls the Twilio REST API
- * with `fetch` (the `twilio` npm package is added when the Twilio slice /
- * integrations phase lands).
+ * — when any is missing the send is a **mock**: a `message_outbox` row is
+ * written with status `mocked` and nothing leaves the system (ADR-036). When
+ * configured the Twilio REST API is called and the row is `sent` / `failed`.
  *
- * Callers: the alert engine (`lib/alerts/`) and the charging control flows
- * ("Charging Started/Stopped").
+ * Callers: the alert engine (`lib/alerts/`), the charging control flows, and
+ * the SMS-groups feature (`lib/sms/`).
  */
 
 export function isSmsConfigured(): boolean {
   return !!(process.env.TWILIO_SID && process.env.TWILIO_TOKEN && process.env.TWILIO_FROM)
 }
 
+export interface SmsResult {
+  ok: boolean
+  sid?: string
+  mocked?: boolean
+  error?: string
+}
+
 export async function sendSms(
   to: string,
   body: string,
-): Promise<{ ok: boolean; sid?: string; error?: string }> {
+  opts: { from?: string; context?: Record<string, unknown> } = {},
+): Promise<SmsResult> {
   const sid = process.env.TWILIO_SID
   const token = process.env.TWILIO_TOKEN
-  const from = process.env.TWILIO_FROM
+  const from = opts.from ?? process.env.TWILIO_FROM
+  const to_ = to.startsWith('+') ? to : `+${to}`
 
   if (!sid || !token || !from) {
-    console.warn(`[sms] Twilio not configured — skipping SMS to ${to}`)
-    return { ok: true }
+    console.warn(`[sms] Twilio not configured — mocking SMS to ${to_}: ${body.slice(0, 80)}`)
+    await recordOutbox({
+      channel: 'sms',
+      toAddress: to_,
+      fromAddress: from ?? null,
+      body,
+      context: opts.context,
+      status: 'mocked',
+      provider: 'twilio',
+    })
+    return { ok: true, mocked: true }
   }
 
-  const to_ = to.startsWith('+') ? to : `+${to}`
   try {
     const res = await fetch(`https://api.twilio.com/2010-04-01/Accounts/${sid}/Messages.json`, {
       method: 'POST',
@@ -37,10 +56,44 @@ export async function sendSms(
       },
       body: new URLSearchParams({ To: to_, From: from, Body: body }),
     })
-    if (!res.ok) return { ok: false, error: `twilio ${res.status}: ${await res.text()}` }
+    if (!res.ok) {
+      const error = `twilio ${res.status}: ${await res.text()}`
+      await recordOutbox({
+        channel: 'sms',
+        toAddress: to_,
+        fromAddress: from,
+        body,
+        context: opts.context,
+        status: 'failed',
+        provider: 'twilio',
+        error,
+      })
+      return { ok: false, error }
+    }
     const data = (await res.json()) as { sid?: string }
+    await recordOutbox({
+      channel: 'sms',
+      toAddress: to_,
+      fromAddress: from,
+      body,
+      context: opts.context,
+      status: 'sent',
+      provider: 'twilio',
+      providerId: data.sid ?? null,
+    })
     return { ok: true, sid: data.sid }
   } catch (e) {
-    return { ok: false, error: (e as Error).message }
+    const error = (e as Error).message
+    await recordOutbox({
+      channel: 'sms',
+      toAddress: to_,
+      fromAddress: from,
+      body,
+      context: opts.context,
+      status: 'failed',
+      provider: 'twilio',
+      error,
+    })
+    return { ok: false, error }
   }
 }
