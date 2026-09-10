@@ -146,6 +146,54 @@ export type Database = {
           },
         ]
       }
+      charging_timers: {
+        Row: {
+          created_at: string
+          id: number
+          is_active: boolean
+          kind: Database["public"]["Enums"]["charging_timer_kind"]
+          seconds: number | null
+          updated_at: string
+          user_device_id: number | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: number
+          is_active?: boolean
+          kind?: Database["public"]["Enums"]["charging_timer_kind"]
+          seconds?: number | null
+          updated_at?: string
+          user_device_id?: number | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: number
+          is_active?: boolean
+          kind?: Database["public"]["Enums"]["charging_timer_kind"]
+          seconds?: number | null
+          updated_at?: string
+          user_device_id?: number | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "charging_timers_user_device_id_fkey"
+            columns: ["user_device_id"]
+            isOneToOne: false
+            referencedRelation: "user_devices"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "charging_timers_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       companies: {
         Row: {
           company_name: string
@@ -172,6 +220,312 @@ export type Database = {
           username?: string
         }
         Relationships: []
+      }
+      containers: {
+        Row: {
+          code: string
+          created_at: string
+          id: number
+          updated_at: string
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          id?: number
+          updated_at?: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          id?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      device_assignments: {
+        Row: {
+          assigned_at: string
+          created_at: string
+          entitlement_id: number
+          id: number
+          provider_subscription_id: string | null
+          status: Database["public"]["Enums"]["device_assignment_status"]
+          updated_at: string
+          xnid: string
+        }
+        Insert: {
+          assigned_at?: string
+          created_at?: string
+          entitlement_id: number
+          id?: number
+          provider_subscription_id?: string | null
+          status?: Database["public"]["Enums"]["device_assignment_status"]
+          updated_at?: string
+          xnid: string
+        }
+        Update: {
+          assigned_at?: string
+          created_at?: string
+          entitlement_id?: number
+          id?: number
+          provider_subscription_id?: string | null
+          status?: Database["public"]["Enums"]["device_assignment_status"]
+          updated_at?: string
+          xnid?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "device_assignments_entitlement_id_fkey"
+            columns: ["entitlement_id"]
+            isOneToOne: false
+            referencedRelation: "subscription_entitlements"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      device_charging_state: {
+        Row: {
+          dev_eui: string | null
+          inventory_device_id: number | null
+          is_charging: boolean
+          is_on: boolean | null
+          last_command: string | null
+          last_command_at: string | null
+          last_status: string | null
+          updated_at: string
+          user_device_id: number
+          user_id: string | null
+        }
+        Insert: {
+          dev_eui?: string | null
+          inventory_device_id?: number | null
+          is_charging?: boolean
+          is_on?: boolean | null
+          last_command?: string | null
+          last_command_at?: string | null
+          last_status?: string | null
+          updated_at?: string
+          user_device_id: number
+          user_id?: string | null
+        }
+        Update: {
+          dev_eui?: string | null
+          inventory_device_id?: number | null
+          is_charging?: boolean
+          is_on?: boolean | null
+          last_command?: string | null
+          last_command_at?: string | null
+          last_status?: string | null
+          updated_at?: string
+          user_device_id?: number
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "device_charging_state_inventory_device_id_fkey"
+            columns: ["inventory_device_id"]
+            isOneToOne: false
+            referencedRelation: "inventory_devices"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "device_charging_state_user_device_id_fkey"
+            columns: ["user_device_id"]
+            isOneToOne: true
+            referencedRelation: "user_devices"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "device_charging_state_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      device_health_schedulers: {
+        Row: {
+          created_at: string
+          days: Json | null
+          id: number
+          schedule_title: string
+          selected_devices: Json | null
+          time: string
+          time_zone: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          days?: Json | null
+          id?: number
+          schedule_title: string
+          selected_devices?: Json | null
+          time: string
+          time_zone: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          days?: Json | null
+          id?: number
+          schedule_title?: string
+          selected_devices?: Json | null
+          time?: string
+          time_zone?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "device_health_schedulers_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      device_parameters: {
+        Row: {
+          battery_capacity: number | null
+          battery_voltage: number | null
+          charger_amperes: number | null
+          charger_voltage: number | null
+          charging_limits: number | null
+          created_at: string
+          desired_charging: number | null
+          dev_eui: string | null
+          email_alert: boolean
+          id: number
+          inventory_device_id: number | null
+          is_default: boolean
+          over_current_protection: boolean
+          over_voltage_protection: boolean
+          sms_alert: boolean
+          updated_at: string
+          user_device_id: number | null
+          user_id: string | null
+        }
+        Insert: {
+          battery_capacity?: number | null
+          battery_voltage?: number | null
+          charger_amperes?: number | null
+          charger_voltage?: number | null
+          charging_limits?: number | null
+          created_at?: string
+          desired_charging?: number | null
+          dev_eui?: string | null
+          email_alert?: boolean
+          id?: number
+          inventory_device_id?: number | null
+          is_default?: boolean
+          over_current_protection?: boolean
+          over_voltage_protection?: boolean
+          sms_alert?: boolean
+          updated_at?: string
+          user_device_id?: number | null
+          user_id?: string | null
+        }
+        Update: {
+          battery_capacity?: number | null
+          battery_voltage?: number | null
+          charger_amperes?: number | null
+          charger_voltage?: number | null
+          charging_limits?: number | null
+          created_at?: string
+          desired_charging?: number | null
+          dev_eui?: string | null
+          email_alert?: boolean
+          id?: number
+          inventory_device_id?: number | null
+          is_default?: boolean
+          over_current_protection?: boolean
+          over_voltage_protection?: boolean
+          sms_alert?: boolean
+          updated_at?: string
+          user_device_id?: number | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "device_parameters_inventory_device_id_fkey"
+            columns: ["inventory_device_id"]
+            isOneToOne: false
+            referencedRelation: "inventory_devices"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "device_parameters_user_device_id_fkey"
+            columns: ["user_device_id"]
+            isOneToOne: false
+            referencedRelation: "user_devices"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "device_parameters_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      device_schedules: {
+        Row: {
+          created_at: string
+          device_type_id: number
+          end_time: string
+          id: number
+          reminder: boolean
+          selected_days: Json
+          start_time: string
+          turn_on: boolean
+          updated_at: string
+          user_device_id: number | null
+        }
+        Insert: {
+          created_at?: string
+          device_type_id: number
+          end_time: string
+          id?: number
+          reminder?: boolean
+          selected_days: Json
+          start_time: string
+          turn_on?: boolean
+          updated_at?: string
+          user_device_id?: number | null
+        }
+        Update: {
+          created_at?: string
+          device_type_id?: number
+          end_time?: string
+          id?: number
+          reminder?: boolean
+          selected_days?: Json
+          start_time?: string
+          turn_on?: boolean
+          updated_at?: string
+          user_device_id?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "device_schedules_device_type_id_fkey"
+            columns: ["device_type_id"]
+            isOneToOne: false
+            referencedRelation: "device_types"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "device_schedules_user_device_id_fkey"
+            columns: ["user_device_id"]
+            isOneToOne: false
+            referencedRelation: "user_devices"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       device_types: {
         Row: {
@@ -218,6 +572,47 @@ export type Database = {
         }
         Relationships: []
       }
+      energy_usage_sessions: {
+        Row: {
+          counter: number | null
+          created_at: string
+          dev_eui: string
+          energy_consumed: number | null
+          id: number
+          status: string
+          updated_at: string
+          user_device_id: number | null
+        }
+        Insert: {
+          counter?: number | null
+          created_at?: string
+          dev_eui: string
+          energy_consumed?: number | null
+          id?: number
+          status: string
+          updated_at?: string
+          user_device_id?: number | null
+        }
+        Update: {
+          counter?: number | null
+          created_at?: string
+          dev_eui?: string
+          energy_consumed?: number | null
+          id?: number
+          status?: string
+          updated_at?: string
+          user_device_id?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "energy_usage_sessions_user_device_id_fkey"
+            columns: ["user_device_id"]
+            isOneToOne: false
+            referencedRelation: "user_devices"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       impersonation_log: {
         Row: {
           actor_id: string
@@ -259,6 +654,127 @@ export type Database = {
             columns: ["target_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      inventory_device_secrets: {
+        Row: {
+          app_eui: string | null
+          app_key: string | null
+          appskey: string | null
+          dev_addr: string | null
+          inventory_device_id: number
+          nwkskey: string | null
+          updated_at: string
+        }
+        Insert: {
+          app_eui?: string | null
+          app_key?: string | null
+          appskey?: string | null
+          dev_addr?: string | null
+          inventory_device_id: number
+          nwkskey?: string | null
+          updated_at?: string
+        }
+        Update: {
+          app_eui?: string | null
+          app_key?: string | null
+          appskey?: string | null
+          dev_addr?: string | null
+          inventory_device_id?: number
+          nwkskey?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "inventory_device_secrets_inventory_device_id_fkey"
+            columns: ["inventory_device_id"]
+            isOneToOne: true
+            referencedRelation: "inventory_devices"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      inventory_devices: {
+        Row: {
+          activation_code: string | null
+          company_id: number | null
+          container_id: number
+          created_at: string
+          description: string | null
+          dev_eui: string | null
+          device_type_id: number | null
+          id: number
+          name: string
+          part_number: string | null
+          product_id: number
+          serial_number: string | null
+          t_code: string | null
+          updated_at: string
+          xnid: string | null
+        }
+        Insert: {
+          activation_code?: string | null
+          company_id?: number | null
+          container_id: number
+          created_at?: string
+          description?: string | null
+          dev_eui?: string | null
+          device_type_id?: number | null
+          id?: number
+          name: string
+          part_number?: string | null
+          product_id: number
+          serial_number?: string | null
+          t_code?: string | null
+          updated_at?: string
+          xnid?: string | null
+        }
+        Update: {
+          activation_code?: string | null
+          company_id?: number | null
+          container_id?: number
+          created_at?: string
+          description?: string | null
+          dev_eui?: string | null
+          device_type_id?: number | null
+          id?: number
+          name?: string
+          part_number?: string | null
+          product_id?: number
+          serial_number?: string | null
+          t_code?: string | null
+          updated_at?: string
+          xnid?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "inventory_devices_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inventory_devices_container_id_fkey"
+            columns: ["container_id"]
+            isOneToOne: false
+            referencedRelation: "containers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inventory_devices_device_type_id_fkey"
+            columns: ["device_type_id"]
+            isOneToOne: false
+            referencedRelation: "device_types"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inventory_devices_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
             referencedColumns: ["id"]
           },
         ]
@@ -822,6 +1338,328 @@ export type Database = {
           },
         ]
       }
+      safeguard_configurations: {
+        Row: {
+          abnormal_alert_limit: number
+          alert_interval_hours: number
+          created_at: string
+          id: number
+          inventory_device_id: number | null
+          is_active: boolean
+          notifications_paused: boolean
+          support_email_sent: Json | null
+          support_email_sent_at: string | null
+          support_number_sent: Json | null
+          updated_at: string
+          user_device_id: number | null
+          user_id: string | null
+        }
+        Insert: {
+          abnormal_alert_limit?: number
+          alert_interval_hours?: number
+          created_at?: string
+          id?: number
+          inventory_device_id?: number | null
+          is_active?: boolean
+          notifications_paused?: boolean
+          support_email_sent?: Json | null
+          support_email_sent_at?: string | null
+          support_number_sent?: Json | null
+          updated_at?: string
+          user_device_id?: number | null
+          user_id?: string | null
+        }
+        Update: {
+          abnormal_alert_limit?: number
+          alert_interval_hours?: number
+          created_at?: string
+          id?: number
+          inventory_device_id?: number | null
+          is_active?: boolean
+          notifications_paused?: boolean
+          support_email_sent?: Json | null
+          support_email_sent_at?: string | null
+          support_number_sent?: Json | null
+          updated_at?: string
+          user_device_id?: number | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "safeguard_configurations_inventory_device_id_fkey"
+            columns: ["inventory_device_id"]
+            isOneToOne: false
+            referencedRelation: "inventory_devices"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "safeguard_configurations_user_device_id_fkey"
+            columns: ["user_device_id"]
+            isOneToOne: false
+            referencedRelation: "user_devices"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "safeguard_configurations_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      subscription_entitlements: {
+        Row: {
+          active_device_count: number
+          billing_mode: Database["public"]["Enums"]["billing_mode"] | null
+          billing_xnid: string | null
+          cancelled_at: string | null
+          created_at: string
+          dealer_xnid: string | null
+          id: number
+          max_devices_allowed: number | null
+          owner_xnid: string | null
+          payment_provider: Database["public"]["Enums"]["payment_provider"]
+          plan_id: number | null
+          provider_customer_id: string | null
+          provider_subscription_id: string | null
+          source: Database["public"]["Enums"]["entitlement_source"]
+          started_at: string | null
+          status: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          active_device_count?: number
+          billing_mode?: Database["public"]["Enums"]["billing_mode"] | null
+          billing_xnid?: string | null
+          cancelled_at?: string | null
+          created_at?: string
+          dealer_xnid?: string | null
+          id?: number
+          max_devices_allowed?: number | null
+          owner_xnid?: string | null
+          payment_provider?: Database["public"]["Enums"]["payment_provider"]
+          plan_id?: number | null
+          provider_customer_id?: string | null
+          provider_subscription_id?: string | null
+          source?: Database["public"]["Enums"]["entitlement_source"]
+          started_at?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          active_device_count?: number
+          billing_mode?: Database["public"]["Enums"]["billing_mode"] | null
+          billing_xnid?: string | null
+          cancelled_at?: string | null
+          created_at?: string
+          dealer_xnid?: string | null
+          id?: number
+          max_devices_allowed?: number | null
+          owner_xnid?: string | null
+          payment_provider?: Database["public"]["Enums"]["payment_provider"]
+          plan_id?: number | null
+          provider_customer_id?: string | null
+          provider_subscription_id?: string | null
+          source?: Database["public"]["Enums"]["entitlement_source"]
+          started_at?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "subscription_entitlements_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "plans"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "subscription_entitlements_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sunset_rises: {
+        Row: {
+          created_at: string
+          device_type_id: number
+          id: number
+          reminder: boolean
+          selected_days: Json
+          sunrise: number
+          sunset: number
+          turn_on: boolean
+          updated_at: string
+          user_device_id: number
+        }
+        Insert: {
+          created_at?: string
+          device_type_id: number
+          id?: number
+          reminder?: boolean
+          selected_days: Json
+          sunrise: number
+          sunset: number
+          turn_on: boolean
+          updated_at?: string
+          user_device_id: number
+        }
+        Update: {
+          created_at?: string
+          device_type_id?: number
+          id?: number
+          reminder?: boolean
+          selected_days?: Json
+          sunrise?: number
+          sunset?: number
+          turn_on?: boolean
+          updated_at?: string
+          user_device_id?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sunset_rises_device_type_id_fkey"
+            columns: ["device_type_id"]
+            isOneToOne: false
+            referencedRelation: "device_types"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sunset_rises_user_device_id_fkey"
+            columns: ["user_device_id"]
+            isOneToOne: false
+            referencedRelation: "user_devices"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_devices: {
+        Row: {
+          activated_at: string | null
+          activation_status: string | null
+          created_at: string
+          dev_eui: string | null
+          device_activation_code: string | null
+          device_location: string | null
+          device_name: string | null
+          entitlement_id: number | null
+          id: number
+          inventory_device_id: number | null
+          last_dev_eui: string | null
+          last_reading: Json | null
+          last_reading_at: string | null
+          last_reading_id: number | null
+          notification_email: string | null
+          notification_phone_number: string | null
+          package_id: number | null
+          promo_code_id: number | null
+          provider_subscription_id: string | null
+          session_id: string | null
+          status: Database["public"]["Enums"]["user_device_status"]
+          toggle_status: boolean
+          updated_at: string
+          user_id: string
+          xnid: string | null
+        }
+        Insert: {
+          activated_at?: string | null
+          activation_status?: string | null
+          created_at?: string
+          dev_eui?: string | null
+          device_activation_code?: string | null
+          device_location?: string | null
+          device_name?: string | null
+          entitlement_id?: number | null
+          id?: number
+          inventory_device_id?: number | null
+          last_dev_eui?: string | null
+          last_reading?: Json | null
+          last_reading_at?: string | null
+          last_reading_id?: number | null
+          notification_email?: string | null
+          notification_phone_number?: string | null
+          package_id?: number | null
+          promo_code_id?: number | null
+          provider_subscription_id?: string | null
+          session_id?: string | null
+          status?: Database["public"]["Enums"]["user_device_status"]
+          toggle_status?: boolean
+          updated_at?: string
+          user_id: string
+          xnid?: string | null
+        }
+        Update: {
+          activated_at?: string | null
+          activation_status?: string | null
+          created_at?: string
+          dev_eui?: string | null
+          device_activation_code?: string | null
+          device_location?: string | null
+          device_name?: string | null
+          entitlement_id?: number | null
+          id?: number
+          inventory_device_id?: number | null
+          last_dev_eui?: string | null
+          last_reading?: Json | null
+          last_reading_at?: string | null
+          last_reading_id?: number | null
+          notification_email?: string | null
+          notification_phone_number?: string | null
+          package_id?: number | null
+          promo_code_id?: number | null
+          provider_subscription_id?: string | null
+          session_id?: string | null
+          status?: Database["public"]["Enums"]["user_device_status"]
+          toggle_status?: boolean
+          updated_at?: string
+          user_id?: string
+          xnid?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_devices_entitlement_id_fkey"
+            columns: ["entitlement_id"]
+            isOneToOne: false
+            referencedRelation: "subscription_entitlements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_devices_inventory_device_id_fkey"
+            columns: ["inventory_device_id"]
+            isOneToOne: false
+            referencedRelation: "inventory_devices"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_devices_package_id_fkey"
+            columns: ["package_id"]
+            isOneToOne: false
+            referencedRelation: "packages"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_devices_promo_code_id_fkey"
+            columns: ["promo_code_id"]
+            isOneToOne: false
+            referencedRelation: "promo_codes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_devices_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_permissions: {
         Row: {
           can_create: boolean
@@ -1077,6 +1915,10 @@ export type Database = {
       }
       auth_is_customer: { Args: { p_user?: string }; Returns: boolean }
       auth_is_super_admin: { Args: { p_user?: string }; Returns: boolean }
+      auth_owns_user_device: {
+        Args: { p_user?: string; p_user_device: number }
+        Returns: boolean
+      }
       auth_role_title: { Args: { p_user?: string }; Returns: string }
       auth_scope_allows: {
         Args: { p_asset: number; p_entity: string; p_user?: string }
