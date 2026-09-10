@@ -9,6 +9,143 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      app_xup: {
+        Row: {
+          app_id: number
+          created_at: string
+          id: number
+          updated_at: string
+          xup_id: number
+        }
+        Insert: {
+          app_id: number
+          created_at?: string
+          id?: number
+          updated_at?: string
+          xup_id: number
+        }
+        Update: {
+          app_id?: number
+          created_at?: string
+          id?: number
+          updated_at?: string
+          xup_id?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "app_xup_app_id_fkey"
+            columns: ["app_id"]
+            isOneToOne: false
+            referencedRelation: "apps"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "app_xup_xup_id_fkey"
+            columns: ["xup_id"]
+            isOneToOne: false
+            referencedRelation: "xups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      apps: {
+        Row: {
+          app_name: string
+          created_at: string
+          id: number
+          optional_parameters: Json | null
+          updated_at: string
+          xup_id: number | null
+        }
+        Insert: {
+          app_name: string
+          created_at?: string
+          id?: number
+          optional_parameters?: Json | null
+          updated_at?: string
+          xup_id?: number | null
+        }
+        Update: {
+          app_name?: string
+          created_at?: string
+          id?: number
+          optional_parameters?: Json | null
+          updated_at?: string
+          xup_id?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "apps_xup_id_fkey"
+            columns: ["xup_id"]
+            isOneToOne: false
+            referencedRelation: "xups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      attributes: {
+        Row: {
+          alert_channel: string
+          alert_message: string | null
+          checkin: boolean
+          comparison: string
+          created_at: string
+          description: string | null
+          id: number
+          neo_event_code: string | null
+          notifie_id: number
+          subject: string
+          threshold: string | null
+          updated_at: string
+          xup_id: number | null
+        }
+        Insert: {
+          alert_channel?: string
+          alert_message?: string | null
+          checkin?: boolean
+          comparison: string
+          created_at?: string
+          description?: string | null
+          id?: number
+          neo_event_code?: string | null
+          notifie_id: number
+          subject: string
+          threshold?: string | null
+          updated_at?: string
+          xup_id?: number | null
+        }
+        Update: {
+          alert_channel?: string
+          alert_message?: string | null
+          checkin?: boolean
+          comparison?: string
+          created_at?: string
+          description?: string | null
+          id?: number
+          neo_event_code?: string | null
+          notifie_id?: number
+          subject?: string
+          threshold?: string | null
+          updated_at?: string
+          xup_id?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "attributes_notifie_id_fkey"
+            columns: ["notifie_id"]
+            isOneToOne: false
+            referencedRelation: "notifies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "attributes_xup_id_fkey"
+            columns: ["xup_id"]
+            isOneToOne: false
+            referencedRelation: "xups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       companies: {
         Row: {
           company_name: string
@@ -33,6 +170,30 @@ export type Database = {
           id?: number
           updated_at?: string
           username?: string
+        }
+        Relationships: []
+      }
+      device_types: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: number
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: number
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: number
+          name?: string
+          updated_at?: string
         }
         Relationships: []
       }
@@ -128,6 +289,274 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      notifies: {
+        Row: {
+          created_at: string
+          id: number
+          name: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: number
+          name?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: number
+          name?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      packages: {
+        Row: {
+          created_at: string
+          description: string | null
+          duration: string | null
+          id: number
+          name: string
+          price: number | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          duration?: string | null
+          id?: number
+          name: string
+          price?: number | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          duration?: string | null
+          id?: number
+          name?: string
+          price?: number | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      plans: {
+        Row: {
+          activation_type: string
+          amount: number | null
+          billing_interval: string | null
+          billing_modes: Database["public"]["Enums"]["billing_mode"][]
+          billing_type: string
+          created_at: string
+          deleted_at: string | null
+          device_limit: number
+          id: number
+          is_active: boolean
+          max_devices_per_batch: number | null
+          name: string
+          notes: string | null
+          plan_code: string
+          plan_family: string
+          provisioning_price_id: string | null
+          requires_provisioning: boolean
+          stripe_price_id: string | null
+          stripe_product_id: string | null
+          tags: string | null
+          updated_at: string
+          xero_account_code: string | null
+          xero_revenue_code: string | null
+        }
+        Insert: {
+          activation_type?: string
+          amount?: number | null
+          billing_interval?: string | null
+          billing_modes?: Database["public"]["Enums"]["billing_mode"][]
+          billing_type?: string
+          created_at?: string
+          deleted_at?: string | null
+          device_limit?: number
+          id?: number
+          is_active?: boolean
+          max_devices_per_batch?: number | null
+          name: string
+          notes?: string | null
+          plan_code: string
+          plan_family?: string
+          provisioning_price_id?: string | null
+          requires_provisioning?: boolean
+          stripe_price_id?: string | null
+          stripe_product_id?: string | null
+          tags?: string | null
+          updated_at?: string
+          xero_account_code?: string | null
+          xero_revenue_code?: string | null
+        }
+        Update: {
+          activation_type?: string
+          amount?: number | null
+          billing_interval?: string | null
+          billing_modes?: Database["public"]["Enums"]["billing_mode"][]
+          billing_type?: string
+          created_at?: string
+          deleted_at?: string | null
+          device_limit?: number
+          id?: number
+          is_active?: boolean
+          max_devices_per_batch?: number | null
+          name?: string
+          notes?: string | null
+          plan_code?: string
+          plan_family?: string
+          provisioning_price_id?: string | null
+          requires_provisioning?: boolean
+          stripe_price_id?: string | null
+          stripe_product_id?: string | null
+          tags?: string | null
+          updated_at?: string
+          xero_account_code?: string | null
+          xero_revenue_code?: string | null
+        }
+        Relationships: []
+      }
+      product_plans: {
+        Row: {
+          plan_id: number
+          product_id: number
+        }
+        Insert: {
+          plan_id: number
+          product_id: number
+        }
+        Update: {
+          plan_id?: number
+          product_id?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_plans_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "plans"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "product_plans_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      products: {
+        Row: {
+          app_id: number | null
+          company_id: number | null
+          created_at: string
+          device_id: string | null
+          device_type_id: number | null
+          dimensions: Json | null
+          domain_id: number | null
+          id: number
+          image: string | null
+          model: string | null
+          notifie_id: number | null
+          price: number | null
+          product_description: string | null
+          product_name: string | null
+          sku: string | null
+          sort_order: number | null
+          status: boolean
+          updated_at: string
+          vendor_id: number | null
+        }
+        Insert: {
+          app_id?: number | null
+          company_id?: number | null
+          created_at?: string
+          device_id?: string | null
+          device_type_id?: number | null
+          dimensions?: Json | null
+          domain_id?: number | null
+          id?: number
+          image?: string | null
+          model?: string | null
+          notifie_id?: number | null
+          price?: number | null
+          product_description?: string | null
+          product_name?: string | null
+          sku?: string | null
+          sort_order?: number | null
+          status?: boolean
+          updated_at?: string
+          vendor_id?: number | null
+        }
+        Update: {
+          app_id?: number | null
+          company_id?: number | null
+          created_at?: string
+          device_id?: string | null
+          device_type_id?: number | null
+          dimensions?: Json | null
+          domain_id?: number | null
+          id?: number
+          image?: string | null
+          model?: string | null
+          notifie_id?: number | null
+          price?: number | null
+          product_description?: string | null
+          product_name?: string | null
+          sku?: string | null
+          sort_order?: number | null
+          status?: boolean
+          updated_at?: string
+          vendor_id?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "products_app_id_fkey"
+            columns: ["app_id"]
+            isOneToOne: false
+            referencedRelation: "apps"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "products_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "products_device_type_id_fkey"
+            columns: ["device_type_id"]
+            isOneToOne: false
+            referencedRelation: "device_types"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "products_domain_id_fkey"
+            columns: ["domain_id"]
+            isOneToOne: false
+            referencedRelation: "domains"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "products_notifie_id_fkey"
+            columns: ["notifie_id"]
+            isOneToOne: false
+            referencedRelation: "notifies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "products_vendor_id_fkey"
+            columns: ["vendor_id"]
+            isOneToOne: false
+            referencedRelation: "vendors"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       profile_details: {
         Row: {
@@ -285,6 +714,30 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      promo_codes: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: number
+          promo_code: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: number
+          promo_code: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: number
+          promo_code?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       role_permissions: {
         Row: {
@@ -472,6 +925,147 @@ export type Database = {
           },
         ]
       }
+      user_xup_preferences: {
+        Row: {
+          attribute_id: number | null
+          created_at: string
+          id: number
+          is_visible: boolean
+          notifie_id: number | null
+          product_id: number
+          send_notification: boolean
+          updated_at: string
+          user_id: string
+          xup_id: number | null
+        }
+        Insert: {
+          attribute_id?: number | null
+          created_at?: string
+          id?: number
+          is_visible?: boolean
+          notifie_id?: number | null
+          product_id: number
+          send_notification?: boolean
+          updated_at?: string
+          user_id: string
+          xup_id?: number | null
+        }
+        Update: {
+          attribute_id?: number | null
+          created_at?: string
+          id?: number
+          is_visible?: boolean
+          notifie_id?: number | null
+          product_id?: number
+          send_notification?: boolean
+          updated_at?: string
+          user_id?: string
+          xup_id?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_xup_preferences_attribute_id_fkey"
+            columns: ["attribute_id"]
+            isOneToOne: false
+            referencedRelation: "attributes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_xup_preferences_notifie_id_fkey"
+            columns: ["notifie_id"]
+            isOneToOne: false
+            referencedRelation: "notifies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_xup_preferences_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_xup_preferences_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_xup_preferences_xup_id_fkey"
+            columns: ["xup_id"]
+            isOneToOne: false
+            referencedRelation: "xups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      vendors: {
+        Row: {
+          address: string | null
+          created_at: string
+          description: string | null
+          id: number
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          address?: string | null
+          created_at?: string
+          description?: string | null
+          id?: number
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          address?: string | null
+          created_at?: string
+          description?: string | null
+          id?: number
+          name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      xups: {
+        Row: {
+          code: string
+          created_at: string
+          data_type: string
+          description: string | null
+          format: string | null
+          id: number
+          label: string | null
+          units: string | null
+          updated_at: string
+          version: string
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          data_type: string
+          description?: string | null
+          format?: string | null
+          id?: number
+          label?: string | null
+          units?: string | null
+          updated_at?: string
+          version: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          data_type?: string
+          description?: string | null
+          format?: string | null
+          id?: number
+          label?: string | null
+          units?: string | null
+          updated_at?: string
+          version?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -494,6 +1088,7 @@ export type Database = {
       }
       custom_access_token_hook: { Args: { event: Json }; Returns: Json }
       gen_xnid: { Args: { prefix: string }; Returns: string }
+      rls_catalog_read: { Args: never; Returns: boolean }
     }
     Enums: {
       activation_attempt_status: "pending" | "completed" | "expired" | "failed"
