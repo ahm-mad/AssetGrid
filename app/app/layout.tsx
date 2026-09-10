@@ -4,6 +4,7 @@ import { requireUser } from "@/lib/auth/dal";
 import { visibleNavItems } from "@/lib/nav";
 import { SidebarNav } from "@/components/app-shell/sidebar-nav";
 import { UserMenu } from "@/components/app-shell/user-menu";
+import { ImpersonationBanner } from "@/components/app-shell/impersonation-banner";
 
 export default async function AppLayout({ children }: LayoutProps<"/app">) {
   const user = await requireUser();
@@ -31,11 +32,7 @@ export default async function AppLayout({ children }: LayoutProps<"/app">) {
           <Link href="/app" className="font-semibold tracking-tight md:hidden">
             ARMIT
           </Link>
-          {user.impersonatorId ? (
-            <span className="bg-amber-100 text-amber-900 rounded-md px-2 py-1 text-xs font-medium dark:bg-amber-950 dark:text-amber-200">
-              Impersonating
-            </span>
-          ) : null}
+          {user.impersonatorId ? <ImpersonationBanner /> : null}
           <UserMenu name={name} email={user.email} roleTitle={user.roleTitle} />
         </header>
 
