@@ -11,11 +11,18 @@ export function isMailConfigured(): boolean {
   return !!process.env.RESEND_API_KEY
 }
 
+export interface MailAttachment {
+  filename: string
+  /** base64-encoded file content */
+  content: string
+}
+
 export interface MailMessage {
   to: string | string[]
   subject: string
   text: string
   html?: string
+  attachments?: MailAttachment[]
 }
 
 export async function sendMail(msg: MailMessage): Promise<{ ok: boolean; id?: string; error?: string }> {
@@ -38,6 +45,7 @@ export async function sendMail(msg: MailMessage): Promise<{ ok: boolean; id?: st
         subject: msg.subject,
         text: msg.text,
         ...(msg.html ? { html: msg.html } : {}),
+        ...(msg.attachments?.length ? { attachments: msg.attachments } : {}),
       }),
     })
     if (!res.ok) return { ok: false, error: `resend ${res.status}: ${await res.text()}` }

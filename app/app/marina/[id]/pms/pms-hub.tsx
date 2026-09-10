@@ -16,7 +16,14 @@ import {
   type QuoteCalculation,
   type GeneratedQuotePayload,
 } from "@/lib/marina/pms/actions";
+import {
+  sendContract,
+  signContract,
+  billContract,
+  terminateContract,
+} from "@/lib/marina/pms/contract-actions";
 import type { RatePlanRow, ReservationRow } from "@/lib/marina/pms/data";
+import type { ContractRow } from "@/lib/marina/pms/contracts-data";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -56,6 +63,7 @@ export function PmsHub({
   canDelete,
   ratePlans,
   reservations,
+  contracts,
   pickers,
   ratePlanOptions,
   users,
@@ -65,6 +73,7 @@ export function PmsHub({
   canDelete: boolean;
   ratePlans: RatePlanRow[];
   reservations: ReservationRow[];
+  contracts: ContractRow[];
   pickers: Pickers;
   ratePlanOptions: { id: number; name: string; calcType: string | null }[];
   users: { id: string; name: string }[];
@@ -74,6 +83,7 @@ export function PmsHub({
       <TabsList>
         <TabsTrigger value="book">Quote &amp; book</TabsTrigger>
         <TabsTrigger value="reservations">Reservations ({reservations.length})</TabsTrigger>
+        <TabsTrigger value="contracts">Contracts ({contracts.length})</TabsTrigger>
         <TabsTrigger value="plans">Rate plans ({ratePlans.length})</TabsTrigger>
       </TabsList>
 
@@ -89,6 +99,10 @@ export function PmsHub({
 
       <TabsContent value="reservations">
         <ReservationsTable marinaId={marinaId} canWrite={canWrite} reservations={reservations} />
+      </TabsContent>
+
+      <TabsContent value="contracts">
+        <ContractsTable marinaId={marinaId} canWrite={canWrite} contracts={contracts} />
       </TabsContent>
 
       <TabsContent value="plans">
@@ -420,6 +434,129 @@ function ReservationsTable({
               >
                 Open
               </Button>
+            </TableCell>
+          </TableRow>
+        ))}
+      </TableBody>
+    </Table>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Contracts
+// ---------------------------------------------------------------------------
+function ContractsTable({
+  marinaId,
+  canWrite,
+  contracts,
+}: {
+  marinaId: number;
+  canWrite: boolean;
+  contracts: ContractRow[];
+}) {
+  const router = useRouter();
+  const [pending, start] = React.useTransition();
+
+  function act(fn: () => Promise<{ ok: boolean; error?: string }>, okMsg = "Done.") {
+    start(async () => {
+      const res = await fn();
+      if (!res.ok) toast.error(res.error ?? "Action failed.");
+      else {
+        toast.success(okMsg);
+        router.refresh();
+      }
+    });
+  }
+
+  if (contracts.length === 0) {
+    return (
+      <p className="text-muted-foreground text-sm">
+        No contracts. Generate one from a reservation with an assigned slip.
+      </p>
+    );
+  }
+
+  return (
+    <Table>
+      <TableHeader>
+        <TableRow>
+          <TableHead>#</TableHead>
+          <TableHead>Boat</TableHead>
+          <TableHead>Customer</TableHead>
+          <TableHead>Slip</TableHead>
+          <TableHead>Monthly</TableHead>
+          <TableHead>Status</TableHead>
+          <TableHead />
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        {contracts.map((c) => (
+          <TableRow key={c.id}>
+            <TableCell>{c.id}</TableCell>
+            <TableCell>{c.boatName ?? "—"}</TableCell>
+            <TableCell>{c.customerName ?? "—"}</TableCell>
+            <TableCell>{c.slipName ?? "—"}</TableCell>
+            <TableCell>{money(c.monthlyRate)}</TableCell>
+            <TableCell><Badge variant="secondary">{c.status}</Badge></TableCell>
+            <TableCell className="flex flex-wrap gap-1">
+              {c.pdfUrl ? (
+                <Button size="sm" variant="ghost" render={<Link href={c.pdfUrl} target="_blank" />}>
+                  PDF
+                </Button>
+              ) : null}
+              {canWrite && ["required", "sent"].includes(c.status) ? (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  disabled={pending}
+                  onClick={() => act(() => sendContract(c.id), "Sent — signing link created.")}
+                >
+                  Send
+                </Button>
+              ) : null}
+              {canWrite && ["required", "sent"].includes(c.status) ? (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  disabled={pending}
+                  onClick={() => act(() => signContract(c.id), "Signed.")}
+                >
+                  Sign now
+                </Button>
+              ) : null}
+              {canWrite && ["signed", "active"].includes(c.status) ? (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  disabled={pending}
+                  onClick={() => act(() => billContract(c.id, marinaId), "Invoice created.")}
+                >
+                  Bill
+                </Button>
+              ) : null}
+              {canWrite && !["terminated", "expired"].includes(c.status) ? (
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  disabled={pending}
+                  onClick={() =>
+                    act(
+                      () =>
+                        terminateContract({
+                          contractId: c.id,
+                          marinaId,
+                          reason: "Terminated by marina staff",
+                          terminationDate: new Date(Date.now() + 86400000)
+                            .toISOString()
+                            .slice(0, 10),
+                        }),
+                      "Terminated.",
+                    )
+                  }
+                >
+                  Terminate
+                </Button>
+              ) : null}
             </TableCell>
           </TableRow>
         ))}
