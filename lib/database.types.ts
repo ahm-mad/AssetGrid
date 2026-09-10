@@ -397,6 +397,13 @@ export type Database = {
         }
         Relationships: [
           {
+            foreignKeyName: "alert_windows_building_id_fkey"
+            columns: ["building_id"]
+            isOneToOne: false
+            referencedRelation: "buildings"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "alert_windows_company_id_fkey"
             columns: ["company_id"]
             isOneToOne: false
@@ -479,6 +486,48 @@ export type Database = {
           },
         ]
       }
+      areas: {
+        Row: {
+          building_id: number
+          created_at: string
+          id: number
+          name: string
+          unit_id: number
+          updated_at: string
+        }
+        Insert: {
+          building_id: number
+          created_at?: string
+          id?: number
+          name: string
+          unit_id: number
+          updated_at?: string
+        }
+        Update: {
+          building_id?: number
+          created_at?: string
+          id?: number
+          name?: string
+          unit_id?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "areas_building_id_fkey"
+            columns: ["building_id"]
+            isOneToOne: false
+            referencedRelation: "buildings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "areas_unit_id_fkey"
+            columns: ["unit_id"]
+            isOneToOne: false
+            referencedRelation: "units"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       attributes: {
         Row: {
           alert_channel: string
@@ -538,6 +587,92 @@ export type Database = {
             columns: ["xup_id"]
             isOneToOne: false
             referencedRelation: "xups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      buildings: {
+        Row: {
+          building_code: string
+          building_id: string
+          city: string | null
+          city_code: string
+          clli_code: string | null
+          company_id: number | null
+          country: string | null
+          county_code: string
+          created_at: string
+          id: number
+          lata: string | null
+          latitude: number | null
+          location_code: string
+          longitude: number | null
+          noaa: string | null
+          npa: string | null
+          nxx: string | null
+          on_net_type: string
+          postal_code: string | null
+          state_province: string | null
+          street_address: string | null
+          structure_category: string
+          updated_at: string
+        }
+        Insert: {
+          building_code: string
+          building_id: string
+          city?: string | null
+          city_code: string
+          clli_code?: string | null
+          company_id?: number | null
+          country?: string | null
+          county_code: string
+          created_at?: string
+          id?: number
+          lata?: string | null
+          latitude?: number | null
+          location_code: string
+          longitude?: number | null
+          noaa?: string | null
+          npa?: string | null
+          nxx?: string | null
+          on_net_type?: string
+          postal_code?: string | null
+          state_province?: string | null
+          street_address?: string | null
+          structure_category?: string
+          updated_at?: string
+        }
+        Update: {
+          building_code?: string
+          building_id?: string
+          city?: string | null
+          city_code?: string
+          clli_code?: string | null
+          company_id?: number | null
+          country?: string | null
+          county_code?: string
+          created_at?: string
+          id?: number
+          lata?: string | null
+          latitude?: number | null
+          location_code?: string
+          longitude?: number | null
+          noaa?: string | null
+          npa?: string | null
+          nxx?: string | null
+          on_net_type?: string
+          postal_code?: string | null
+          state_province?: string | null
+          street_address?: string | null
+          structure_category?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "buildings_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
             referencedColumns: ["id"]
           },
         ]
@@ -1050,6 +1185,38 @@ export type Database = {
             columns: ["user_device_id"]
             isOneToOne: false
             referencedRelation: "user_devices"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      floors: {
+        Row: {
+          building_id: number
+          created_at: string
+          id: number
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          building_id: number
+          created_at?: string
+          id?: number
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          building_id?: number
+          created_at?: string
+          id?: number
+          name?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "floors_building_id_fkey"
+            columns: ["building_id"]
+            isOneToOne: false
+            referencedRelation: "buildings"
             referencedColumns: ["id"]
           },
         ]
@@ -2073,6 +2240,128 @@ export type Database = {
           },
           {
             foreignKeyName: "safeguard_configurations_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sites: {
+        Row: {
+          accessory: string | null
+          area_id: number
+          building_id: number
+          central_office_code: string | null
+          city: string | null
+          clli_code: string | null
+          country: string | null
+          created_at: string
+          end_point: string | null
+          id: number
+          interface: string | null
+          inventory_device_id: number | null
+          lata: string | null
+          latitude: number | null
+          longitude: number | null
+          market: string | null
+          noaa: string | null
+          npa: string | null
+          nxx: string | null
+          point: string
+          postal_code: string | null
+          room_name: string
+          state_province: string | null
+          street_address: string | null
+          unit_label: string | null
+          updated_at: string
+          user_id: string | null
+          xnid: string | null
+        }
+        Insert: {
+          accessory?: string | null
+          area_id: number
+          building_id: number
+          central_office_code?: string | null
+          city?: string | null
+          clli_code?: string | null
+          country?: string | null
+          created_at?: string
+          end_point?: string | null
+          id?: number
+          interface?: string | null
+          inventory_device_id?: number | null
+          lata?: string | null
+          latitude?: number | null
+          longitude?: number | null
+          market?: string | null
+          noaa?: string | null
+          npa?: string | null
+          nxx?: string | null
+          point?: string
+          postal_code?: string | null
+          room_name: string
+          state_province?: string | null
+          street_address?: string | null
+          unit_label?: string | null
+          updated_at?: string
+          user_id?: string | null
+          xnid?: string | null
+        }
+        Update: {
+          accessory?: string | null
+          area_id?: number
+          building_id?: number
+          central_office_code?: string | null
+          city?: string | null
+          clli_code?: string | null
+          country?: string | null
+          created_at?: string
+          end_point?: string | null
+          id?: number
+          interface?: string | null
+          inventory_device_id?: number | null
+          lata?: string | null
+          latitude?: number | null
+          longitude?: number | null
+          market?: string | null
+          noaa?: string | null
+          npa?: string | null
+          nxx?: string | null
+          point?: string
+          postal_code?: string | null
+          room_name?: string
+          state_province?: string | null
+          street_address?: string | null
+          unit_label?: string | null
+          updated_at?: string
+          user_id?: string | null
+          xnid?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sites_area_id_fkey"
+            columns: ["area_id"]
+            isOneToOne: false
+            referencedRelation: "areas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sites_building_id_fkey"
+            columns: ["building_id"]
+            isOneToOne: false
+            referencedRelation: "buildings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sites_inventory_device_id_fkey"
+            columns: ["inventory_device_id"]
+            isOneToOne: true
+            referencedRelation: "inventory_devices"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sites_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "profiles"
@@ -6793,6 +7082,48 @@ export type Database = {
           xup_encoded_edr?: string | null
         }
         Relationships: []
+      }
+      units: {
+        Row: {
+          building_id: number
+          created_at: string
+          floor_id: number
+          id: number
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          building_id: number
+          created_at?: string
+          floor_id: number
+          id?: number
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          building_id?: number
+          created_at?: string
+          floor_id?: number
+          id?: number
+          name?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "units_building_id_fkey"
+            columns: ["building_id"]
+            isOneToOne: false
+            referencedRelation: "buildings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "units_floor_id_fkey"
+            columns: ["floor_id"]
+            isOneToOne: false
+            referencedRelation: "floors"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_devices: {
         Row: {
