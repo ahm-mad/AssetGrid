@@ -6,6 +6,7 @@ import { redirect } from 'next/navigation'
 import { createClient } from '@/utils/supabase/server'
 
 import { getEffectivePermissions } from './permissions'
+import { readImpersonation } from './impersonation'
 import type { CurrentUser } from './types'
 
 /**
@@ -47,9 +48,11 @@ export const getCurrentUser = cache(async (): Promise<CurrentUser | null> => {
     roleTitle,
   )
 
+  const ticket = await readImpersonation()
   const impersonatorId =
+    ticket?.actorId ??
     ((claims.app_metadata as { impersonator_id?: string } | undefined)?.impersonator_id ??
-      null) ||
+      null) ??
     null
 
   return {
