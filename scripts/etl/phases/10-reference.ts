@@ -187,6 +187,22 @@ export const phase: Phase = {
       const n = await loadObjects(spec.target, rows, {
         conflict: upsert('(id)', spec.columns, ['id']),
       });
+      // source is authoritative (§1.1) — drop rows the seed migration left
+      // behind that no longer exist in the source. Guarded: an FK violation
+      // means something depends on the stale row, so keep it and log.
+      const srcIds = rows.map((r) => r.id).filter(Boolean);
+      if (srcIds.length) {
+        const { pgPool } = await import('../lib/sources.ts');
+        try {
+          const del = await pgPool().query(
+            `delete from ${spec.target} where id <> all($1::bigint[])`,
+            [srcIds],
+          );
+          if (del.rowCount) unresolved(KEY, spec.target, 'id', null, null, `${del.rowCount} stale seed row(s) not in source — deleted`);
+        } catch {
+          unresolved(KEY, spec.target, 'id', null, null, 'stale seed rows kept (referenced elsewhere)');
+        }
+      }
       await setval(spec.target);
       info(`   ${spec.target}: ${src.length} source → ${rows.length} upserted`);
       loaded += n;
