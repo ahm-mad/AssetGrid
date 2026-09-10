@@ -6,6 +6,8 @@ import { can } from "@/lib/auth/permissions";
 import { getMarina } from "@/lib/marina/data";
 import { listRatePlans, listReservations, getPmsPickers, getRatePlanOptions } from "@/lib/marina/pms/data";
 import { listContracts } from "@/lib/marina/pms/contracts-data";
+import { listInvoices, getArAging } from "@/lib/marina/pms/billing-data";
+import { getRevenueReport, getOccupancyReport, getArSummary } from "@/lib/marina/pms/reports";
 import { getActivationUserOptions } from "@/lib/billing/data";
 import { Button } from "@/components/ui/button";
 
@@ -26,10 +28,27 @@ export default async function MarinaPmsPage({ params }: PageProps<"/app/marina/[
   const marina = await getMarina(marinaId);
   if (!marina) notFound();
 
-  const [ratePlans, reservations, contracts, pickers, ratePlanOptions, users] = await Promise.all([
+  const [
+    ratePlans,
+    reservations,
+    contracts,
+    invoices,
+    arAging,
+    revenue,
+    occupancy,
+    arSummary,
+    pickers,
+    ratePlanOptions,
+    users,
+  ] = await Promise.all([
     listRatePlans({ marinaId, perPage: 50 }),
     listReservations({ marinaId, perPage: 25 }),
     listContracts({ marinaId, perPage: 25 }),
+    listInvoices({ marinaId, perPage: 25 }),
+    getArAging(marinaId),
+    getRevenueReport({ marinaId }),
+    getOccupancyReport({ marinaId }),
+    getArSummary(marinaId),
     getPmsPickers(marinaId),
     getRatePlanOptions(marinaId),
     getActivationUserOptions(),
@@ -57,6 +76,11 @@ export default async function MarinaPmsPage({ params }: PageProps<"/app/marina/[
         ratePlans={ratePlans.rows}
         reservations={reservations.rows}
         contracts={contracts.rows}
+        invoices={invoices.rows}
+        arAging={arAging}
+        revenue={revenue}
+        occupancy={occupancy}
+        arSummary={arSummary}
         pickers={pickers}
         ratePlanOptions={ratePlanOptions}
         users={users}

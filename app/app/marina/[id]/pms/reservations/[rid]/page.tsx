@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { requireUser } from "@/lib/auth/dal";
 import { can } from "@/lib/auth/permissions";
 import { getReservation } from "@/lib/marina/pms/data";
+import { getFolio } from "@/lib/marina/pms/billing-data";
 import { createClient } from "@/utils/supabase/server";
 import { Button } from "@/components/ui/button";
 
@@ -35,6 +36,7 @@ export default async function ReservationDetailPage({
     .order("name");
 
   const canWrite = viewer.isSuperAdmin || can(viewer.permissions, "marina", "create");
+  const folio = reservation.stay ? await getFolio(reservation.stay.id) : null;
 
   return (
     <div className="grid gap-4">
@@ -56,6 +58,7 @@ export default async function ReservationDetailPage({
         marinaId={marinaId}
         canWrite={canWrite}
         reservation={reservation}
+        folio={folio}
         slips={(slips ?? []).map((s) => ({
           id: s.id,
           name: s.name,

@@ -393,6 +393,90 @@ export async function getReservation(id: number): Promise<ReservationDetail | nu
 }
 
 // ---------------------------------------------------------------------------
+// reconstructed ReservationController reads (commented-out in the old code —
+// paused work, not dead: waitlist / marinaOccupancy / availableSlips)
+// ---------------------------------------------------------------------------
+export async function getWaitlist(marinaId: number, dockId?: number): Promise<ReservationRow[]> {
+  const supabase = await createClient()
+  let query = supabase
+    .from('reservations')
+    .select(RESERVATION_LIST_COLS)
+    .eq('marina_id', marinaId)
+    .eq('status', 'waitlisted')
+  if (dockId != null) query = query.eq('dock_id', dockId)
+  const { data, error } = await query.order('created_at', { ascending: true })
+  if (error) throw error
+  return (data ?? []).map((r) => toReservation(r as Record<string, unknown>))
+}
+
+export interface MarinaOccupancy {
+  totalSlips: number
+  occupiedSlips: number
+  occupancyRate: number
+}
+
+/** `ReservationController::marinaOccupancy` — occupied = an active assignment. */
+export async function getMarinaOccupancy(marinaId: number): Promise<MarinaOccupancy> {
+  const supabase = await createClient()
+  const [{ data: slips }, { data: assignments }] = await Promise.all([
+    supabase.from('slips').select('id').eq('marina_id', marinaId),
+    supabase
+      .from('assignments')
+      .select('slip_id')
+      .eq('marina_id', marinaId)
+      .in('status', ['assigned', 'occupied']),
+  ])
+  const totalSlips = (slips ?? []).length
+  const occupiedSlips = new Set((assignments ?? []).map((a) => a.slip_id).filter((x) => x != null)).size
+  return {
+    totalSlips,
+    occupiedSlips,
+    occupancyRate: totalSlips ? Math.round((occupiedSlips / totalSlips) * 10000) / 100 : 0,
+  }
+}
+
+/** `ReservationController::availableSlips` — dock slips free for a date range. */
+export async function getAvailableSlips(
+  dockId: number,
+  start: string,
+  end: string,
+  boatLoa?: number,
+): Promise<{ id: number; name: string; minLoa: number | null; maxLoa: number | null }[]> {
+  const supabase = await createClient()
+  const { data: slips } = await supabase
+    .from('slips')
+    .select('id, name, min_loa, max_loa')
+    .eq('dock_id', dockId)
+    .eq('is_active', true)
+  const fitting = (slips ?? []).filter(
+    (s) =>
+      boatLoa == null ||
+      ((s.min_loa == null || s.min_loa <= boatLoa) && (s.max_loa == null || s.max_loa >= boatLoa)),
+  )
+  if (fitting.length === 0) return []
+
+  const { data: reservations } = await supabase
+    .from('reservations')
+    .select('slip_id, start_date, end_date')
+    .in(
+      'slip_id',
+      fitting.map((s) => s.id),
+    )
+  const s0 = start.slice(0, 10)
+  const e0 = end.slice(0, 10)
+  const blocked = new Set<number>()
+  for (const r of reservations ?? []) {
+    if (r.slip_id == null) continue
+    const rs = (r.start_date ?? '').slice(0, 10)
+    const re = (r.end_date ?? '').slice(0, 10)
+    if ((rs >= s0 && rs <= e0) || (re >= s0 && re <= e0) || (rs <= s0 && re >= e0)) blocked.add(r.slip_id)
+  }
+  return fitting
+    .filter((s) => !blocked.has(s.id))
+    .map((s) => ({ id: s.id, name: s.name, minLoa: s.min_loa, maxLoa: s.max_loa }))
+}
+
+// ---------------------------------------------------------------------------
 // pickers for the quote calculator
 // ---------------------------------------------------------------------------
 export async function getPmsPickers(marinaId: number): Promise<{

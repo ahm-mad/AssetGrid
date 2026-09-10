@@ -8,15 +8,20 @@ import {
   toggleAssignment,
   updateReservation,
   confirmReservation,
+  checkInReservation,
+  promoteFromWaitlist,
 } from "@/lib/marina/pms/actions";
 import {
   generateContract,
   sendContract,
   signContract,
 } from "@/lib/marina/pms/contract-actions";
+import { savePosTransaction, deletePosTransaction } from "@/lib/marina/pms/billing-actions";
 import type { ReservationDetail } from "@/lib/marina/pms/data";
+import type { Folio } from "@/lib/marina/pms/billing-data";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
   Card,
@@ -59,15 +64,19 @@ function money(n: number | null | undefined): string {
   return n == null ? "—" : `$${Number(n).toFixed(2)}`;
 }
 
+const POS_CATEGORIES = ["fuel", "utility", "service", "adjustment", "tax", "misc"] as const;
+
 export function ReservationDetailClient({
   marinaId,
   canWrite,
   reservation,
+  folio,
   slips,
 }: {
   marinaId: number;
   canWrite: boolean;
   reservation: ReservationDetail;
+  folio: Folio | null;
   slips: Slip[];
 }) {
   const router = useRouter();
@@ -209,6 +218,26 @@ export function ReservationDetailClient({
                 Confirm (auto-assign)
               </Button>
             ) : null}
+            {reservation.status === "waitlisted" ? (
+              <Button
+                size="sm"
+                disabled={pending}
+                onClick={() => run(() => promoteFromWaitlist(reservation.id, marinaId), "Promoted.")}
+              >
+                Promote from waitlist
+              </Button>
+            ) : null}
+            {["confirmed", "contract_signed", "active"].includes(reservation.status) &&
+            reservation.assignment?.status === "assigned" &&
+            reservation.stay?.status === "expected" ? (
+              <Button
+                size="sm"
+                disabled={pending}
+                onClick={() => run(() => checkInReservation(reservation.id, marinaId), "Checked in.")}
+              >
+                Check in
+              </Button>
+            ) : null}
             {(NEXT_STATUS[reservation.status] ?? []).map((s) => (
               <Button
                 key={s}
@@ -283,7 +312,54 @@ export function ReservationDetailClient({
         </Card>
       ) : null}
 
-      {reservation.posTransactions.length > 0 ? (
+      {folio ? (
+        <Card className="lg:col-span-2">
+          <CardHeader>
+            <CardTitle className="text-base">Folio</CardTitle>
+          </CardHeader>
+          <CardContent className="grid gap-3 text-sm">
+            <dl className="grid grid-cols-2 gap-x-4 gap-y-1 sm:grid-cols-4">
+              <Row label="Contract" value={money(folio.contractAmount)} />
+              <Row label="POS charges" value={money(folio.posCharges)} />
+              <Row label="POS credits" value={money(folio.posCredits)} />
+              <Row label="Grand total" value={money(folio.grandTotal)} />
+            </dl>
+
+            {folio.transactions.length > 0 ? (
+              <div className="grid gap-1">
+                {folio.transactions.map((t) => (
+                  <div key={t.id} className="flex items-center gap-2">
+                    <span>
+                      {t.serviceName} · {money(t.amount)} · {t.type}
+                      {t.serviceCategory ? ` · ${t.serviceCategory}` : ""}
+                    </span>
+                    {canWrite && folio.stay.status !== "checked_out" ? (
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        disabled={pending}
+                        onClick={() =>
+                          run(() => deletePosTransaction(t.id, marinaId), "Removed.")
+                        }
+                      >
+                        ✕
+                      </Button>
+                    ) : null}
+                  </div>
+                ))}
+              </div>
+            ) : null}
+
+            {canWrite && ["checked_in", "in_stay"].includes(folio.stay.status) ? (
+              <PosAddForm marinaId={marinaId} stayId={folio.stay.id} onDone={() => router.refresh()} />
+            ) : (
+              <p className="text-muted-foreground text-xs">
+                POS charges can be added once the stay is checked in.
+              </p>
+            )}
+          </CardContent>
+        </Card>
+      ) : reservation.posTransactions.length > 0 ? (
         <Card className="lg:col-span-2">
           <CardHeader>
             <CardTitle className="text-base">POS transactions</CardTitle>
@@ -297,6 +373,69 @@ export function ReservationDetailClient({
           </CardContent>
         </Card>
       ) : null}
+    </div>
+  );
+}
+
+function PosAddForm({
+  marinaId,
+  stayId,
+  onDone,
+}: {
+  marinaId: number;
+  stayId: number;
+  onDone: () => void;
+}) {
+  const [pending, start] = React.useTransition();
+  const [category, setCategory] = React.useState<string>("service");
+  const [name, setName] = React.useState("");
+  const [amount, setAmount] = React.useState("");
+  const [type, setType] = React.useState<"charge" | "credit">("charge");
+
+  return (
+    <div className="grid gap-2 border-t pt-3 sm:grid-cols-5">
+      <Select value={category} onValueChange={(v) => setCategory(v ?? "service")}>
+        <SelectTrigger><SelectValue /></SelectTrigger>
+        <SelectContent>
+          {POS_CATEGORIES.map((c) => (
+            <SelectItem key={c} value={c}>{c}</SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+      <Input placeholder="Description" value={name} onChange={(e) => setName(e.target.value)} />
+      <Input type="number" placeholder="Amount" value={amount} onChange={(e) => setAmount(e.target.value)} />
+      <Select value={type} onValueChange={(v) => setType((v as "charge" | "credit") ?? "charge")}>
+        <SelectTrigger><SelectValue /></SelectTrigger>
+        <SelectContent>
+          <SelectItem value="charge">charge</SelectItem>
+          <SelectItem value="credit">credit</SelectItem>
+        </SelectContent>
+      </Select>
+      <Button
+        size="sm"
+        disabled={pending || !name || !amount}
+        onClick={() =>
+          start(async () => {
+            const res = await savePosTransaction({
+              stay_id: stayId,
+              marina_id: marinaId,
+              service_category: category,
+              service_name: name,
+              amount: Number(amount),
+              type,
+            });
+            if (!res.ok) toast.error(res.error ?? "Could not add the charge.");
+            else {
+              toast.success("Added.");
+              setName("");
+              setAmount("");
+              onDone();
+            }
+          })
+        }
+      >
+        Add
+      </Button>
     </div>
   );
 }
