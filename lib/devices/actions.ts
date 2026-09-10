@@ -80,6 +80,45 @@ export async function toggleUserDevice(id: number): Promise<DeviceActionResult> 
 }
 
 /**
+ * `POST devices/package` (`UserDeviceController@devicePromoCode`) — attach a
+ * promo code and/or a package to a claimed device by name/code lookup. Old
+ * middleware: `permission:inventory,create`. `promo_codes` / `packages` are
+ * reference tables (populated by the ETL).
+ */
+export async function applyDevicePackage(input: {
+  userDeviceId: number
+  promoCode?: string
+  packageName?: string
+}): Promise<DeviceActionResult> {
+  await requirePermission('inventory', 'create')
+  const supabase = await createClient()
+
+  const patch: { promo_code_id?: number; package_id?: number } = {}
+  if (input.promoCode?.trim()) {
+    const { data } = await supabase
+      .from('promo_codes')
+      .select('id')
+      .eq('promo_code', input.promoCode.trim())
+      .maybeSingle()
+    if (data) patch.promo_code_id = data.id
+  }
+  if (input.packageName?.trim()) {
+    const { data } = await supabase
+      .from('packages')
+      .select('id')
+      .eq('name', input.packageName.trim())
+      .maybeSingle()
+    if (data) patch.package_id = data.id
+  }
+  if (Object.keys(patch).length === 0) return { ok: false, error: 'No matching promo code or package.' }
+
+  const { error } = await supabase.from('user_devices').update(patch).eq('id', input.userDeviceId)
+  if (error) return { ok: false, error: "Could not update the device's package." }
+  revalidatePath(`/app/devices/${input.userDeviceId}`)
+  return { ok: true }
+}
+
+/**
  * `POST devices/parameters` / `devices/default/parameters`
  * (`DeviceParameterController@storeDeviceParameters` /
  * `@storeDefaultDeviceParameters`) — the per-device (or per-user default)
