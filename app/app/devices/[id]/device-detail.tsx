@@ -43,6 +43,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { LiveReadingCard } from "@/components/realtime/live-reading-card";
 
 const DAY_ABBR: [string, string][] = [
   ["Monday", "Mon"],
@@ -265,6 +266,10 @@ export function DeviceDetail({
               </Button>
             </form>
           ) : null}
+
+          <div className="border-t pt-4">
+            <LiveReadingCard userDeviceId={device.id} initialAt={device.lastReadingAt} />
+          </div>
 
           <div className="border-t pt-4">
             <p className="mb-2 text-sm font-medium">Latest reading</p>
