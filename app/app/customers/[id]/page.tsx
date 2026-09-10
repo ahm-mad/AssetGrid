@@ -18,6 +18,7 @@ import { Button } from "@/components/ui/button";
 import { UserBasicsForm } from "./user-basics-form";
 import { PermissionOverrides } from "./permission-overrides";
 import { UserActions } from "./user-actions";
+import { UserScopesEditor } from "./user-scopes";
 
 export const metadata = { title: "User" };
 
@@ -107,22 +108,15 @@ export default async function UserDetailPage({ params }: PageProps<"/app/custome
         </CardContent>
       </Card>
 
-      {user.scopes.length ? (
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">Data scopes</CardTitle>
-            <CardDescription>Which resources this user is limited to.</CardDescription>
-          </CardHeader>
-          <CardContent className="grid gap-1 text-sm">
-            {user.scopes.map((s) => (
-              <div key={s.entityType}>
-                <span className="font-medium capitalize">{s.entityType}</span>:{" "}
-                {s.assetIds.length ? s.assetIds.join(", ") : "(locked out — no assets)"}
-              </div>
-            ))}
-          </CardContent>
-        </Card>
-      ) : null}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">Data scopes</CardTitle>
+          <CardDescription>Which resources this user is limited to.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <UserScopesEditor userId={user.id} scopes={user.scopes} canEdit={canEditPerms} />
+        </CardContent>
+      </Card>
     </div>
   );
 }
