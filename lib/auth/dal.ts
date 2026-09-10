@@ -31,7 +31,7 @@ export const getCurrentUser = cache(async (): Promise<CurrentUser | null> => {
   const { data: profile } = await supabase
     .from('profiles')
     .select(
-      'id, legacy_id, first_name, last_name, role_type_id, company_id, domain_id, role_types(title)',
+      'id, legacy_id, first_name, last_name, role_type_id, company_id, domain_id, role:role_types!profiles_role_type_id_fkey(title)',
     )
     .eq('id', claims.sub)
     .maybeSingle()
@@ -39,7 +39,7 @@ export const getCurrentUser = cache(async (): Promise<CurrentUser | null> => {
   if (!profile) return null
 
   const roleTitle =
-    (profile.role_types as { title?: string } | null)?.title ?? 'Customer'
+    (profile.role as { title?: string } | null)?.title ?? 'Customer'
 
   const permissions = await getEffectivePermissions(
     profile.id,
