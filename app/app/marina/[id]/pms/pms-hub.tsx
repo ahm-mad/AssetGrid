@@ -22,8 +22,11 @@ import {
   billContract,
   terminateContract,
 } from "@/lib/marina/pms/contract-actions";
+import { markInvoicePaid, voidInvoice } from "@/lib/marina/pms/billing-actions";
 import type { RatePlanRow, ReservationRow } from "@/lib/marina/pms/data";
 import type { ContractRow } from "@/lib/marina/pms/contracts-data";
+import type { InvoiceRow } from "@/lib/marina/pms/billing-data";
+import type { RevenueReport, OccupancyReport, ArSummaryReport } from "@/lib/marina/pms/reports";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -64,6 +67,11 @@ export function PmsHub({
   ratePlans,
   reservations,
   contracts,
+  invoices,
+  arAging,
+  revenue,
+  occupancy,
+  arSummary,
   pickers,
   ratePlanOptions,
   users,
@@ -74,6 +82,11 @@ export function PmsHub({
   ratePlans: RatePlanRow[];
   reservations: ReservationRow[];
   contracts: ContractRow[];
+  invoices: InvoiceRow[];
+  arAging: Record<"0-30" | "31-60" | "61-90" | "90+", number>;
+  revenue: RevenueReport;
+  occupancy: OccupancyReport;
+  arSummary: ArSummaryReport;
   pickers: Pickers;
   ratePlanOptions: { id: number; name: string; calcType: string | null }[];
   users: { id: string; name: string }[];
@@ -84,6 +97,8 @@ export function PmsHub({
         <TabsTrigger value="book">Quote &amp; book</TabsTrigger>
         <TabsTrigger value="reservations">Reservations ({reservations.length})</TabsTrigger>
         <TabsTrigger value="contracts">Contracts ({contracts.length})</TabsTrigger>
+        <TabsTrigger value="invoices">Invoices ({invoices.length})</TabsTrigger>
+        <TabsTrigger value="reports">Reports</TabsTrigger>
         <TabsTrigger value="plans">Rate plans ({ratePlans.length})</TabsTrigger>
       </TabsList>
 
@@ -103,6 +118,14 @@ export function PmsHub({
 
       <TabsContent value="contracts">
         <ContractsTable marinaId={marinaId} canWrite={canWrite} contracts={contracts} />
+      </TabsContent>
+
+      <TabsContent value="invoices">
+        <InvoicesTable marinaId={marinaId} canWrite={canWrite} invoices={invoices} arAging={arAging} />
+      </TabsContent>
+
+      <TabsContent value="reports">
+        <Reports revenue={revenue} occupancy={occupancy} arSummary={arSummary} />
       </TabsContent>
 
       <TabsContent value="plans">
@@ -562,6 +585,195 @@ function ContractsTable({
         ))}
       </TableBody>
     </Table>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Invoices
+// ---------------------------------------------------------------------------
+function InvoicesTable({
+  marinaId,
+  canWrite,
+  invoices,
+  arAging,
+}: {
+  marinaId: number;
+  canWrite: boolean;
+  invoices: InvoiceRow[];
+  arAging: Record<"0-30" | "31-60" | "61-90" | "90+", number>;
+}) {
+  const router = useRouter();
+  const [pending, start] = React.useTransition();
+
+  function act(fn: () => Promise<{ ok: boolean; error?: string }>, okMsg = "Done.") {
+    start(async () => {
+      const res = await fn();
+      if (!res.ok) toast.error(res.error ?? "Action failed.");
+      else {
+        toast.success(okMsg);
+        router.refresh();
+      }
+    });
+  }
+
+  return (
+    <div className="grid gap-4">
+      <dl className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        {(["0-30", "31-60", "61-90", "90+"] as const).map((k) => (
+          <div key={k} className="rounded-lg border p-3">
+            <dt className="text-muted-foreground text-xs">AR {k} days</dt>
+            <dd className="font-medium">{money(arAging[k])}</dd>
+          </div>
+        ))}
+      </dl>
+
+      {invoices.length === 0 ? (
+        <p className="text-muted-foreground text-sm">No invoices. Bill a signed contract to create one.</p>
+      ) : (
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>#</TableHead>
+              <TableHead>For</TableHead>
+              <TableHead>Amount</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead>Paid</TableHead>
+              <TableHead />
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {invoices.map((inv) => (
+              <TableRow key={inv.id}>
+                <TableCell>{inv.id}</TableCell>
+                <TableCell className="text-xs">
+                  {inv.billableType} #{inv.billableId}
+                </TableCell>
+                <TableCell>{money(inv.amount)}</TableCell>
+                <TableCell><Badge variant="secondary">{inv.status}</Badge></TableCell>
+                <TableCell className="text-xs">
+                  {inv.paidAt ? new Date(inv.paidAt).toLocaleDateString() : "—"}
+                </TableCell>
+                <TableCell className="flex gap-1">
+                  {canWrite && !["paid", "void"].includes(inv.status) ? (
+                    <>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        disabled={pending}
+                        onClick={() => act(() => markInvoicePaid(inv.id, marinaId), "Marked paid.")}
+                      >
+                        Mark paid
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        disabled={pending}
+                        onClick={() => act(() => voidInvoice(inv.id, marinaId), "Voided.")}
+                      >
+                        Void
+                      </Button>
+                    </>
+                  ) : null}
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      )}
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Reports
+// ---------------------------------------------------------------------------
+function Reports({
+  revenue,
+  occupancy,
+  arSummary,
+}: {
+  revenue: RevenueReport;
+  occupancy: OccupancyReport;
+  arSummary: ArSummaryReport;
+}) {
+  return (
+    <div className="grid gap-6">
+      <section>
+        <h2 className="mb-2 text-sm font-semibold">Revenue this month — per dock</h2>
+        {revenue.perDock.length === 0 ? (
+          <p className="text-muted-foreground text-sm">No reservation revenue this month.</p>
+        ) : (
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Dock</TableHead>
+                <TableHead>Revenue</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {revenue.perDock.map((d) => (
+                <TableRow key={d.dockId}>
+                  <TableCell>{d.dockName}</TableCell>
+                  <TableCell>{money(d.revenue)}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        )}
+      </section>
+
+      <section>
+        <h2 className="mb-2 text-sm font-semibold">Occupancy this month — per dock</h2>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Dock</TableHead>
+              <TableHead>Occupancy</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {occupancy.perDock.map((d) => (
+              <TableRow key={d.dockId}>
+                <TableCell>{d.dockName}</TableCell>
+                <TableCell>{d.occupancyPercent}%</TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </section>
+
+      <section>
+        <h2 className="mb-2 text-sm font-semibold">AR summary — per company</h2>
+        {arSummary.perCompany.length === 0 ? (
+          <p className="text-muted-foreground text-sm">No invoices.</p>
+        ) : (
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Company</TableHead>
+                <TableHead>Total AR</TableHead>
+                <TableHead>0-30</TableHead>
+                <TableHead>31-60</TableHead>
+                <TableHead>61-90</TableHead>
+                <TableHead>90+</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {arSummary.perCompany.map((c) => (
+                <TableRow key={`${c.companyId}-${c.companyName}`}>
+                  <TableCell>{c.companyName}</TableCell>
+                  <TableCell>{money(c.totalAr)}</TableCell>
+                  <TableCell>{money(c.aging["0-30"])}</TableCell>
+                  <TableCell>{money(c.aging["31-60"])}</TableCell>
+                  <TableCell>{money(c.aging["61-90"])}</TableCell>
+                  <TableCell>{money(c.aging["90+"])}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        )}
+      </section>
+    </div>
   );
 }
 

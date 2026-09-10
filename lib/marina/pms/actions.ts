@@ -863,3 +863,61 @@ export async function toggleAssignment(input: unknown): Promise<PmsResult> {
   revalidatePath(`/app/marina/${v.marina_id}/pms/reservations/${v.reservation_id}`)
   return { ok: true }
 }
+
+// ===========================================================================
+// reconstructed ReservationController mutations (commented-out in the old code)
+// ===========================================================================
+/** `ReservationController::promoteFromWaitlist` — waitlisted → confirmed if a slip frees up. */
+export async function promoteFromWaitlist(reservationId: number, marinaId: number): Promise<PmsResult> {
+  await requirePermission('marina', 'update')
+  const supabase = await createClient()
+  const { data: res } = await supabase
+    .from('reservations')
+    .select('id, status, dock_id, start_date, end_date, boat:boats(boat_loa), assignments(id)')
+    .eq('id', reservationId)
+    .maybeSingle()
+  if (!res) return { ok: false, error: 'Reservation not found.' }
+  if (res.status !== 'waitlisted') return { ok: false, error: 'Reservation must be waitlisted to promote.' }
+  if (!res.dock_id || !res.start_date || !res.end_date)
+    return { ok: false, error: 'Reservation is missing a dock or dates.' }
+
+  const boatLoa = Number((res.boat as { boat_loa?: string | null } | null)?.boat_loa ?? 0)
+  const slip = await findAvailableSlip(supabase, res.dock_id, res.start_date, res.end_date, boatLoa)
+  if (!slip) return { ok: false, error: 'No available slip for this reservation.' }
+
+  const assignmentId = ((res.assignments as { id: number }[] | null) ?? [])[0]?.id ?? null
+  if (assignmentId)
+    await supabase.from('assignments').update({ slip_id: slip.id, status: 'assigned' }).eq('id', assignmentId)
+  await supabase.from('reservations').update({ status: 'confirmed' }).eq('id', reservationId)
+
+  revalidatePath(`/app/marina/${marinaId}/pms`)
+  return { ok: true }
+}
+
+/** `ReservationController::checkIn` — assigned slip → stay checked_in. */
+export async function checkInReservation(reservationId: number, marinaId: number): Promise<PmsResult> {
+  await requirePermission('marina', 'update')
+  const supabase = await createClient()
+  const { data: res } = await supabase
+    .from('reservations')
+    .select('id, status, assignments(id, status), stays(id)')
+    .eq('id', reservationId)
+    .maybeSingle()
+  if (!res) return { ok: false, error: 'Reservation not found.' }
+  if (!['confirmed', 'contract_signed', 'active'].includes(res.status))
+    return { ok: false, error: 'Reservation must be confirmed to check in.' }
+
+  const assignment = ((res.assignments as { id: number; status: string }[] | null) ?? [])[0]
+  if (!assignment || assignment.status !== 'assigned')
+    return { ok: false, error: 'A slip must be assigned to check in.' }
+  const stayId = ((res.stays as { id: number }[] | null) ?? [])[0]?.id ?? null
+  if (!stayId) return { ok: false, error: 'No stay to check in.' }
+
+  await supabase
+    .from('stays')
+    .update({ actual_arrival: new Date().toISOString().slice(0, 10), status: 'checked_in' })
+    .eq('id', stayId)
+
+  revalidatePath(`/app/marina/${marinaId}/pms/reservations/${reservationId}`)
+  return { ok: true }
+}
