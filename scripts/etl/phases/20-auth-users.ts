@@ -148,7 +148,7 @@ export const phase: Phase = {
     for (const k of keepers) {
       const legacy = String(k.user.id);
       const emailKey = (lower(k.user.email) ?? '').trim();
-      let id = authByLegacy.get(legacy);
+      const id = authByLegacy.get(legacy);
       if (!id && emailKey && authEmails.has(emailKey)) {
         unresolved(KEY, 'auth.users', 'email', k.user.email, legacy,
           `email already owned by a non-ETL account; keeper legacy ${legacy} skipped`);
