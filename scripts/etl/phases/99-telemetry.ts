@@ -60,6 +60,33 @@ export const phase: Phase = {
   async run(): Promise<PhaseResult> {
     const idMap = await loadIdMap();
     const pg = pgPool();
+
+    // Guard against two telemetry loads racing (this bit us once already — a
+    // leftover process from a killed run kept writing while a fresh run
+    // started, doubling rows). One session-scoped advisory lock; bail loudly
+    // if another run already holds it instead of silently duplicating data.
+    const lockKey = 991_099; // arbitrary, telemetry-phase-specific
+    const { rows: lockRows } = await pg.query<{ locked: boolean }>(
+      'select pg_try_advisory_lock($1) as locked', [lockKey],
+    );
+    if (!lockRows[0].locked) {
+      throw new Error(
+        'another telemetry load already holds the advisory lock — ' +
+        'check for a leftover `etl.ts` process before retrying',
+      );
+    }
+    try {
+      return await runTelemetryLoad(pg, idMap);
+    } finally {
+      await pg.query('select pg_advisory_unlock($1)', [lockKey]);
+    }
+  },
+};
+
+async function runTelemetryLoad(
+  pg: ReturnType<typeof pgPool>,
+  idMap: Awaited<ReturnType<typeof loadIdMap>>,
+): Promise<PhaseResult> {
     const batchSize = num(cliVal('telemetry-batch')) ?? 2000;
     const budgetMb = args.budgetMb ?? 400;
     const maxRows = args.maxRows ?? Infinity;
@@ -78,6 +105,7 @@ export const phase: Phase = {
     const mongoLegacyIds = new Set<string>(); // MySQL ids shadowed by a Mongo doc
 
     // batch buffer
+    let inserted = 0; // rows actually written (post ON CONFLICT DO NOTHING)
     let buf: unknown[][] = [];
     const flush = async (): Promise<void> => {
       if (buf.length === 0) return;
@@ -94,10 +122,15 @@ export const phase: Phase = {
             return `(${ph.join(',')})`;
           })
           .join(',');
-        await client.query(
-          `insert into telemetry (${COLS.join(',')}) values ${tuples}`,
+        // dedupe at the DB level (telemetry_dedupe_idx) so a re-run without
+        // --truncate, or two processes racing, converges instead of
+        // duplicating (caught during the Phase N+1 dev proof-run).
+        const res = await client.query(
+          `insert into telemetry (${COLS.join(',')}) values ${tuples}
+           on conflict (dev_eui, created_at, (coalesce(legacy_id, -1))) do nothing`,
           params,
         );
+        inserted += res.rowCount ?? 0;
       });
       total += rows.length;
     };
@@ -274,11 +307,11 @@ export const phase: Phase = {
     }
 
     return {
-      rowsLoaded: total,
-      notes: `${total} telemetry rows (${skippedDup} dup/shadow skipped); budget ${budgetMb}MB`,
+      rowsLoaded: inserted,
+      sourceRows: total,
+      notes: `${inserted} rows written (${total - inserted} already present, ${skippedDup} dup/shadow skipped in-run); budget ${budgetMb}MB`,
     };
-  },
-};
+}
 
 // ---------------------------------------------------------------------------
 function cliVal(name: string): string | undefined {
@@ -397,17 +430,23 @@ async function resolveRef(
   if (refs.length === 0) return;
 
   // build a lookup: legacy_mongo_id | legacy_id -> telemetry.id
-  const hexRefs = refs.filter((r) => /^[a-f0-9]{24}$/i.test(r.raw)).map((r) => r.raw);
-  const intRefs = refs.filter((r) => /^\d+$/.test(r.raw)).map((r) => r.raw);
+  // A single `= any($1)` with a huge array (~90k+ elements) makes the planner
+  // choke on this table (observed: 5,000 refs ~1.3s, 90,000+ refs times out at
+  // 60s+) — chunk the lookup instead. Dedupe first since many rows share refs.
+  const CHUNK = 5000;
+  const hexRefs = [...new Set(refs.filter((r) => /^[a-f0-9]{24}$/i.test(r.raw)).map((r) => r.raw))];
+  const intRefs = [...new Set(refs.filter((r) => /^\d+$/.test(r.raw)).map((r) => r.raw))];
   const map = new Map<string, string>();
-  if (hexRefs.length) {
+  for (let i = 0; i < hexRefs.length; i += CHUNK) {
+    const slice = hexRefs.slice(i, i + CHUNK);
     for (const r of (await pg.query<{ m: string; id: string }>(
-      `select legacy_mongo_id m, id::text id from telemetry where legacy_mongo_id = any($1)`, [hexRefs],
+      `select legacy_mongo_id m, id::text id from telemetry where legacy_mongo_id = any($1)`, [slice],
     )).rows) map.set(r.m, r.id);
   }
-  if (intRefs.length) {
+  for (let i = 0; i < intRefs.length; i += CHUNK) {
+    const slice = intRefs.slice(i, i + CHUNK);
     for (const r of (await pg.query<{ l: string; id: string }>(
-      `select legacy_id::text l, id::text id from telemetry where legacy_id = any($1::bigint[])`, [intRefs],
+      `select legacy_id::text l, id::text id from telemetry where legacy_id = any($1::bigint[])`, [slice],
     )).rows) map.set(r.l, r.id);
   }
 

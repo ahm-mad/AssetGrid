@@ -34,15 +34,25 @@ export const PHASES: Phase[] = [
   finalise,
 ];
 
+/**
+ * A key matches a phase if it equals the key, or is a prefix ending right
+ * before a `-` (so "99" matches "99-telemetry" but not "99z-finalise" — the
+ * numeric group, not just a string prefix).
+ */
+function matches(phaseKey: string, k: string): boolean {
+  if (phaseKey === k) return true;
+  return phaseKey.startsWith(k) && phaseKey[k.length] === '-';
+}
+
 export function selectPhases(only: string[], from?: string): Phase[] {
   let list = PHASES;
   if (from) {
-    const i = list.findIndex((p) => p.key === from || p.key.startsWith(from));
+    const i = list.findIndex((p) => matches(p.key, from));
     if (i === -1) throw new Error(`--from: no phase matching "${from}"`);
     list = list.slice(i);
   }
   if (only.length) {
-    list = list.filter((p) => only.some((k) => p.key === k || p.key.startsWith(k)));
+    list = list.filter((p) => only.some((k) => matches(p.key, k)));
     if (list.length === 0) throw new Error(`--only: no phase matching ${only.join(', ')}`);
   }
   return list;
