@@ -42,13 +42,13 @@
 
 import type { Phase, PhaseResult } from './types.ts';
 import { mongo, pgPool, withPgClient } from '../lib/sources.ts';
-import { mysqlStream, mysqlOne } from '../lib/read.ts';
+import { mysqlStream } from '../lib/read.ts';
 import { loadIdMap } from '../lib/idmap.ts';
 import { args } from '../config.ts';
 import { info, warn } from '../lib/log.ts';
 import { unresolved } from '../lib/unresolved.ts';
 import {
-  toId, toTsN, nz, upper, toBool, toNum, toLat, toLon, toAlt, toInt, toJsonParam, jsonParam,
+  toId, nz, upper, toBool, toNum, toLat, toLon, toAlt, toInt, toJsonParam, jsonParam,
 } from '../lib/coerce.ts';
 
 const KEY = '99-telemetry';
