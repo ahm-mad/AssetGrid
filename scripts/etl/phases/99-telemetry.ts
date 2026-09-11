@@ -1,26 +1,41 @@
 /**
- * Phase 11 — telemetry (spec §8, ADR-016/022/029). THE BIG ONE. Runs LAST.
+ * Phase 11 — telemetry (spec §8, ADR-016/022/029; window narrowed by user
+ * decision 2026-09-11 — ADR-039 supersedes the breadth-over-depth rollup
+ * design, ADR-038, which is reverted). Runs LAST.
  *
- * Sources (a time-split, not a duplicate — §8.1):
- *   - Mongo  device_values   ~0.5M, newest, ongoing        → ALL loaded
- *   - MySQL  device_values   ~3.9M, 2025-03 … 2025-06      → recent slice only
- *   - MySQL  device_values_dump ~5.3M, 2024-10 … 2025-03   → none by default
+ * Telemetry rows are migrated as real raw packets, same shape as the legacy
+ * device_values/device_values_dump/Mongo rows — no aggregation, no squeezing.
+ * Space is managed purely by loading a SHORT RECENT WINDOW (default: the last
+ * 6 hours) rather than history; a longer-history telemetry strategy is a
+ * deliberately deferred follow-up (the user has a different approach in mind).
  *
- * The cut is self-adjusting and parametrised:
- *   --since <YYYY-MM-DD>        hard floor (default: none for Mongo; 60d ago for MySQL)
+ * Sources (a time-split, not a duplicate — §8.1), both bounded by the same cutoff:
+ *   - Mongo  device_values      newest, ongoing        → last N hours
+ *   - MySQL  device_values      2025-03 … 2025-06      → last N hours
+ *   - MySQL  device_values_dump 2024-10 … 2025-03      → none by default
+ *
+ * The cut is parametrised:
+ *   --hours <n>                hard floor, precise to the hour (default 6)
+ *   --since <YYYY-MM-DD[THH:MM:SS]>  overrides --hours with an exact cutoff
  *   --budget-mb <n>            stop loading older MySQL rows once
- *                              pg_total_relation_size('telemetry') crosses this (default 400)
+ *                              pg_total_relation_size('telemetry') crosses this (default 150)
  *   --max-rows <n>             absolute ceiling across all sources
  *   --drop-rawbody-before <d>  store raw_body/raw_packet NULL for rows older than d
+ *                              (opt-in — off by default; this phase keeps full
+ *                              raw parity with the legacy rows by default)
  *   --include-dump            also stream device_values_dump (newest-first, same guards)
  *   --telemetry-batch <n>     insert batch size (default 2000)
  *
- * Dedupe key: (dev_eui, created_at truncated to the second, coalesce(legacy_id,-1)).
- * Mongo docs with a legacy_id shadow the MySQL row of that id (§8.2) — those
- * MySQL ids are recorded and skipped.
+ * Dedupe: a DB unique index (telemetry_dedupe_idx on dev_eui, created_at,
+ * coalesce(legacy_id,-1)) + `on conflict do nothing`, so a re-run without
+ * --truncate converges instead of duplicating (§8.2 key). Mongo docs with a
+ * legacy_id shadow the MySQL row of that id — those MySQL ids are recorded
+ * and skipped in-run too, before they'd even reach the DB check.
  *
  * Post-load: resolve neo_alarm_logs / alert_state / alert_log references that
- * pointed at Mongo `_id`s or MySQL ids, and rebuild user_devices.last_reading*.
+ * pointed at Mongo `_id`s or MySQL ids (only for rows inside this window —
+ * older ones stay unresolved, which is fine, they're audit trails), and
+ * rebuild user_devices.last_reading*.
  *
  * ⚠ Build/scan RECENT records only (ADR-029) — never SELECT * the full tables.
  */
@@ -54,7 +69,7 @@ function num(v: unknown) { return toNum(v); }
 
 export const phase: Phase = {
   key: KEY,
-  title: 'Telemetry — Mongo + recent MySQL slice into the partitioned table',
+  title: 'Telemetry — last N hours of Mongo + MySQL device_values (raw, no thinning)',
   targetTables: [], // never truncated by --truncate; managed here
 
   async run(): Promise<PhaseResult> {
@@ -88,10 +103,36 @@ async function runTelemetryLoad(
   idMap: Awaited<ReturnType<typeof loadIdMap>>,
 ): Promise<PhaseResult> {
     const batchSize = num(cliVal('telemetry-batch')) ?? 2000;
-    const budgetMb = args.budgetMb ?? 400;
+    // ADR-039: keep full raw parity with the legacy rows (no thinning by
+    // default), just for a short recent window instead of history.
+    const budgetMb = args.budgetMb ?? 150;
     const maxRows = args.maxRows ?? Infinity;
+    const hours = num(cliVal('hours')) ?? 6;
+    // full-precision ISO cutoff; --since (a date or full timestamp) overrides --hours
+    const since = args.since
+      ? new Date(args.since).toISOString()
+      : new Date(Date.now() - hours * 3600_000).toISOString();
     const dropRawBefore = args.dropRawBodyBefore ? Date.parse(args.dropRawBodyBefore) : null;
     const includeDump = process.argv.includes('--include-dump');
+
+    // FK validation sets — the source's user_device_id/inventory_device_id
+    // aren't trustworthy as-is (stale/deleted references observed in the dev
+    // Mongo data caused an FK violation the first time this ran without a
+    // check). Null out anything that doesn't resolve rather than fail the batch.
+    const validUserDeviceIds = new Set(
+      (await pg.query<{ id: string }>('select id::text from user_devices')).rows.map((r) => r.id),
+    );
+    const validInventoryDeviceIds = new Set(
+      (await pg.query<{ id: string }>('select id::text from inventory_devices')).rows.map((r) => r.id),
+    );
+    const udOf = (v: unknown): string | null => {
+      const id = toId(v);
+      return id && validUserDeviceIds.has(id) ? id : null;
+    };
+    const invOf = (v: unknown): string | null => {
+      const id = toId(v);
+      return id && validInventoryDeviceIds.has(id) ? id : null;
+    };
 
     // user_id (bigint) -> uuid, resolved before insert
     const uidOf = (v: unknown): string | null => {
@@ -146,15 +187,23 @@ async function runTelemetryLoad(
     };
 
     // -----------------------------------------------------------------
-    // 1. Mongo — ALL docs (§8.4 step 1)
+    // 1. Mongo — last `--since` days only (ADR-038 revises §8.4 step 1,
+    //    which loaded all of Mongo; the full history now lives in
+    //    telemetry_daily_rollup). Sorted newest-first and stopped once we
+    //    cross `since` — a doc's Mongo `_id` roughly tracks insertion order,
+    //    which is good enough for a short recent window (the ~21 legacy
+    //    backfilled docs from a single one-time script run are the only
+    //    known _id/created_at mismatch, and they're old — irrelevant here).
     // -----------------------------------------------------------------
-    info('   streaming Mongo device_values (all)…');
+    info(`   streaming Mongo device_values (id desc, since ${since})…`);
     const db = await mongo();
     const cursor = db.collection('device_values').find({}, { sort: { _id: -1 } }).batchSize(2000);
+    let mongoStop = false;
     for await (const doc of cursor) {
-      if (total >= maxRows) break;
+      if (mongoStop || total >= maxRows) break;
       const d = doc as Record<string, unknown>;
       const createdAt = toMongoTs(d.created_at) ?? toMongoTs(d._id);
+      if (createdAt && createdAt < since) { mongoStop = true; break; }
       const devEui = upper(d.devEUI);
       const legacyId = toId(d.legacy_id);
       if (legacyId) mongoLegacyIds.add(legacyId);
@@ -168,8 +217,8 @@ async function runTelemetryLoad(
         dev_eui: devEui,
         gateway_id: nz(d.gatewayID),
         user_id: uidOf(d.user_id),
-        user_device_id: toId(d.user_device_id),
-        inventory_device_id: toId(d.inventory_device_id),
+        user_device_id: udOf(d.user_device_id),
+        inventory_device_id: invOf(d.inventory_device_id),
         electrical: d,
         env: d,
         geo: d,
@@ -190,7 +239,6 @@ async function runTelemetryLoad(
     // 2. MySQL device_values — newest-first until a guard trips (§8.4 step 2)
     // -----------------------------------------------------------------
     if (total < maxRows && !(await budgetExceeded())) {
-      const since = args.since ?? defaultSince(60);
       info(`   streaming MySQL device_values (id desc, since ${since})…`);
       let checked = 0;
       let stop = false;
@@ -202,7 +250,7 @@ async function runTelemetryLoad(
         const legacyId = toId(row.id);
         if (legacyId && mongoLegacyIds.has(legacyId)) { skippedDup++; continue; }
         const createdAt = mysqlTs(row.created_at);
-        if (createdAt && since && createdAt.slice(0, 10) < since) { stop = true; break; }
+        if (createdAt && since && createdAt < since) { stop = true; break; }
         const devEui = upper(row.devEUI);
         const k = key(devEui, createdAt, legacyId);
         if (seen.has(k)) { skippedDup++; continue; }
@@ -214,8 +262,8 @@ async function runTelemetryLoad(
           dev_eui: devEui,
           gateway_id: nz(row.gatewayID),
           user_id: uidOf(row.user_id),
-          user_device_id: toId(row.user_device_id),
-          inventory_device_id: toId(row.inventory_device_id),
+          user_device_id: udOf(row.user_device_id),
+          inventory_device_id: invOf(row.inventory_device_id),
           electrical: row,
           env: row,
           geo: row,
@@ -256,8 +304,8 @@ async function runTelemetryLoad(
           created_at: createdAt, updated_at: mysqlTs(row.updated_at) ?? createdAt,
           dev_eui: devEui, gateway_id: nz(row.gatewayID),
           user_id: uidOf(row.user_id),
-          user_device_id: toId(row.user_device_id),
-          inventory_device_id: toId(row.inventory_device_id),
+          user_device_id: udOf(row.user_device_id),
+          inventory_device_id: invOf(row.inventory_device_id),
           electrical: row, env: row, geo: row,
           raw_body: null, raw_packet: null, xup_encoded_edr: null, xup_decoded_edr: null,
           legacy_id: legacyId, legacy_mongo_id: null, raw_source: 'mysql_device_values_dump',
@@ -319,10 +367,6 @@ function cliVal(name: string): string | undefined {
   if (i === -1) return undefined;
   const a = process.argv[i];
   return a.includes('=') ? a.split('=')[1] : process.argv[i + 1];
-}
-
-function defaultSince(days: number): string {
-  return new Date(Date.now() - days * 86400_000).toISOString().slice(0, 10);
 }
 
 function mysqlTs(v: unknown): string | null {

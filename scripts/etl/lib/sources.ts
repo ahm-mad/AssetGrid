@@ -46,6 +46,34 @@ export async function mongo(): Promise<Db> {
   return _mongoDb;
 }
 
+// Supabase sets `default_transaction_read_only = on` at the database level
+// while a free-tier project is over its storage budget (observed 2026-09-11
+// at 832MB / 500MB) — and re-asserts it even after an `ALTER DATABASE`
+// override, so it's enforced per-connection, not just a one-time default.
+// It's a soft session-level GUC, not a hard replica/disk lock, so a session
+// can opt out — which the ETL needs to do to delete data back under budget.
+// A pg.Pool 'connect' *event* handler doesn't work here: pg does not await
+// it before handing the client out, so a query issued right after `connect()`
+// can race the SET and still see read-only (observed as a
+// "client already executing a query" warning under load). Subclassing
+// Client so the SET is awaited inside `connect()` itself closes that race.
+class ReadWriteClient extends pg.Client {
+  // pg-pool (verified in node_modules/pg-pool/index.js) only ever calls the
+  // CALLBACK form: `client.connect((err) => ...)`. The extra SET must
+  // complete before that callback fires, or the pool can hand out a client
+  // that hasn't opted out of read-only yet — a `pool.on('connect', ...)`
+  // listener doesn't get awaited by pg, which raced in practice. Typed loosely
+  // (not matching pg.Client's full overload set) since only this call shape
+  // needs to work; cast at the Pool constructor call site.
+  // @ts-expect-error -- intentionally narrower than pg.Client's full connect() overload set; see comment above
+  connect(callback: (err?: Error) => void): void {
+    super.connect((err?: Error) => {
+      if (err) { callback(err); return; }
+      this.query('set default_transaction_read_only = off', (setErr: Error | undefined) => callback(setErr));
+    });
+  }
+}
+
 export function pgPool(): pg.Pool {
   if (!_pg) {
     _pg = new pg.Pool({
@@ -54,6 +82,7 @@ export function pgPool(): pg.Pool {
       // pooler can be slow; give statements room
       statement_timeout: 15 * 60 * 1000,
       query_timeout: 15 * 60 * 1000,
+      Client: ReadWriteClient as unknown as typeof pg.Client,
     });
   }
   return _pg;
