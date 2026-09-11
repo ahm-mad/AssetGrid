@@ -99,7 +99,7 @@ export const phase: Phase = {
       const src = await mysqlAll('select * from plans');
       source += src.length;
       const rows = (src as Record<string, unknown>[]).map((r) => {
-        let modes = jsonParam(r.billing_modes);
+        const modes = jsonParam(r.billing_modes);
         const parsed: unknown = modes ? JSON.parse(modes) : [];
         const modeArr = Array.isArray(parsed)
           ? parsed.map(String).filter((m) => {

@@ -122,7 +122,7 @@ export const phase: Phase = {
         unresolved(KEY, 'user_scopes', 'user_id', s.user_id, null, 'user not in id map → skipped');
         continue;
       }
-      let entity = nz(s.entity_type);
+      const entity = nz(s.entity_type);
       if (entity && !SCOPE_ENTITIES.has(entity)) {
         unresolved(KEY, 'user_scopes', 'entity_type', entity, u, 'entity_type not in the target CHECK set — kept as-is');
       }
