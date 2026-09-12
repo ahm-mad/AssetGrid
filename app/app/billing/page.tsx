@@ -18,6 +18,9 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { StatTile } from "@/components/charts/stat-tile";
+import { BarChart } from "@/components/charts/bar-chart";
 
 export const metadata = { title: "Billing" };
 
@@ -29,6 +32,15 @@ export default async function BillingPage() {
     listActivationAttempts({ perPage: 50 }),
     listPayments({ perPage: 50 }),
   ]);
+
+  const activeCount = ents.rows.filter((e) => e.status === "active").length;
+  const totalPaid = payments.rows.reduce((sum, p) => sum + p.amount, 0);
+  const perPlan = new Map<string, number>();
+  for (const e of ents.rows) {
+    const name = e.planName ?? e.planCode ?? "Unknown";
+    perPlan.set(name, (perPlan.get(name) ?? 0) + 1);
+  }
+  const planChart = [...perPlan.entries()].sort((a, b) => b[1] - a[1]).map(([label, value]) => ({ label, value }));
 
   return (
     <div className="grid gap-4">
@@ -49,6 +61,25 @@ export default async function BillingPage() {
           </Button>
         </div>
       </div>
+
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+        <StatTile label="Active entitlements" value={activeCount} />
+        <StatTile label="Activation attempts" value={attempts.total} />
+        <StatTile label="Payments recorded" value={payments.total} />
+        <StatTile label="Total collected" value={Math.round(totalPaid)} />
+      </div>
+
+      {planChart.length > 0 ? (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">Entitlements by plan</CardTitle>
+            <CardDescription>Active + historical, current page.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <BarChart data={planChart} color="var(--chart-2)" />
+          </CardContent>
+        </Card>
+      ) : null}
 
       <Tabs defaultValue="entitlements">
         <TabsList className="flex-wrap">

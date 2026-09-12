@@ -82,3 +82,33 @@ export async function listUsers(params: UserListParams = {}): Promise<UserListRe
     totalPages: Math.max(1, Math.ceil(total / perPage)),
   }
 }
+
+export interface CustomerSummary {
+  total: number
+  companyCount: number
+  perCompany: { label: string; value: number }[]
+}
+
+/** KPI tiles + per-company breakdown for the customers list page. */
+export async function getCustomerSummary(): Promise<CustomerSummary> {
+  const supabase = await createClient()
+  const [{ count: total }, { data: rows }] = await Promise.all([
+    supabase.from('profiles').select('id', { count: 'exact', head: true }).is('deleted_at', null),
+    supabase
+      .from('profiles')
+      .select('company:companies(company_name)')
+      .is('deleted_at', null)
+      .not('company_id', 'is', null),
+  ])
+
+  const counts = new Map<string, number>()
+  for (const r of rows ?? []) {
+    const name = (r.company as { company_name?: string } | null)?.company_name ?? 'Unassigned'
+    counts.set(name, (counts.get(name) ?? 0) + 1)
+  }
+  const perCompany = [...counts.entries()]
+    .sort((a, b) => b[1] - a[1])
+    .map(([label, value]) => ({ label, value }))
+
+  return { total: total ?? 0, companyCount: perCompany.length, perCompany }
+}

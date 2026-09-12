@@ -4,8 +4,11 @@ import { notFound } from "next/navigation";
 import { requireUser } from "@/lib/auth/dal";
 import { can } from "@/lib/auth/permissions";
 import { getUserDevice } from "@/lib/devices/data";
+import { getDeviceTelemetrySeries } from "@/lib/telemetry/data";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { LineChart } from "@/components/charts/line-chart";
 
 import { DeviceDetail } from "./device-detail";
 
@@ -28,6 +31,17 @@ export default async function DeviceDetailPage({ params }: PageProps<"/app/devic
   const canDelete = viewer.isSuperAdmin || can(viewer.permissions, "inventory", "delete");
 
   const { device } = bundle;
+  const series = await getDeviceTelemetrySeries(device.id, "weekly", 250);
+
+  const hasPower = series.some((p) => p.activePower != null);
+  const hasTemp = series.some((p) => p.temperature != null);
+  const pointLabel = (iso: string) =>
+    new Date(iso).toLocaleString([], { weekday: "short", hour: "2-digit", minute: "2-digit" });
+  const chartData = hasPower
+    ? series.map((p) => ({ label: pointLabel(p.createdAt), value: p.activePower ?? 0 })).reverse()
+    : hasTemp
+      ? series.map((p) => ({ label: pointLabel(p.createdAt), value: p.temperature ?? 0 })).reverse()
+      : [];
 
   return (
     <div className="grid max-w-3xl gap-4">
@@ -43,6 +57,18 @@ export default async function DeviceDetailPage({ params }: PageProps<"/app/devic
           {device.devEui ? <span className="font-mono">· {device.devEui}</span> : null}
         </p>
       </div>
+
+      {chartData.length > 0 ? (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">{hasPower ? "Power draw" : "Temperature"}</CardTitle>
+            <CardDescription>Last 7 days of telemetry for this device.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <LineChart data={chartData} unit={hasPower ? " W" : "°F"} />
+          </CardContent>
+        </Card>
+      ) : null}
 
       <DeviceDetail bundle={bundle} canControl={canControl} canDelete={canDelete} />
     </div>

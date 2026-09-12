@@ -9,6 +9,7 @@ import {
   listProducts,
 } from "@/lib/catalog/data";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { StatTile } from "@/components/charts/stat-tile";
 
 import { AttributesTab } from "./attributes-tab";
 import { XupsTab } from "./xups-tab";
@@ -41,6 +42,15 @@ export default async function CatalogPage() {
         <p className="text-muted-foreground text-sm">
           Products, alert attributes, telemetry channels (xUP), app profiles, device types.
         </p>
+      </div>
+
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-6">
+        <StatTile label="Products" value={products.length} />
+        <StatTile label="Device types" value={deviceTypes.length} />
+        <StatTile label="Attributes" value={attributes.length} />
+        <StatTile label="xUPs" value={xups.length} />
+        <StatTile label="Apps" value={apps.length} />
+        <StatTile label="Notifies" value={notifies.length} />
       </div>
 
       <Tabs defaultValue="attributes">

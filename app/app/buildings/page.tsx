@@ -13,6 +13,9 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { StatTile } from "@/components/charts/stat-tile";
+import { BarChart } from "@/components/charts/bar-chart";
 
 import { NewBuildingButton } from "./new-building-button";
 
@@ -22,6 +25,8 @@ export default async function BuildingsPage() {
   const viewer = await requirePagePermission("buildings", "read");
   const [buildings, companies] = await Promise.all([listBuildings(), getCompanyOptions()]);
   const canCreate = viewer.isSuperAdmin || can(viewer.permissions, "buildings", "create");
+  const totalDevices = buildings.reduce((sum, b) => sum + b.siteCount, 0);
+  const deviceChart = buildings.map((b) => ({ label: b.buildingCode, value: b.siteCount }));
 
   return (
     <div className="grid gap-4">
@@ -34,6 +39,23 @@ export default async function BuildingsPage() {
         </div>
         {canCreate ? <NewBuildingButton companies={companies} /> : null}
       </div>
+
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+        <StatTile label="Buildings" value={buildings.length} />
+        <StatTile label="Monitored sites" value={totalDevices} />
+      </div>
+
+      {deviceChart.length > 0 ? (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">Devices per building</CardTitle>
+            <CardDescription>Sites with an active sensor, by building.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <BarChart data={deviceChart} color="var(--chart-3)" />
+          </CardContent>
+        </Card>
+      ) : null}
 
       <div className="overflow-x-auto rounded-md border">
         <Table>

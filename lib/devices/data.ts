@@ -451,3 +451,27 @@ export async function getUserDevice(id: number): Promise<UserDeviceBundle | null
     chargingDetail,
   }
 }
+
+export interface DeviceFleetSummary {
+  total: number
+  captured: number
+  charging: number
+  alerting: number
+}
+
+/** KPI tiles for the devices list page. RLS-scoped, same as every other read here. */
+export async function getDeviceFleetSummary(): Promise<DeviceFleetSummary> {
+  const supabase = await createClient()
+  const [total, captured, charging, alerting] = await Promise.all([
+    supabase.from('user_devices').select('id', { count: 'exact', head: true }),
+    supabase.from('user_devices').select('id', { count: 'exact', head: true }).eq('status', 'captured'),
+    supabase.from('device_charging_state').select('user_device_id', { count: 'exact', head: true }).eq('is_charging', true),
+    supabase.from('alert_state').select('id', { count: 'exact', head: true }).eq('is_alert', true),
+  ])
+  return {
+    total: total.count ?? 0,
+    captured: captured.count ?? 0,
+    charging: charging.count ?? 0,
+    alerting: alerting.count ?? 0,
+  }
+}
