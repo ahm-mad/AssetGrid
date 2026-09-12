@@ -2,7 +2,7 @@ import 'server-only'
 
 import { cookies } from 'next/headers'
 
-export const IMPERSONATION_COOKIE = 'armit-imp'
+export const IMPERSONATION_COOKIE = 'assetgrid-imp'
 
 export interface ImpersonationTicket {
   actorId: string

@@ -22,6 +22,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { BarChart } from "@/components/charts/bar-chart";
 
 export const metadata = { title: "Reports" };
 
@@ -169,42 +170,23 @@ export default async function ReportsPage({
               {revenue.perDock.length === 0 ? (
                 <p className="text-muted-foreground text-sm">No reservation revenue this month.</p>
               ) : (
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Dock</TableHead>
-                      <TableHead>Revenue</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {revenue.perDock.map((d) => (
-                      <TableRow key={d.dockId}>
-                        <TableCell>{d.dockName}</TableCell>
-                        <TableCell>{money(d.revenue)}</TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
+                <BarChart
+                  data={revenue.perDock.map((d) => ({ label: d.dockName, value: d.revenue }))}
+                  format="currency"
+                />
               )}
             </section>
             <section>
               <h2 className="mb-2 text-sm font-medium">Occupancy per dock</h2>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Dock</TableHead>
-                    <TableHead>Occupancy</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {occupancy.perDock.map((d) => (
-                    <TableRow key={d.dockId}>
-                      <TableCell>{d.dockName}</TableCell>
-                      <TableCell>{d.occupancyPercent}%</TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+              {occupancy.perDock.length === 0 ? (
+                <p className="text-muted-foreground text-sm">No docks in scope.</p>
+              ) : (
+                <BarChart
+                  data={occupancy.perDock.map((d) => ({ label: d.dockName, value: d.occupancyPercent }))}
+                  format="percent"
+                  yMax={100}
+                />
+              )}
             </section>
             <section>
               <h2 className="mb-2 text-sm font-medium">AR summary per company</h2>

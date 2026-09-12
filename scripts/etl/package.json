@@ -1,5 +1,5 @@
 {
-  "name": "emax-etl",
+  "name": "assetgrid-etl",
   "private": true,
   "type": "module",
   "description": "MySQL + MongoDB -> Supabase Postgres ETL. See docs/target/data-migration.md.",

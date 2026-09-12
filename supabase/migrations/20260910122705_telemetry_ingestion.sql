@@ -22,7 +22,7 @@ create table public.telemetry (
   user_device_id      bigint references public.user_devices(id)      on delete cascade,
   inventory_device_id bigint references public.inventory_devices(id) on delete cascade,
 
-  -- electrical (legacy eMAX charging devices) — numeric, never int
+  -- electrical (legacy AssetGrid charging devices) — numeric, never int
   energy_consumption_meter_consumed numeric,
   energy_consumption_meter_elapsed  numeric,
   active_power       numeric,
