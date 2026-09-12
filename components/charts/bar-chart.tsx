@@ -57,6 +57,8 @@ export function BarChart({
   const barSlot = plotW / data.length
   const barWidth = Math.min(24, barSlot * 0.5)
   const gap = 2
+  const maxLabelChars = Math.max(6, Math.min(20, Math.floor(barSlot / 6.2)))
+  const truncate = (s: string) => (s.length > maxLabelChars ? s.slice(0, maxLabelChars - 1) + "…" : s)
 
   const ticks = [0, 0.25, 0.5, 0.75, 1].map((f) => Math.round(niceMax * f))
 
@@ -135,7 +137,7 @@ export function BarChart({
                 className="fill-muted-foreground text-[10px]"
                 style={{ pointerEvents: "none" }}
               >
-                {d.label}
+                {truncate(d.label)}
               </text>
             </g>
           )

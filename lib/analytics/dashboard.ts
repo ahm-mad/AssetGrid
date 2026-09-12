@@ -7,8 +7,10 @@ export interface DashboardSummary {
   openAlertCount: number
   buildingCount: number
   marinaCount: number
+  customerCount: number
   /** Hourly packet-volume trend over the most recent loaded telemetry window. */
   activity: { label: string; value: number }[]
+  recentAlerts: { id: number; deviceName: string | null; message: string; createdAt: string }[]
 }
 
 /**
@@ -40,7 +42,7 @@ async function getHourlyTelemetryActivity(
   const end = new Date(newest[0].created_at as string)
 
   const hours: Date[] = []
-  for (let h = new Date(start); h <= end && hours.length < 24; h = new Date(h.getTime() + 3_600_000)) {
+  for (let h = new Date(start); h <= end && hours.length < 48; h = new Date(h.getTime() + 3_600_000)) {
     hours.push(h)
   }
 
@@ -55,8 +57,9 @@ async function getHourlyTelemetryActivity(
     })
   )
 
+  const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
   return hours.map((h, i) => ({
-    label: `${String(h.getUTCHours()).padStart(2, '0')}:00`,
+    label: `${dayNames[h.getUTCDay()]} ${String(h.getUTCHours()).padStart(2, '0')}:00`,
     value: counts[i].count ?? 0,
   }))
 }
@@ -64,12 +67,18 @@ async function getHourlyTelemetryActivity(
 export async function getDashboardSummary(): Promise<DashboardSummary> {
   const supabase = await createClient()
 
-  const [devices, alerts, buildings, marinas, activity] = await Promise.all([
+  const [devices, alerts, buildings, marinas, customers, activity, alertLog] = await Promise.all([
     supabase.from('inventory_devices').select('id', { count: 'exact', head: true }),
     supabase.from('alert_state').select('id', { count: 'exact', head: true }).eq('is_alert', true),
     supabase.from('buildings').select('id', { count: 'exact', head: true }),
     supabase.from('marinas').select('id', { count: 'exact', head: true }),
+    supabase.from('profiles').select('id', { count: 'exact', head: true }),
     getHourlyTelemetryActivity(supabase),
+    supabase
+      .from('alert_log')
+      .select('id, device_name, message, created_at')
+      .order('created_at', { ascending: false })
+      .limit(8),
   ])
 
   return {
@@ -77,6 +86,13 @@ export async function getDashboardSummary(): Promise<DashboardSummary> {
     openAlertCount: alerts.count ?? 0,
     buildingCount: buildings.count ?? 0,
     marinaCount: marinas.count ?? 0,
+    customerCount: customers.count ?? 0,
     activity,
+    recentAlerts: (alertLog.data ?? []).map((a) => ({
+      id: a.id,
+      deviceName: a.device_name,
+      message: a.message,
+      createdAt: a.created_at,
+    })),
   }
 }

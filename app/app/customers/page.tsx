@@ -1,7 +1,7 @@
 import Link from "next/link";
 
 import { requirePagePermission } from "@/lib/auth/page-guards";
-import { listUsers } from "@/lib/users/data";
+import { listUsers, getCustomerSummary } from "@/lib/users/data";
 import {
   Table,
   TableBody,
@@ -13,6 +13,9 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { StatTile } from "@/components/charts/stat-tile";
+import { BarChart } from "@/components/charts/bar-chart";
 
 export const metadata = { title: "Customers" };
 
@@ -27,7 +30,10 @@ export default async function CustomersPage({ searchParams }: PageProps<"/app/cu
   const search = typeof sp.q === "string" ? sp.q : "";
   const roleTypeId = sp.role ? Number(sp.role) : undefined;
 
-  const result = await listUsers({ page, search, roleTypeId, perPage: 20 });
+  const [result, summary] = await Promise.all([
+    listUsers({ page, search, roleTypeId, perPage: 20 }),
+    getCustomerSummary(),
+  ]);
 
   const mkHref = (p: number) => {
     const params = new URLSearchParams();
@@ -48,6 +54,23 @@ export default async function CustomersPage({ searchParams }: PageProps<"/app/cu
           <Button render={<Link href="/app/customers/new" />}>New user</Button>
         ) : null}
       </div>
+
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+        <StatTile label="Total customers" value={summary.total} />
+        <StatTile label="Companies" value={summary.companyCount} />
+      </div>
+
+      {summary.perCompany.length > 0 ? (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">Customers by company</CardTitle>
+            <CardDescription>Distribution across the account portfolio.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <BarChart data={summary.perCompany} />
+          </CardContent>
+        </Card>
+      ) : null}
 
       <form className="flex gap-2" action="/app/customers">
         <Input name="q" placeholder="Search name or xnid…" defaultValue={search} className="max-w-xs" />

@@ -9,6 +9,7 @@ import {
   getMarinaSensorCounts,
   getMarinaAlerts,
 } from "@/lib/marina/dashboard";
+import { getOccupancyReport } from "@/lib/marina/pms/reports";
 import { getDevicePickerOptions } from "@/lib/inventory/data";
 import { getActivationUserOptions } from "@/lib/billing/data";
 import {
@@ -28,6 +29,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { StatTile } from "@/components/charts/stat-tile";
+import { BarChart } from "@/components/charts/bar-chart";
 
 import { MarinaTree } from "./marina-tree";
 
@@ -46,12 +49,13 @@ export default async function MarinaDetailPage({ params }: PageProps<"/app/marin
   const marina = await getMarina(marinaId);
   if (!marina) notFound();
 
-  const [battery, counts, alerts, picker, users] = await Promise.all([
+  const [battery, counts, alerts, picker, users, occupancy] = await Promise.all([
     getMarinaBatteryStatus(marinaId),
     getMarinaSensorCounts(marinaId),
     getMarinaAlerts(marinaId, 20),
     getDevicePickerOptions(),
     getActivationUserOptions(),
+    getOccupancyReport({ marinaId }),
   ]);
 
   const canWrite = viewer.isSuperAdmin || can(viewer.permissions, "marina", "update");
@@ -81,21 +85,31 @@ export default async function MarinaDetailPage({ params }: PageProps<"/app/marin
         </p>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-3">
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+        <StatTile label="Sensors total" value={counts.total} />
+        <StatTile label="Reporting" value={counts.reporting} />
+        <StatTile label="Silent" value={counts.silent} status={counts.silent > 0 ? "warning" : undefined} />
+        <StatTile label="Alarm active" value={counts.alarmActive} status={counts.alarmActive > 0 ? "critical" : undefined} />
+      </div>
+
+      {occupancy.perDock.length > 0 ? (
         <Card>
           <CardHeader>
-            <CardTitle className="text-base">Sensors</CardTitle>
+            <CardTitle className="text-base">Slip occupancy by dock</CardTitle>
+            <CardDescription>Current month, this marina.</CardDescription>
           </CardHeader>
           <CardContent>
-            <dl className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm">
-              <Stat label="Total" value={counts.total} />
-              <Stat label="Reporting" value={counts.reporting} />
-              <Stat label="Silent" value={counts.silent} />
-              <Stat label="Alarm active" value={counts.alarmActive} />
-            </dl>
+            <BarChart
+              data={occupancy.perDock.map((d) => ({ label: d.dockName, value: d.occupancyPercent }))}
+              format="percent"
+              yMax={100}
+            />
           </CardContent>
         </Card>
-        <Card className="sm:col-span-2">
+      ) : null}
+
+      <div className="grid gap-4 sm:grid-cols-3">
+        <Card className="sm:col-span-3">
           <CardHeader>
             <CardTitle className="text-base">Recent marina alerts</CardTitle>
             <CardDescription>Live via Realtime once ingestion is running.</CardDescription>
@@ -167,15 +181,6 @@ export default async function MarinaDetailPage({ params }: PageProps<"/app/marin
           />
         </CardContent>
       </Card>
-    </div>
-  );
-}
-
-function Stat({ label, value }: { label: string; value: number }) {
-  return (
-    <div>
-      <dt className="text-muted-foreground">{label}</dt>
-      <dd className="text-base font-medium">{value}</dd>
     </div>
   );
 }

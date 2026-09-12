@@ -2,7 +2,7 @@ import Link from "next/link";
 
 import { requirePagePermission } from "@/lib/auth/page-guards";
 import { can } from "@/lib/auth/permissions";
-import { listUserDevices } from "@/lib/devices/data";
+import { listUserDevices, getDeviceFleetSummary } from "@/lib/devices/data";
 import { getActivationUserOptions } from "@/lib/billing/data";
 
 import { ClaimDeviceDialog } from "./claim-device-dialog";
@@ -17,6 +17,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { StatTile } from "@/components/charts/stat-tile";
 
 export const metadata = { title: "Devices" };
 
@@ -32,7 +33,10 @@ export default async function DevicesPage({ searchParams }: PageProps<"/app/devi
   const page = Number(typeof sp.page === "string" ? sp.page : 1) || 1;
   const search = typeof sp.q === "string" ? sp.q : "";
 
-  const result = await listUserDevices({ page, search, perPage: 25 });
+  const [result, fleet] = await Promise.all([
+    listUserDevices({ page, search, perPage: 25 }),
+    getDeviceFleetSummary(),
+  ]);
 
   const mkHref = (p: number) => {
     const params = new URLSearchParams();
@@ -56,6 +60,13 @@ export default async function DevicesPage({ searchParams }: PageProps<"/app/devi
           </Button>
           <ClaimDeviceDialog selfId={viewer.id} users={isAdmin ? userOptions : null} />
         </div>
+      </div>
+
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+        <StatTile label="Total devices" value={fleet.total} />
+        <StatTile label="Captured" value={fleet.captured} />
+        <StatTile label="Charging now" value={fleet.charging} />
+        <StatTile label="Active alerts" value={fleet.alerting} status={fleet.alerting > 0 ? "warning" : undefined} />
       </div>
 
       <form className="flex gap-2" action="/app/devices">
