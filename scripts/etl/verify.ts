@@ -111,7 +111,7 @@ async function mysqlCount(table: string): Promise<number | null> {
 }
 
 async function main(): Promise<void> {
-  console.log('emax ETL — reconciliation\n' + describeConfig() + '\n');
+  console.log('assetgrid ETL — reconciliation\n' + describeConfig() + '\n');
   const pg = pgPool();
 
   // ---- 1. row counts ----------------------------------------------------

@@ -36,13 +36,13 @@ create trigger domains_set_updated_at
 
 -- The 7 dev-dump domains (representative — real values come from the ETL).
 insert into public.domains (id, domain_url) values
-  (1, 'https://devstage.joveiot.net'),
-  (2, 'https://emaxc-devstage.jove1.com'),
-  (3, 'https://aquamax-devstage.jove1.com'),
-  (4, 'https://smxa-dev.jove1.com'),
+  (1, 'https://devstage.assetgrid.example'),
+  (2, 'https://app-devstage.assetgrid.example'),
+  (3, 'https://aquagrid-devstage.assetgrid.example'),
+  (4, 'https://sga-dev.assetgrid.example'),
   (5, 'http://localhost'),
   (6, 'http://127.0.0.1'),
-  (7, 'https://emax-battery.vercel.app');
+  (7, 'https://assetgrid-battery.vercel.app');
 select setval(pg_get_serial_sequence('public.domains', 'id'), 7, true);
 
 -- ----------------------------------------------------------------------------

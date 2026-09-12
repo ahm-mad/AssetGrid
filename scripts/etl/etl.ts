@@ -30,7 +30,7 @@ import { selectPhases } from './phases/index.ts';
 import { pgPool } from './lib/sources.ts';
 
 async function main(): Promise<void> {
-  info(`emax ETL — run ${RUN_ID}`);
+  info(`assetgrid ETL — run ${RUN_ID}`);
   console.log(describeConfig());
 
   const phases = selectPhases(args.only, args.from);

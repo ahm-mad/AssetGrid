@@ -17,7 +17,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "ARMIT",
+  title: "AssetGrid",
   description: "Device monitoring, buildings, and marina management.",
 };
 

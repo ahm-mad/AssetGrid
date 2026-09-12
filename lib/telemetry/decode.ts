@@ -8,7 +8,7 @@ import 'server-only'
  *  - **environmental** (temp / humidity / reed / PIR / battery): flat keys
  *    `temperature`, `humidity`, `external_input`, `light`, `move`,
  *    `battery_voltage`, `reed_state`.
- *  - **electrical** (eMAX charger / relay): `objectJSON.data` keyed by
+ *  - **electrical** (AssetGrid charger / relay): `objectJSON.data` keyed by
  *    `energy_consumption_meter.consumed` / `.elapsed`, `real_power`,
  *    `apparent_power`, `reactive_power`, `power_factor_meter`, `voltmeter`,
  *    `ammeter`, `relay_status`.
