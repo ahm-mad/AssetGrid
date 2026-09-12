@@ -27,7 +27,7 @@ export function getStripe(): Stripe {
   const key = process.env.STRIPE_SECRET_KEY
   if (!key) throw new StripeNotConfiguredError()
   if (!cached) {
-    cached = new Stripe(key, { appInfo: { name: 'emax-next-supabase' } })
+    cached = new Stripe(key, { appInfo: { name: 'assetgrid' } })
   }
   return cached
 }

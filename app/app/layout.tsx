@@ -19,7 +19,7 @@ export default async function AppLayout({ children }: LayoutProps<"/app">) {
       <aside className="bg-card hidden border-r md:flex md:flex-col">
         <div className="flex h-14 items-center px-5">
           <Link href="/app" className="font-semibold tracking-tight">
-            ARMIT
+            AssetGrid
           </Link>
         </div>
         <div className="flex-1 overflow-y-auto py-2">
@@ -30,7 +30,7 @@ export default async function AppLayout({ children }: LayoutProps<"/app">) {
       <div className="flex min-w-0 flex-col">
         <header className="bg-card/80 supports-[backdrop-filter]:bg-card/60 sticky top-0 z-10 flex h-14 items-center justify-between gap-3 border-b px-4 backdrop-blur md:justify-end">
           <Link href="/app" className="font-semibold tracking-tight md:hidden">
-            ARMIT
+            AssetGrid
           </Link>
           {user.impersonatorId ? <ImpersonationBanner /> : null}
           <UserMenu name={name} email={user.email} roleTitle={user.roleTitle} />

@@ -31,8 +31,8 @@ export interface MailMessage {
 
 export async function sendMail(msg: MailMessage): Promise<{ ok: boolean; id?: string; error?: string }> {
   const key = process.env.RESEND_API_KEY
-  const from = process.env.MAIL_FROM ?? 'alerts@armitalerts.com'
-  const fromName = process.env.MAIL_FROM_NAME ?? 'ARMIT Alerts'
+  const from = process.env.MAIL_FROM ?? 'alerts@assetgrid.example'
+  const fromName = process.env.MAIL_FROM_NAME ?? 'AssetGrid Alerts'
   const recipients = Array.isArray(msg.to) ? msg.to : [msg.to]
 
   const audit = (status: 'mocked' | 'sent' | 'failed', extra: { providerId?: string; error?: string } = {}) =>
