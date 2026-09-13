@@ -1,7 +1,8 @@
 # AssetGrid
 
-**IoT asset management, reimagined on Next.js 16 + Supabase.** AssetGrid monitors connected sensors and devices across three physical domains — automated buildings, marina/boat fleets, and general inventory — and wraps them in a CRM, a device storefront, and Stripe-backed billing. It's a from-scratch rebuild of a production Laravel + MySQL/MongoDB platform, migrated to a modern, fully type-safe, RLS-first stack.
+**A full-stack IoT asset management platform, built with Next.js 16 and Supabase.** AssetGrid monitors connected sensors and devices across three physical domains — automated buildings, marina/boat fleets, and general inventory — and wraps them in a CRM, a device storefront, and Stripe-backed billing, with a fully type-safe, RLS-first architecture underneath.
 
+[![CI](https://github.com/ahm-mad/AssetGrid/actions/workflows/ci.yml/badge.svg)](https://github.com/ahm-mad/AssetGrid/actions/workflows/ci.yml) ![License](https://img.shields.io/github/license/ahm-mad/AssetGrid)
 ![Next.js](https://img.shields.io/badge/Next.js-16-black?logo=next.js) ![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=black) ![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white) ![Supabase](https://img.shields.io/badge/Supabase-Postgres%2017-3ECF8E?logo=supabase&logoColor=white) ![Tailwind](https://img.shields.io/badge/Tailwind-v4-06B6D4?logo=tailwindcss&logoColor=white) ![Stripe](https://img.shields.io/badge/Stripe-billing-635BFF?logo=stripe&logoColor=white)
 
 ---
