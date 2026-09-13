@@ -42,3 +42,8 @@ next-env.d.ts
 
 # dev-only local scripts (throwaway seed users, etc.)
 scripts/dev/
+
+# internal progress/working docs — references the real former client by
+# name throughout; kept locally for continuity across sessions, never
+# committed (see decisions.md ADR-045)
+docs/
