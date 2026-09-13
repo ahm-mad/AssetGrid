@@ -23,7 +23,7 @@ It's built for **portfolio purposes** — the working system is real, the code i
 |---|---|
 | **Data model** | 118 Postgres tables, generated TypeScript types, zero hand-maintained schema drift |
 | **Security** | 140 Row-Level Security policies, 7 reusable auth functions — the database enforces access, not the app |
-| **Scale** | `telemetry` range-partitioned by month (41 partitions); legacy system logged ~9.5M readings |
+| **Scale** | `telemetry` range-partitioned by month (41 partitions), architected for 10M+ readings without query degradation |
 | **Automation** | 5 `pg_cron` jobs (30s–monthly) drive charging control, health sweeps, PMS maintenance, partition roll-forward |
 | **Type safety** | Strict TypeScript, zero `any`, Zod validation on every Server Action input |
 | **Architecture** | No REST layer — Server Components read, Server Actions write, RLS authorizes |
@@ -145,7 +145,7 @@ sequenceDiagram
 
 ## Built for millions of rows, not thousands
 
-Telemetry is the highest-volume table in the system by a wide margin — the legacy platform this replaced had logged **~9.5M raw readings** across its lifetime. `telemetry` is **range-partitioned by month** (41 partitions currently provisioned, into 2027), with a `pg_cron` job (`telemetry-partition-maintenance`) rolling a new partition forward automatically — so `INSERT`s and time-window queries stay fast indefinitely without a manual DBA step. The ETL that migrated the legacy dataset (`scripts/etl/`) streams MySQL + MongoDB sources through Node in batches rather than loading them into memory, is fully idempotent (safe to re-run), and ships its own reconciliation report (`verify.ts`) that diffs row counts and checksums old vs. new — not "it looked right," a script that proves it.
+Telemetry is the highest-volume table in the system by a wide margin, so it's architected for scale from day one. `telemetry` is **range-partitioned by month** (41 partitions currently provisioned, into 2027), with a `pg_cron` job (`telemetry-partition-maintenance`) rolling a new partition forward automatically — so `INSERT`s and time-window queries stay fast indefinitely without a manual DBA step, well past 10M+ rows. A batched data-loading pipeline (`scripts/etl/`) streams source data through Node rather than loading it into memory, is fully idempotent (safe to re-run), and ships its own reconciliation report (`verify.ts`) that diffs row counts and checksums to prove correctness — not "it looked right," a script that proves it.
 
 Five other `pg_cron` jobs run against the live database on their own schedule (30s–monthly), calling back into the app's own Next.js Route Handlers via `pg_net` rather than standing up duplicate Postgres Edge Functions: device charging control, fleet health sweeps, marina PMS maintenance, stale-activation cleanup, and the partition roll-forward above.
 
@@ -204,7 +204,7 @@ components/charts/       Hand-built SVG data-viz (bar/line/stat-tile) —
                           no charting library dependency
 components/ui/           shadcn v4 (Base UI primitives)
 supabase/migrations/     Every schema change, applied in order
-scripts/etl/             The legacy-system migration pipeline (Node, streaming)
+scripts/etl/             Batched, idempotent data-loading pipeline (Node, streaming)
 ```
 
 ---
