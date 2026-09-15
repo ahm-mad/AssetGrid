@@ -210,29 +210,31 @@ export default async function ReportsPage({
             <CardDescription>This month, across marinas in your scope.</CardDescription>
           </CardHeader>
           <CardContent className="grid gap-6">
-            <section>
-              <h2 className="mb-2 text-sm font-medium">Revenue per dock</h2>
-              {revenue.perDock.length === 0 ? (
-                <p className="text-muted-foreground text-sm">No reservation revenue this month.</p>
-              ) : (
-                <BarChart
-                  data={revenue.perDock.map((d) => ({ label: d.dockName, value: d.revenue }))}
-                  format="currency"
-                />
-              )}
-            </section>
-            <section>
-              <h2 className="mb-2 text-sm font-medium">Occupancy per dock</h2>
-              {occupancy.perDock.length === 0 ? (
-                <p className="text-muted-foreground text-sm">No docks in scope.</p>
-              ) : (
-                <BarChart
-                  data={occupancy.perDock.map((d) => ({ label: d.dockName, value: d.occupancyPercent }))}
-                  format="percent"
-                  yMax={100}
-                />
-              )}
-            </section>
+            <div className="grid gap-6 lg:grid-cols-2">
+              <section>
+                <h2 className="mb-2 text-sm font-medium">Revenue per dock</h2>
+                {revenue.perDock.length === 0 ? (
+                  <p className="text-muted-foreground text-sm">No reservation revenue this month.</p>
+                ) : (
+                  <BarChart
+                    data={revenue.perDock.map((d) => ({ label: d.dockName, value: d.revenue }))}
+                    format="currency"
+                  />
+                )}
+              </section>
+              <section>
+                <h2 className="mb-2 text-sm font-medium">Occupancy per dock</h2>
+                {occupancy.perDock.length === 0 ? (
+                  <p className="text-muted-foreground text-sm">No docks in scope.</p>
+                ) : (
+                  <BarChart
+                    data={occupancy.perDock.map((d) => ({ label: d.dockName, value: d.occupancyPercent }))}
+                    format="percent"
+                    yMax={100}
+                  />
+                )}
+              </section>
+            </div>
             <section>
               <h2 className="mb-2 text-sm font-medium">AR summary per company</h2>
               {arSummary.perCompany.length === 0 ? (
