@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { CreditCard } from "lucide-react";
 
 import { requirePagePermission } from "@/lib/auth/page-guards";
 import {
@@ -8,7 +9,7 @@ import {
 } from "@/lib/billing/data";
 import { isStripeConfigured } from "@/lib/billing/stripe";
 import { UI_MOCK } from "@/lib/mock/enabled";
-import { getMockBillingSummary } from "@/lib/mock/billing";
+import { getMockBillingSummary, getMockPlanHealth } from "@/lib/mock/billing";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import {
@@ -22,6 +23,7 @@ import {
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { StatTile } from "@/components/charts/stat-tile";
 import { BarChart } from "@/components/charts/bar-chart";
+import { NetworkMap } from "@/components/charts/network-map";
 import { StatusLabel, type StatusKind } from "@/components/charts/status-dot";
 
 export const metadata = { title: "Billing" };
@@ -100,6 +102,18 @@ export default async function BillingPage() {
           </CardHeader>
           <CardContent>
             <BarChart data={planChart} color="var(--chart-2)" />
+          </CardContent>
+        </Card>
+      ) : null}
+
+      {UI_MOCK ? (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">Plan health</CardTitle>
+            <CardDescription>Active rate and cancellation risk per plan, fleet-wide.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <NetworkMap nodes={getMockPlanHealth()} icon={CreditCard} unitLabel="entitlements" metricLabel="active" />
           </CardContent>
         </Card>
       ) : null}

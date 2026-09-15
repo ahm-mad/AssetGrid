@@ -1,6 +1,7 @@
 import { mulberry32 } from "@/lib/mock/dashboard"
 import type { DeviceDiagnosticRow, Paginated } from "@/lib/analytics/data"
 import type { RevenueReport, OccupancyReport, ArSummaryReport } from "@/lib/marina/pms/reports"
+import type { FleetGroup } from "@/components/charts/network-map"
 
 const COMPANIES = ["Harborline Marinas", "Northstar Facilities", "BlueWater Group", "Summit Property Co.", "Coastal Ops"]
 const PRODUCTS = ["eMAX Duplex", "MAX Switch", "Bilgemax Monitoring Kit", "Command Charge Controller", "Sensor Node"]
@@ -61,6 +62,34 @@ export function listMockDeviceDiagnostics({
     perPage,
     totalPages: Math.max(1, Math.ceil(total / perPage)),
   }
+}
+
+/**
+ * Device count by product line across the *entire* mock diagnostics set
+ * (not just the current page) — the reference's "Product Estate" pattern
+ * applied to this page's actual data. Mock-only: a real equivalent would
+ * need its own aggregate query, deferred backend work (ADR-UX005 §7).
+ */
+export function getMockProductBreakdown(): FleetGroup[] {
+  const groups = new Map<string, DeviceDiagnosticRow[]>()
+  for (const d of DIAGNOSTICS) {
+    const key = d.productName ?? "Unknown"
+    const list = groups.get(key) ?? []
+    list.push(d)
+    groups.set(key, list)
+  }
+  return [...groups.entries()].map(([label, rows]) => {
+    const reporting = rows.filter((r) => r.totalPackets > 0).length
+    const hasMalfunction = rows.some((r) => r.malfunction)
+    const hasAlerts = rows.some((r) => r.alertCount > 0)
+    return {
+      id: label,
+      label,
+      deviceCount: rows.length,
+      onlinePct: Math.round((reporting / rows.length) * 100),
+      status: hasMalfunction ? "critical" : hasAlerts ? "warning" : "online",
+    }
+  })
 }
 
 export function getMockRevenueReport(): RevenueReport {

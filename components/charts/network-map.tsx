@@ -27,7 +27,19 @@ const STATUS_TEXT: Record<StatusKind, string> = {
  * lines (ADR-UX003, ADR-UX005). Modeled on the reference system's
  * "Product Estate" grid.
  */
-export function NetworkMap({ nodes, icon: Icon = Building2 }: { nodes: FleetGroup[]; icon?: LucideIcon }) {
+export function NetworkMap({
+  nodes,
+  icon: Icon = Building2,
+  unitLabel = "devices",
+  metricLabel = "up",
+}: {
+  nodes: FleetGroup[]
+  icon?: LucideIcon
+  /** Noun for the count, e.g. "devices" or "entitlements". */
+  unitLabel?: string
+  /** What onlinePct measures, e.g. "up" or "active". */
+  metricLabel?: string
+}) {
   return (
     <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
       {nodes.map((n) => (
@@ -48,7 +60,7 @@ export function NetworkMap({ nodes, icon: Icon = Building2 }: { nodes: FleetGrou
 
           <div className="mt-2.5 flex items-center justify-between">
             <p className="text-muted-foreground text-xs">
-              <span className="text-foreground font-mono font-semibold">{n.deviceCount}</span> devices · {n.onlinePct}% up
+              <span className="text-foreground font-mono font-semibold">{n.deviceCount}</span> {unitLabel} · {n.onlinePct}% {metricLabel}
             </p>
             <StatusLabel status={n.status}>{STATUS_TEXT[n.status]}</StatusLabel>
           </div>
