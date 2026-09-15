@@ -42,7 +42,7 @@ export function SidebarNav({ groups }: { groups: { group: NavGroup; items: NavIt
     <nav className="grid gap-4 px-2">
       {groups.map(({ group, items: groupItems }) => (
         <div key={group}>
-          <p className="eyebrow px-3 pb-1.5">{group}</p>
+          <p className="eyebrow text-sidebar-primary px-3 pb-1.5">{group}</p>
           <div className="grid gap-0.5">
             {groupItems.map((item) => {
               const active = item.href === "/app" ? pathname === "/app" : pathname.startsWith(item.href)
