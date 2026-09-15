@@ -74,7 +74,7 @@ export default async function DeviceDetailPage({ params }: PageProps<"/app/devic
         </Card>
       ) : null}
 
-      <DeviceDetail bundle={bundle} canControl={canControl} canDelete={canDelete} />
+      <DeviceDetail bundle={bundle} canControl={canControl} canDelete={canDelete} mock={UI_MOCK} />
     </div>
   );
 }

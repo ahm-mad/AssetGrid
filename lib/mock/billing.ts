@@ -1,5 +1,6 @@
 import { mulberry32, series } from "@/lib/mock/dashboard"
 import type { Paginated, EntitlementRow, ActivationAttemptRow, PaymentRow, PlanRow } from "@/lib/billing/data"
+import type { FleetGroup } from "@/components/charts/network-map"
 
 const PLANS = [
   "Command Annual Protection Plan",
@@ -59,10 +60,9 @@ export const MOCK_PLANS: PlanRow[] = PLANS.map((name, i) => ({
   deletedAt: null,
 }))
 
-export function getMockBillingSummary(): MockBillingSummary {
+function buildEntitlements(): EntitlementRow[] {
   const rand = mulberry32(313)
-
-  const entitlements: EntitlementRow[] = Array.from({ length: 34 }, (_, i) => {
+  return Array.from({ length: 34 }, (_, i) => {
     const planName = PLANS[Math.floor(rand() * PLANS.length)]
     const status = ENT_STATUSES[Math.floor(rand() * ENT_STATUSES.length)]
     return {
@@ -88,8 +88,11 @@ export function getMockBillingSummary(): MockBillingSummary {
       createdAt: new Date(Date.now() - i * 5 * 86_400_000).toISOString(),
     }
   })
+}
 
-  const attempts: ActivationAttemptRow[] = Array.from({ length: 22 }, (_, i) => ({
+function buildAttempts(): ActivationAttemptRow[] {
+  const rand = mulberry32(717)
+  return Array.from({ length: 22 }, (_, i) => ({
     id: i + 1,
     email: EMAILS[i % EMAILS.length],
     userId: null,
@@ -102,8 +105,11 @@ export function getMockBillingSummary(): MockBillingSummary {
     completedAt: rand() > 0.4 ? new Date().toISOString() : null,
     createdAt: new Date(Date.now() - i * 7 * 3_600_000).toISOString(),
   }))
+}
 
-  const payments: PaymentRow[] = Array.from({ length: 28 }, (_, i) => ({
+function buildPayments(): PaymentRow[] {
+  const rand = mulberry32(919)
+  return Array.from({ length: 28 }, (_, i) => ({
     id: i + 1,
     xnid: null,
     providerInvoiceId: `in_${(2000 + i).toString(36)}`,
@@ -114,20 +120,54 @@ export function getMockBillingSummary(): MockBillingSummary {
     cardLast4: String(1000 + Math.floor(rand() * 9000)).slice(-4),
     cardBrand: rand() > 0.5 ? "visa" : "mastercard",
   }))
+}
 
+const ENTITLEMENTS = buildEntitlements()
+const ATTEMPTS = buildAttempts()
+const PAYMENTS = buildPayments()
+
+export function getMockBillingSummary(): MockBillingSummary {
   const perPlan = new Map<string, number>()
-  for (const e of entitlements) {
+  for (const e of ENTITLEMENTS) {
     const name = e.planName ?? "Unknown"
     perPlan.set(name, (perPlan.get(name) ?? 0) + 1)
   }
 
   return {
-    activeCount: entitlements.filter((e) => e.status === "active").length,
-    totalCollected: payments.reduce((s, p) => s + p.amount, 0),
-    entitlements: paginate(entitlements, 1, 50),
-    attempts: paginate(attempts, 1, 50),
-    payments: paginate(payments, 1, 50),
+    activeCount: ENTITLEMENTS.filter((e) => e.status === "active").length,
+    totalCollected: PAYMENTS.reduce((s, p) => s + p.amount, 0),
+    entitlements: paginate(ENTITLEMENTS, 1, 50),
+    attempts: paginate(ATTEMPTS, 1, 50),
+    payments: paginate(PAYMENTS, 1, 50),
     planChart: [...perPlan.entries()].sort((a, b) => b[1] - a[1]).map(([label, value]) => ({ label, value })),
     history: series(14, 22, 4, 313),
   }
+}
+
+/**
+ * Entitlement health by plan — a different lens than the "Entitlements by
+ * plan" bar chart (which is raw counts): this shows active-rate and flags
+ * plans with a high cancellation share. Reference's "Product Estate"
+ * pattern applied to billing's own natural grouping (ADR-UX005 §7).
+ */
+export function getMockPlanHealth(): FleetGroup[] {
+  const groups = new Map<string, EntitlementRow[]>()
+  for (const e of ENTITLEMENTS) {
+    const name = e.planName ?? "Unknown"
+    const list = groups.get(name) ?? []
+    list.push(e)
+    groups.set(name, list)
+  }
+  return [...groups.entries()].map(([label, rows]) => {
+    const active = rows.filter((r) => r.status === "active").length
+    const cancelled = rows.filter((r) => r.status === "cancelled").length
+    const cancelRate = cancelled / rows.length
+    return {
+      id: label,
+      label,
+      deviceCount: rows.length,
+      onlinePct: Math.round((active / rows.length) * 100),
+      status: cancelRate > 0.25 ? "critical" : cancelRate > 0 ? "warning" : "online",
+    }
+  })
 }
