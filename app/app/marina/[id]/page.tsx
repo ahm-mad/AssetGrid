@@ -209,6 +209,7 @@ export default async function MarinaDetailPage({ params }: PageProps<"/app/marin
             canDelete={canDelete}
             inventoryDevices={picker.inventoryDevices}
             users={users}
+            mock={UI_MOCK}
           />
         </CardContent>
       </Card>
