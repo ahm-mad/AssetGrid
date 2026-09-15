@@ -64,41 +64,43 @@ export default async function CustomersPage({ searchParams }: PageProps<"/app/cu
         ) : null}
       </div>
 
-      <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+      <div className="grid grid-cols-2 gap-3">
         <StatTile label="Total customers" value={summary.total} history={summary.history} status="online" />
         <StatTile label="Companies" value={summary.companyCount} status="info" />
       </div>
 
-      {summary.perCompany.length > 0 ? (
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">Customers by company</CardTitle>
-            <CardDescription>Distribution across the account portfolio.</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <BarChart data={summary.perCompany} color="var(--chart-2)" />
-          </CardContent>
-        </Card>
-      ) : null}
+      <div className="grid gap-4 lg:grid-cols-2">
+        {summary.perCompany.length > 0 ? (
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">Customers by company</CardTitle>
+              <CardDescription>Distribution across the account portfolio.</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <BarChart data={summary.perCompany} color="var(--chart-2)" />
+            </CardContent>
+          </Card>
+        ) : null}
 
-      {UI_MOCK ? (
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">Accounts by role</CardTitle>
-            <CardDescription>Role distribution across the whole account base.</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <DonutChart
-              data={getMockCustomersByRole().map((g, i) => ({
-                label: g.label,
-                value: g.deviceCount,
-                color: `var(--chart-${(i % 5) + 1})`,
-              }))}
-              centerLabel="Accounts"
-            />
-          </CardContent>
-        </Card>
-      ) : null}
+        {UI_MOCK ? (
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">Accounts by role</CardTitle>
+              <CardDescription>Role distribution across the whole account base.</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <DonutChart
+                data={getMockCustomersByRole().map((g, i) => ({
+                  label: g.label,
+                  value: g.deviceCount,
+                  color: `var(--chart-${(i % 5) + 1})`,
+                }))}
+                centerLabel="Accounts"
+              />
+            </CardContent>
+          </Card>
+        ) : null}
+      </div>
 
       <form className="flex gap-2" action="/app/customers">
         <Input name="q" placeholder="Search name or company…" defaultValue={search} className="max-w-xs" />

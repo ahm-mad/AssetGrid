@@ -93,40 +93,42 @@ export default async function BillingPage() {
         <StatTile label="Total collected ($)" value={Math.round(totalPaid)} status="online" />
       </div>
 
-      {planChart.length > 0 ? (
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">Entitlements by plan</CardTitle>
-            <CardDescription>Active + historical, current page.</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <BarChart data={planChart} color="var(--chart-2)" />
-          </CardContent>
-        </Card>
-      ) : null}
+      <div className="grid gap-4 lg:grid-cols-2">
+        {planChart.length > 0 ? (
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">Entitlements by plan</CardTitle>
+              <CardDescription>Active + historical, current page.</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <BarChart data={planChart} color="var(--chart-2)" />
+            </CardContent>
+          </Card>
+        ) : null}
 
-      {UI_MOCK ? (
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">Plan health</CardTitle>
-            <CardDescription>Ranked by entitlement volume — active rate and cancellation risk per plan.</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Leaderboard
-              rows={getMockPlanHealth().map((g) => ({
-                id: g.id,
-                label: g.label,
-                sublabel: `${g.deviceCount} entitlements`,
-                value: g.onlinePct,
-                pct: g.onlinePct,
-                status: g.status,
-                statusText: g.status === "online" ? "Healthy" : g.status === "warning" ? "Attention" : "At risk",
-              }))}
-              valueLabel="% active"
-            />
-          </CardContent>
-        </Card>
-      ) : null}
+        {UI_MOCK ? (
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">Plan health</CardTitle>
+              <CardDescription>Ranked by entitlement volume — active rate and cancellation risk per plan.</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Leaderboard
+                rows={getMockPlanHealth().map((g) => ({
+                  id: g.id,
+                  label: g.label,
+                  sublabel: `${g.deviceCount} entitlements`,
+                  value: g.onlinePct,
+                  pct: g.onlinePct,
+                  status: g.status,
+                  statusText: g.status === "online" ? "Healthy" : g.status === "warning" ? "Attention" : "At risk",
+                }))}
+                valueLabel="% active"
+              />
+            </CardContent>
+          </Card>
+        ) : null}
+      </div>
 
       <Tabs defaultValue="entitlements">
         <TabsList className="flex-wrap">
