@@ -28,7 +28,7 @@ export default async function AppLayout({ children }: LayoutProps<"/app">) {
         <div className="scrollbar-none flex-1 overflow-y-auto py-3">
           <SidebarNav groups={navGroups} />
         </div>
-        <div className="eyebrow border-t px-5 py-3">AssetGrid v1 · Portfolio build</div>
+        {/* <div className="eyebrow border-t px-5 py-3">AssetGrid v1 · Portfolio build</div> */}
       </aside>
 
       <div className="flex min-w-0 flex-col">
