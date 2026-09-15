@@ -82,12 +82,19 @@ export function WorldAssetMap({ markers, height = 420 }: { markers: WorldMapMark
 
         for (const m of markers) {
           const color = STATUS_VAR[m.status];
+          // Pulse only signals "needs attention" — a solid dot everywhere
+          // would just be decoration, and every marker pulsing at once reads
+          // as busy rather than live (the exact neon-spread complaint that
+          // moved the whole app to flat/restrained in the first place).
+          const needsAttention = m.status === "warning" || m.status === "critical";
           const icon = L.divIcon({
             className: "",
-            html: `<span class="relative inline-flex size-3.5">
-              <span class="absolute inline-flex h-full w-full animate-ping rounded-full opacity-60" style="background-color:${color}"></span>
-              <span class="relative inline-flex size-3.5 rounded-full border border-white/80" style="background-color:${color}"></span>
-            </span>`,
+            html: needsAttention
+              ? `<span class="relative inline-flex size-3.5">
+                  <span class="absolute inline-flex h-full w-full animate-ping rounded-full opacity-60" style="background-color:${color}"></span>
+                  <span class="relative inline-flex size-3.5 rounded-full border border-white/80" style="background-color:${color}"></span>
+                </span>`
+              : `<span class="inline-flex size-3.5 rounded-full border border-white/80" style="background-color:${color}"></span>`,
             iconSize: [14, 14],
             iconAnchor: [7, 7],
           });
