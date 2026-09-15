@@ -13,12 +13,14 @@ import {
   deleteBoat,
   assignBoatToSlip,
 } from "@/lib/marina/actions";
-import type { MarinaTree as Tree, BoatNode } from "@/lib/marina/data";
+import type { MarinaTree as Tree, BoatNode, DockNode, SlipNode } from "@/lib/marina/data";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
+import { StatusLabel } from "@/components/charts/status-dot";
+import { MetricCell } from "@/components/charts/metric-cell";
 import {
   Dialog,
   DialogClose,
@@ -35,21 +37,49 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
+/** Removes a boat from wherever it lives in the tree (a slip, or unassigned) and returns it. */
+function removeBoatEverywhere(docks: DockNode[], unassignedBoats: BoatNode[], boatId: number) {
+  let found: BoatNode | null = null;
+  const nextDocks = docks.map((d) => ({
+    ...d,
+    slips: d.slips.map((s) => {
+      const boat = s.boats.find((b) => b.id === boatId);
+      if (!boat) return s;
+      found = boat;
+      return { ...s, boats: s.boats.filter((b) => b.id !== boatId) };
+    }),
+  }));
+  let nextUnassigned = unassignedBoats;
+  if (!found) {
+    const boat = unassignedBoats.find((b) => b.id === boatId);
+    if (boat) {
+      found = boat;
+      nextUnassigned = unassignedBoats.filter((b) => b.id !== boatId);
+    }
+  }
+  return { docks: nextDocks, unassignedBoats: nextUnassigned, boat: found };
+}
+
 export function MarinaTree({
   marina,
   canWrite,
   canDelete,
   inventoryDevices,
   users,
+  mock = false,
 }: {
   marina: Tree;
   canWrite: boolean;
   canDelete: boolean;
   inventoryDevices: { id: number; label: string }[];
   users: { id: string; name: string }[];
+  /** UI_MOCK_MODE — fake every write locally instead of hitting the (dead) backend. */
+  mock?: boolean;
 }) {
   const router = useRouter();
   const [pending, start] = React.useTransition();
+  const [docks, setDocks] = React.useState<DockNode[]>(marina.docks);
+  const [unassignedBoats, setUnassignedBoats] = React.useState<BoatNode[]>(marina.unassignedBoats);
   const [dockName, setDockName] = React.useState("");
   const [slipDock, setSlipDock] = React.useState<number | null>(null);
   const [slipName, setSlipName] = React.useState("");
@@ -67,6 +97,101 @@ export function MarinaTree({
       if (res.ok) refresh();
       else toast.error(res.error ?? "Failed");
     });
+  /** Mock mode: mutate local tree state instead of calling the (dead-backend) Server Action. */
+  const act = (mockFn: () => void, realFn: () => Promise<{ ok: boolean; error?: string }>) =>
+    mock ? mockFn() : run(realFn);
+
+  function mockAddDock(name: string) {
+    setDocks((prev) => [...prev, { id: Date.now(), name, slips: [] }]);
+    toast.success("Dock added");
+  }
+
+  function mockDeleteDock(id: number) {
+    setDocks((prev) => prev.filter((d) => d.id !== id));
+    toast.success("Dock deleted");
+  }
+
+  function mockAddSlip(dockId: number, fields: Pick<SlipNode, "name" | "slipNumber" | "minLoa" | "maxLoa">) {
+    const slip: SlipNode = {
+      id: Date.now(),
+      name: fields.name,
+      slipNumber: fields.slipNumber,
+      slipStatus: "vacant",
+      occupancyStatus: "vacant",
+      isActive: true,
+      minLoa: fields.minLoa,
+      maxLoa: fields.maxLoa,
+      boats: [],
+    };
+    setDocks((prev) => prev.map((d) => (d.id === dockId ? { ...d, slips: [...d.slips, slip] } : d)));
+    toast.success("Slip added");
+  }
+
+  function mockDeleteSlip(id: number) {
+    setDocks((prev) => prev.map((d) => ({ ...d, slips: d.slips.filter((s) => s.id !== id) })));
+    toast.success("Slip deleted");
+  }
+
+  function mockAddBoat(fields: {
+    slipId: number | null;
+    dockId: number | null;
+    boatName: string;
+    boatType: string | null;
+    storageStatus: string | null;
+    deviceCount: number;
+  }) {
+    const boat: BoatNode = {
+      id: Date.now(),
+      xnid: null,
+      boatName: fields.boatName,
+      boatType: fields.boatType,
+      slipId: fields.slipId,
+      dockId: fields.dockId,
+      userId: null,
+      isAssigned: fields.slipId != null,
+      deviceCount: fields.deviceCount,
+      storageStatus: fields.storageStatus,
+    };
+    if (fields.slipId == null) {
+      setUnassignedBoats((prev) => [...prev, boat]);
+    } else {
+      setDocks((prev) =>
+        prev.map((d) => ({
+          ...d,
+          slips: d.slips.map((s) => (s.id === fields.slipId ? { ...s, boats: [...s.boats, boat] } : s)),
+        })),
+      );
+    }
+    toast.success("Boat created");
+  }
+
+  function mockDeleteBoat(id: number) {
+    const next = removeBoatEverywhere(docks, unassignedBoats, id);
+    setDocks(next.docks);
+    setUnassignedBoats(next.unassignedBoats);
+    toast.success("Boat removed");
+  }
+
+  function mockAssignBoatToSlip(boatId: number, slipId: number | null) {
+    const next = removeBoatEverywhere(docks, unassignedBoats, boatId);
+    if (!next.boat) return;
+    if (slipId == null) {
+      setDocks(next.docks);
+      setUnassignedBoats([...next.unassignedBoats, { ...next.boat, slipId: null, dockId: null, isAssigned: false }]);
+    } else {
+      const finalDocks = next.docks.map((d) => ({
+        ...d,
+        slips: d.slips.map((s) =>
+          s.id === slipId
+            ? { ...s, boats: [...s.boats, { ...next.boat!, slipId, dockId: d.id, isAssigned: true }] }
+            : s,
+        ),
+      }));
+      setDocks(finalDocks);
+      setUnassignedBoats(next.unassignedBoats);
+    }
+    toast.success("Boat reassigned");
+  }
 
   function openBoatForm(opts: { slipId?: number | null; dockId?: number | null }) {
     setBoatSlip(opts.slipId ?? null);
@@ -81,6 +206,25 @@ export function MarinaTree({
     e.preventDefault();
     const fd = new FormData(e.currentTarget);
     setErr(null);
+    const boatName = String(fd.get("boat_name") ?? "").trim();
+
+    if (mock) {
+      if (!boatName) {
+        setErr("Boat name required");
+        return;
+      }
+      mockAddBoat({
+        slipId: boatSlip,
+        dockId: boatDock,
+        boatName,
+        boatType: (fd.get("boat_type") as string) || null,
+        storageStatus: (fd.get("storage_status") as string) || "wet",
+        deviceCount: boatDevices.length,
+      });
+      setBoatOpen(false);
+      return;
+    }
+
     start(async () => {
       const res = await saveBoat({
         marina_id: marina.id,
@@ -104,23 +248,27 @@ export function MarinaTree({
 
   const BoatLine = ({ b, slips }: { b: BoatNode; slips: { id: number; name: string }[] }) => (
     <li className="flex flex-wrap items-center justify-between gap-2">
-      <span>
+      <span className="flex items-center gap-2">
         ⛵ {b.boatName}
-        {b.boatType ? <span className="text-muted-foreground"> · {b.boatType}</span> : null}
+        {b.boatType ? <span className="text-muted-foreground text-xs"> · {b.boatType}</span> : null}
         {b.deviceCount ? (
-          <Badge variant="secondary" className="ml-2">
+          <Badge variant="secondary" className="font-mono">
             {b.deviceCount} dev
           </Badge>
         ) : null}
-        {b.storageStatus ? <span className="text-muted-foreground text-xs"> · {b.storageStatus}</span> : null}
+        {b.storageStatus ? <span className="text-muted-foreground eyebrow"> {b.storageStatus}</span> : null}
       </span>
       <span className="flex items-center gap-1">
         {canWrite ? (
           <Select
             value={b.slipId ? String(b.slipId) : "none"}
-            onValueChange={(v) =>
-              run(() => assignBoatToSlip(b.id, v === "none" ? null : Number(v), marina.id))
-            }
+            onValueChange={(v) => {
+              const slipId = v === "none" ? null : Number(v);
+              act(
+                () => mockAssignBoatToSlip(b.id, slipId),
+                () => assignBoatToSlip(b.id, slipId, marina.id),
+              );
+            }}
           >
             <SelectTrigger className="h-8 w-32 text-xs">
               <SelectValue placeholder="slip" />
@@ -136,7 +284,12 @@ export function MarinaTree({
           </Select>
         ) : null}
         {canDelete ? (
-          <Button variant="ghost" size="sm" disabled={pending} onClick={() => run(() => deleteBoat(b.id, marina.id))}>
+          <Button
+            variant="ghost"
+            size="sm"
+            disabled={pending}
+            onClick={() => act(() => mockDeleteBoat(b.id), () => deleteBoat(b.id, marina.id))}
+          >
             Remove
           </Button>
         ) : null}
@@ -144,12 +297,22 @@ export function MarinaTree({
     </li>
   );
 
-  const allSlips = marina.docks.flatMap((d) => d.slips.map((s) => ({ id: s.id, name: s.name })));
+  const allSlips = docks.flatMap((d) => d.slips.map((s) => ({ id: s.id, name: s.name })));
+  const slipCount = docks.reduce((s, d) => s + d.slips.length, 0);
+  const boatCount =
+    docks.reduce((s, d) => s + d.slips.reduce((s2, sl) => s2 + sl.boats.length, 0), 0) + unassignedBoats.length;
 
   return (
-    <div className="grid gap-3 text-sm">
+    <div className="grid gap-4 text-sm">
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+        <MetricCell label="Docks" value={docks.length} />
+        <MetricCell label="Slips" value={slipCount} />
+        <MetricCell label="Boats" value={boatCount} />
+        <MetricCell label="Unassigned" value={unassignedBoats.length} />
+      </div>
+
       {canWrite ? (
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           <Input
             value={dockName}
             onChange={(e) => setDockName(e.target.value)}
@@ -159,15 +322,20 @@ export function MarinaTree({
           <Button
             size="sm"
             disabled={pending || !dockName.trim()}
-            onClick={() =>
+            onClick={() => {
+              if (mock) {
+                mockAddDock(dockName.trim());
+                setDockName("");
+                return;
+              }
               start(async () => {
                 const res = await saveDock({ marinaId: marina.id, name: dockName });
                 if (res.ok) {
                   setDockName("");
                   refresh();
                 } else toast.error(res.error ?? "Failed");
-              })
-            }
+              });
+            }}
           >
             Add dock
           </Button>
@@ -177,77 +345,101 @@ export function MarinaTree({
         </div>
       ) : null}
 
-      {marina.docks.length === 0 ? (
+      {docks.length === 0 ? (
         <p className="text-muted-foreground">No docks yet.</p>
       ) : (
-        marina.docks.map((d) => (
-          <div key={d.id} className="rounded-md border p-2">
-            <div className="flex items-center justify-between">
-              <span className="font-medium">Dock · {d.name}</span>
-              <span className="flex gap-1">
-                {canWrite ? (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => {
-                      setSlipDock(d.id);
-                      setSlipName("");
-                    }}
-                  >
-                    + Slip
-                  </Button>
-                ) : null}
-                {canDelete ? (
-                  <Button variant="ghost" size="sm" disabled={pending} onClick={() => run(() => deleteDock(d.id, marina.id))}>
-                    Delete
-                  </Button>
-                ) : null}
-              </span>
-            </div>
-            <div className="ml-4 grid gap-2">
-              {d.slips.map((s) => (
-                <div key={s.id} className="rounded-md border p-2">
-                  <div className="flex items-center justify-between">
-                    <span>
-                      Slip · {s.name}
-                      {s.slipNumber ? <span className="text-muted-foreground"> #{s.slipNumber}</span> : null}
-                      {!s.isActive ? <Badge variant="outline" className="ml-2">inactive</Badge> : null}
-                      {s.occupancyStatus ? (
-                        <span className="text-muted-foreground text-xs"> · {s.occupancyStatus}</span>
-                      ) : null}
-                    </span>
-                    <span className="flex gap-1">
-                      {canWrite ? (
-                        <Button variant="ghost" size="sm" onClick={() => openBoatForm({ slipId: s.id, dockId: d.id })}>
-                          + Boat
-                        </Button>
-                      ) : null}
-                      {canDelete ? (
-                        <Button variant="ghost" size="sm" disabled={pending} onClick={() => run(() => deleteSlip(s.id, marina.id))}>
-                          Delete
-                        </Button>
-                      ) : null}
-                    </span>
-                  </div>
-                  {s.boats.length ? (
-                    <ul className="ml-4 grid gap-1">
-                      {s.boats.map((b) => (
-                        <BoatLine key={b.id} b={b} slips={allSlips} />
-                      ))}
-                    </ul>
-                  ) : null}
+        <div className="grid gap-3">
+          {docks.map((d) => (
+            <div key={d.id} className="rounded-md border p-3">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="eyebrow">Dock</p>
+                  <p className="mt-0.5 text-sm font-semibold">{d.name}</p>
                 </div>
-              ))}
+                <span className="flex gap-1">
+                  {canWrite ? (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => {
+                        setSlipDock(d.id);
+                        setSlipName("");
+                      }}
+                    >
+                      + Slip
+                    </Button>
+                  ) : null}
+                  {canDelete ? (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      disabled={pending}
+                      onClick={() => act(() => mockDeleteDock(d.id), () => deleteDock(d.id, marina.id))}
+                    >
+                      Delete
+                    </Button>
+                  ) : null}
+                </span>
+              </div>
+              <div className="mt-2 ml-4 grid gap-2">
+                {d.slips.map((s) => (
+                  <div key={s.id} className="bg-muted/40 rounded-md border p-2">
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <div className="flex items-center gap-2">
+                        <div>
+                          <p className="eyebrow">Slip</p>
+                          <p className="mt-0.5 text-sm font-medium">
+                            {s.name}
+                            {s.slipNumber ? (
+                              <span className="text-muted-foreground font-mono text-xs"> #{s.slipNumber}</span>
+                            ) : null}
+                          </p>
+                        </div>
+                        {!s.isActive ? <StatusLabel status="warning">Inactive</StatusLabel> : null}
+                        {s.occupancyStatus ? (
+                          <StatusLabel status={s.occupancyStatus === "occupied" ? "online" : "offline"}>
+                            {s.occupancyStatus}
+                          </StatusLabel>
+                        ) : null}
+                      </div>
+                      <span className="flex gap-1">
+                        {canWrite ? (
+                          <Button variant="ghost" size="sm" onClick={() => openBoatForm({ slipId: s.id, dockId: d.id })}>
+                            + Boat
+                          </Button>
+                        ) : null}
+                        {canDelete ? (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            disabled={pending}
+                            onClick={() => act(() => mockDeleteSlip(s.id), () => deleteSlip(s.id, marina.id))}
+                          >
+                            Delete
+                          </Button>
+                        ) : null}
+                      </span>
+                    </div>
+                    {s.boats.length ? (
+                      <ul className="mt-1.5 ml-4 grid gap-1">
+                        {s.boats.map((b) => (
+                          <BoatLine key={b.id} b={b} slips={allSlips} />
+                        ))}
+                      </ul>
+                    ) : null}
+                  </div>
+                ))}
+              </div>
             </div>
-          </div>
-        ))
+          ))}
+        </div>
       )}
 
-      {marina.unassignedBoats.length > 0 ? (
-        <div className="rounded-md border border-dashed p-2">
-          <p className="mb-1 font-medium">Unassigned boats</p>
+      {unassignedBoats.length > 0 ? (
+        <div className="rounded-md border border-dashed p-3">
+          <p className="eyebrow mb-2">Unassigned boats</p>
           <ul className="ml-4 grid gap-1">
-            {marina.unassignedBoats.map((b) => (
+            {unassignedBoats.map((b) => (
               <BoatLine key={b.id} b={b} slips={allSlips} />
             ))}
           </ul>
@@ -264,6 +456,21 @@ export function MarinaTree({
             onSubmit={(e) => {
               e.preventDefault();
               const fd = new FormData(e.currentTarget);
+              const name = slipName.trim();
+              if (mock) {
+                if (!name || slipDock == null) {
+                  setErr("Name required");
+                  return;
+                }
+                mockAddSlip(slipDock, {
+                  name,
+                  slipNumber: (fd.get("slip_number") as string) || null,
+                  minLoa: fd.get("min_loa") ? Number(fd.get("min_loa")) : null,
+                  maxLoa: fd.get("max_loa") ? Number(fd.get("max_loa")) : null,
+                });
+                setSlipDock(null);
+                return;
+              }
               start(async () => {
                 const res = await saveSlip({
                   dock_id: slipDock,
