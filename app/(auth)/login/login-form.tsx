@@ -100,7 +100,7 @@ function MockLoginForm({ next }: { next?: string }) {
         {pending ? "Authenticating…" : "Authenticate"}
       </button>
       <p className="mt-5 text-center font-mono text-[9.5px] tracking-[0.12em] text-white/30 uppercase">
-        Any credentials work in this portfolio build
+        Any credentials work in this build
       </p>
     </form>
   )
