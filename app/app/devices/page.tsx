@@ -8,6 +8,7 @@ import { UI_MOCK } from "@/lib/mock/enabled";
 import {
   listMockDevices,
   getMockFleetSummary,
+  getMockFleetByCompany,
   mapRealFleetToView,
   mapRealListToView,
   type MockDeviceRow,
@@ -22,13 +23,14 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Card } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { StatTile } from "@/components/charts/stat-tile";
 import { StatusLabel } from "@/components/charts/status-dot";
 import { BatteryIndicator } from "@/components/charts/battery-indicator";
 import { SignalIndicator } from "@/components/charts/signal-indicator";
+import { NetworkMap } from "@/components/charts/network-map";
 
 export const metadata = { title: "Devices" };
 
@@ -113,6 +115,18 @@ export default async function DevicesPage({ searchParams }: PageProps<"/app/devi
           status={fleet.alerting > 0 ? "critical" : "online"}
         />
       </div>
+
+      {UI_MOCK ? (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">Fleet by company</CardTitle>
+            <CardDescription>Device health per managed account, across the entire fleet.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <NetworkMap nodes={getMockFleetByCompany()} />
+          </CardContent>
+        </Card>
+      ) : null}
 
       <form className="flex gap-2" action="/app/devices">
         <Input

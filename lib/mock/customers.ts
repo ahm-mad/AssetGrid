@@ -1,5 +1,6 @@
 import { mulberry32, series } from "@/lib/mock/dashboard"
 import type { UserListResult, CustomerSummary } from "@/lib/users/data"
+import type { FleetGroup } from "@/components/charts/network-map"
 
 export interface MockCustomerRow {
   id: string
@@ -78,6 +79,27 @@ export function getMockCustomerSummary(): MockCustomerSummary {
     perCompany,
     history: series(14, CUSTOMERS.length - 6, 3, 71),
   }
+}
+
+/** Account cohorts by role, across the full 42-user mock set — this page's own natural grouping. */
+export function getMockCustomersByRole(): FleetGroup[] {
+  const groups = new Map<string, MockCustomerRow[]>()
+  for (const c of CUSTOMERS) {
+    const list = groups.get(c.roleTitle) ?? []
+    list.push(c)
+    groups.set(c.roleTitle, list)
+  }
+  return [...groups.entries()].map(([label, rows]) => {
+    const active = rows.filter((r) => !r.deletedAt).length
+    const deletedShare = (rows.length - active) / rows.length
+    return {
+      id: label,
+      label,
+      deviceCount: rows.length,
+      onlinePct: Math.round((active / rows.length) * 100),
+      status: deletedShare > 0.2 ? "critical" : deletedShare > 0 ? "warning" : "online",
+    }
+  })
 }
 
 export function mapRealListToView(result: UserListResult): MockCustomerListResult {
