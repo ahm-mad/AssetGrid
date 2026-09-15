@@ -185,4 +185,13 @@
     font-weight: 500;
     color: var(--muted-foreground);
   }
+
+  /* A faint blueprint grid — reserved for literal spatial/map panels
+     (FacilityMap, SiteMap) so they read as "a place", not another card. */
+  .bg-grid-map {
+    background-image:
+      linear-gradient(to right, var(--border) 1px, transparent 1px),
+      linear-gradient(to bottom, var(--border) 1px, transparent 1px);
+    background-size: 24px 24px;
+  }
 }
