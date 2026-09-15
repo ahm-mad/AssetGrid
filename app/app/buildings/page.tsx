@@ -5,7 +5,7 @@ import { can } from "@/lib/auth/permissions";
 import { listBuildings } from "@/lib/buildings/data";
 import { getCompanyOptions } from "@/lib/companies/data";
 import { UI_MOCK } from "@/lib/mock/enabled";
-import { MOCK_BUILDINGS, mapRealToView } from "@/lib/mock/buildings";
+import { MOCK_BUILDINGS, mapRealToView, buildingSites } from "@/lib/mock/buildings";
 import {
   Table,
   TableBody,
@@ -18,6 +18,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { StatTile } from "@/components/charts/stat-tile";
 import { BarChart } from "@/components/charts/bar-chart";
 import { StatusLabel } from "@/components/charts/status-dot";
+import { SiteMap } from "@/components/charts/site-map";
 
 import { NewBuildingButton } from "./new-building-button";
 
@@ -30,6 +31,7 @@ export default async function BuildingsPage() {
   const canCreate = viewer.isSuperAdmin || can(viewer.permissions, "buildings", "create");
   const totalDevices = buildings.reduce((sum, b) => sum + b.siteCount, 0);
   const deviceChart = buildings.map((b) => ({ label: b.buildingCode, value: b.siteCount }));
+  const sites = buildingSites(buildings);
 
   return (
     <div className="grid gap-4">
@@ -47,6 +49,18 @@ export default async function BuildingsPage() {
         <StatTile label="Buildings" value={buildings.length} status="online" />
         <StatTile label="Monitored sites" value={totalDevices} status="info" />
       </div>
+
+      {sites.length > 0 ? (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">Site locations</CardTitle>
+            <CardDescription>Where each managed building actually sits.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <SiteMap markers={sites} />
+          </CardContent>
+        </Card>
+      ) : null}
 
       {deviceChart.length > 0 ? (
         <Card>

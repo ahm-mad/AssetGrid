@@ -33,6 +33,7 @@ import {
 } from "@/components/ui/table";
 import { StatTile } from "@/components/charts/stat-tile";
 import { BarChart } from "@/components/charts/bar-chart";
+import { FacilityMap, type FacilityDock, type SlipStatus } from "@/components/charts/facility-map";
 
 import { MarinaTree } from "./marina-tree";
 
@@ -66,6 +67,20 @@ export default async function MarinaDetailPage({ params }: PageProps<"/app/marin
   const canWrite = viewer.isSuperAdmin || can(viewer.permissions, "marina", "update");
   const canDelete = viewer.isSuperAdmin || can(viewer.permissions, "marina", "delete");
 
+  const alertedBoatIds = new Set(alerts.map((a) => a.boatId).filter((id): id is number => id != null));
+  const facilityDocks: FacilityDock[] = marina.docks.map((d) => ({
+    id: d.id,
+    name: d.name,
+    slips: d.slips.map((s) => {
+      const boat = s.boats[0];
+      let status: SlipStatus = "vacant";
+      if (boat) {
+        status = alertedBoatIds.has(boat.id) ? "critical" : boat.deviceCount > 0 ? "online" : "warning";
+      }
+      return { id: s.id, label: s.slipNumber ?? s.name, status, boatName: boat?.boatName };
+    }),
+  }));
+
   return (
     <div className="grid gap-4">
       <div>
@@ -96,6 +111,16 @@ export default async function MarinaDetailPage({ params }: PageProps<"/app/marin
         <StatTile label="Silent" value={counts.silent} status={counts.silent > 0 ? "warning" : "online"} />
         <StatTile label="Alarm active" value={counts.alarmActive} status={counts.alarmActive > 0 ? "critical" : "online"} />
       </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">Facility map</CardTitle>
+          <CardDescription>Docks, slips, and where each sensor-equipped boat sits.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <FacilityMap docks={facilityDocks} />
+        </CardContent>
+      </Card>
 
       {occupancy.perDock.length > 0 ? (
         <Card>
