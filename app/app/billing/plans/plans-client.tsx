@@ -10,7 +10,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Badge } from "@/components/ui/badge";
+import { StatusLabel } from "@/components/charts/status-dot";
+import { MetricCell } from "@/components/charts/metric-cell";
 import {
   Dialog,
   DialogClose,
@@ -38,20 +39,24 @@ import {
 const MODES = ["direct", "dealer_assisted", "dealer_billed"] as const;
 
 export function PlansClient({
-  rows,
+  rows: initialRows,
   stripeConfigured,
   canCreate,
   canEdit,
   canDelete,
+  mock = false,
 }: {
   rows: PlanRow[];
   stripeConfigured: boolean;
   canCreate: boolean;
   canEdit: boolean;
   canDelete: boolean;
+  /** UI_MOCK_MODE — fake every write locally instead of hitting the (dead) backend. */
+  mock?: boolean;
 }) {
   const router = useRouter();
   const [pending, start] = React.useTransition();
+  const [rows, setRows] = React.useState<PlanRow[]>(initialRows);
   const [open, setOpen] = React.useState(false);
   const [editing, setEditing] = React.useState<PlanRow | null>(null);
   const [family, setFamily] = React.useState("consumer");
@@ -59,6 +64,8 @@ export function PlansClient({
   const [interval, setInterval] = React.useState("month");
   const [modes, setModes] = React.useState<string[]>(["direct"]);
   const [err, setErr] = React.useState<string | null>(null);
+
+  const refresh = () => router.refresh();
 
   function openNew() {
     setEditing(null);
@@ -83,6 +90,53 @@ export function PlansClient({
     e.preventDefault();
     const fd = new FormData(e.currentTarget);
     setErr(null);
+    const planCode = String(fd.get("plan_code") ?? "").trim();
+    const name = String(fd.get("name") ?? "").trim();
+
+    if (mock) {
+      if (!planCode || !name) {
+        setErr("Plan code and name are required");
+        return;
+      }
+      const amount = Number(fd.get("amount") ?? 0);
+      const deviceLimit = Number(fd.get("device_limit") ?? 1);
+      const fields = {
+        planCode,
+        name,
+        planFamily: family,
+        deviceLimit,
+        amount,
+        billingType,
+        billingInterval: billingType === "one_time" ? null : interval,
+        billingModes: modes as PlanRow["billingModes"],
+        activationType: String(fd.get("activation_type") || "Single"),
+        requiresProvisioning: fd.get("requires_provisioning") === "on",
+        maxDevicesPerBatch: fd.get("max_devices_per_batch") ? Number(fd.get("max_devices_per_batch")) : null,
+        tags: (fd.get("tags") as string) || null,
+        notes: (fd.get("notes") as string) || null,
+      };
+      if (editing) {
+        setRows((prev) => prev.map((p) => (p.id === editing.id ? { ...p, ...fields } : p)));
+        toast.success("Saved");
+      } else {
+        const newPlan: PlanRow = {
+          id: Date.now(),
+          ...fields,
+          stripeProductId: `prod_mock_${Date.now()}`,
+          stripePriceId: `price_mock_${Date.now()}`,
+          provisioningPriceId: null,
+          xeroRevenueCode: null,
+          xeroAccountCode: null,
+          isActive: true,
+          deletedAt: null,
+        };
+        setRows((prev) => [...prev, newPlan]);
+        toast.success("Plan created");
+      }
+      setOpen(false);
+      return;
+    }
+
     start(async () => {
       const res = await savePlan({
         id: editing?.id,
@@ -104,15 +158,64 @@ export function PlansClient({
       if (res.ok) {
         toast.success(res.warning ?? (editing ? "Saved" : "Plan created"));
         setOpen(false);
-        router.refresh();
+        refresh();
       } else {
         setErr(res.error ?? (res.fieldErrors ? "Check the fields." : "Could not save"));
       }
     });
   }
 
+  function onToggleActive(p: PlanRow) {
+    if (mock) {
+      setRows((prev) => prev.map((r) => (r.id === p.id ? { ...r, isActive: !r.isActive } : r)));
+      toast.success(p.isActive ? "Disabled" : "Enabled");
+      return;
+    }
+    start(async () => {
+      const res = await togglePlanActive(p.id, !p.isActive);
+      if (res.ok) refresh();
+      else toast.error(res.error ?? "Failed");
+    });
+  }
+
+  function onSync(p: PlanRow) {
+    if (mock) {
+      toast.success("Synced from Stripe");
+      return;
+    }
+    start(async () => {
+      const res = await syncPlanFromStripe(p.id);
+      if (res.ok) {
+        toast.success("Synced from Stripe");
+        refresh();
+      } else toast.error(res.error ?? "Failed");
+    });
+  }
+
+  function onDelete(p: PlanRow) {
+    if (mock) {
+      setRows((prev) => prev.map((r) => (r.id === p.id ? { ...r, deletedAt: new Date().toISOString() } : r)));
+      toast.success("Plan deleted");
+      return;
+    }
+    start(async () => {
+      const res = await deletePlan(p.id);
+      if (res.ok) refresh();
+      else toast.error(res.error ?? "Failed");
+    });
+  }
+
+  const activeCount = rows.filter((p) => p.isActive && !p.deletedAt).length;
+  const linkedCount = rows.filter((p) => p.stripePriceId).length;
+
   return (
-    <div className="grid gap-3">
+    <div className="grid gap-4">
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+        <MetricCell label="Plans" value={rows.length} />
+        <MetricCell label="Active" value={activeCount} />
+        <MetricCell label="Stripe-linked" value={linkedCount} />
+      </div>
+
       {canCreate ? (
         <div>
           <Button size="sm" onClick={openNew}>
@@ -148,18 +251,28 @@ export function PlansClient({
                 <TableRow key={p.id} className={p.deletedAt ? "opacity-50" : undefined}>
                   <TableCell className="font-mono text-xs">{p.planCode}</TableCell>
                   <TableCell className="font-medium">{p.name}</TableCell>
-                  <TableCell>{p.planFamily}</TableCell>
-                  <TableCell>{p.deviceLimit === -1 ? "∞" : p.deviceLimit}</TableCell>
-                  <TableCell>
+                  <TableCell className="text-muted-foreground">{p.planFamily}</TableCell>
+                  <TableCell className="font-mono tabular-nums">{p.deviceLimit === -1 ? "∞" : p.deviceLimit}</TableCell>
+                  <TableCell className="font-mono tabular-nums">
                     {p.amount != null ? `$${p.amount.toFixed(2)}` : "—"}
                     {p.billingInterval ? `/${p.billingInterval}` : ""}
                   </TableCell>
-                  <TableCell>{p.billingType}</TableCell>
-                  <TableCell>{p.stripePriceId ? "linked" : "—"}</TableCell>
+                  <TableCell className="text-muted-foreground">{p.billingType}</TableCell>
                   <TableCell>
-                    <Badge variant={p.isActive ? "secondary" : "outline"}>
-                      {p.isActive ? "active" : "inactive"}
-                    </Badge>
+                    {p.stripePriceId ? (
+                      <StatusLabel status="info">Linked</StatusLabel>
+                    ) : (
+                      <span className="text-muted-foreground">—</span>
+                    )}
+                  </TableCell>
+                  <TableCell>
+                    {p.deletedAt ? (
+                      <StatusLabel status="offline">Deleted</StatusLabel>
+                    ) : (
+                      <StatusLabel status={p.isActive ? "online" : "offline"}>
+                        {p.isActive ? "Active" : "Inactive"}
+                      </StatusLabel>
+                    )}
                   </TableCell>
                   <TableCell className="text-right whitespace-nowrap">
                     {canEdit ? (
@@ -167,53 +280,18 @@ export function PlansClient({
                         <Button variant="ghost" size="sm" onClick={() => openEdit(p)}>
                           Edit
                         </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          disabled={pending}
-                          onClick={() =>
-                            start(async () => {
-                              const res = await togglePlanActive(p.id, !p.isActive);
-                              if (res.ok) router.refresh();
-                              else toast.error(res.error ?? "Failed");
-                            })
-                          }
-                        >
+                        <Button variant="ghost" size="sm" disabled={pending} onClick={() => onToggleActive(p)}>
                           {p.isActive ? "Disable" : "Enable"}
                         </Button>
                         {stripeConfigured && p.stripeProductId ? (
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            disabled={pending}
-                            onClick={() =>
-                              start(async () => {
-                                const res = await syncPlanFromStripe(p.id);
-                                if (res.ok) {
-                                  toast.success("Synced from Stripe");
-                                  router.refresh();
-                                } else toast.error(res.error ?? "Failed");
-                              })
-                            }
-                          >
+                          <Button variant="ghost" size="sm" disabled={pending} onClick={() => onSync(p)}>
                             Sync
                           </Button>
                         ) : null}
                       </>
                     ) : null}
                     {canDelete && !p.deletedAt ? (
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        disabled={pending}
-                        onClick={() =>
-                          start(async () => {
-                            const res = await deletePlan(p.id);
-                            if (res.ok) router.refresh();
-                            else toast.error(res.error ?? "Failed");
-                          })
-                        }
-                      >
+                      <Button variant="ghost" size="sm" disabled={pending} onClick={() => onDelete(p)}>
                         Delete
                       </Button>
                     ) : null}

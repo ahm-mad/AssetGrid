@@ -40,6 +40,7 @@ export default async function PlansPage() {
         canCreate={canCreate}
         canEdit={canEdit}
         canDelete={canDelete}
+        mock={UI_MOCK}
       />
     </div>
   );
