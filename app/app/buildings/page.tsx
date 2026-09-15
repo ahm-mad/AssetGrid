@@ -18,7 +18,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { StatTile } from "@/components/charts/stat-tile";
 import { BarChart } from "@/components/charts/bar-chart";
 import { StatusLabel } from "@/components/charts/status-dot";
-import { SiteMap } from "@/components/charts/site-map";
+import { GoogleMapEmbed } from "@/components/charts/google-map-embed";
 
 import { NewBuildingButton } from "./new-building-button";
 
@@ -54,10 +54,25 @@ export default async function BuildingsPage() {
         <Card>
           <CardHeader>
             <CardTitle className="text-base">Site locations</CardTitle>
-            <CardDescription>Where each managed building actually sits.</CardDescription>
+            <CardDescription>Where each managed building actually sits — live map.</CardDescription>
           </CardHeader>
           <CardContent>
-            <SiteMap markers={sites} />
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              {sites.map((s) => (
+                <div key={s.id} className="overflow-hidden rounded-md border">
+                  <div className="flex items-center justify-between gap-2 px-3 py-2">
+                    <div>
+                      <p className="eyebrow">{s.label}</p>
+                      <p className="text-muted-foreground text-xs">{s.sublabel}</p>
+                    </div>
+                    <StatusLabel status={s.status}>
+                      {s.status === "online" ? "Nominal" : s.status === "warning" ? "Attention" : "Critical"}
+                    </StatusLabel>
+                  </div>
+                  <GoogleMapEmbed lat={s.lat} lng={s.lng} label={s.label} />
+                </div>
+              ))}
+            </div>
           </CardContent>
         </Card>
       ) : null}
