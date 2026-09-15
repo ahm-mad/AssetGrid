@@ -7,6 +7,8 @@ import { getBuilding } from "@/lib/buildings/data";
 import { getBuildingBatteryStatus, getBuildingSensorCounts } from "@/lib/buildings/dashboard";
 import { getDevicePickerOptions } from "@/lib/inventory/data";
 import { getActivationUserOptions } from "@/lib/billing/data";
+import { UI_MOCK } from "@/lib/mock/enabled";
+import { getMockBuildingBundle } from "@/lib/mock/buildings";
 import {
   Card,
   CardContent,
@@ -37,15 +39,18 @@ export default async function BuildingPage({ params }: PageProps<"/app/buildings
   const buildingId = Number(id);
   if (!Number.isInteger(buildingId)) notFound();
 
-  const building = await getBuilding(buildingId);
+  const mock = UI_MOCK ? getMockBuildingBundle(buildingId) : null;
+  const building = mock ? mock.building : await getBuilding(buildingId);
   if (!building) notFound();
 
-  const [battery, counts, picker, users] = await Promise.all([
-    getBuildingBatteryStatus(buildingId),
-    getBuildingSensorCounts(buildingId),
-    getDevicePickerOptions(),
-    getActivationUserOptions(),
-  ]);
+  const [battery, counts, picker, users] = mock
+    ? [mock.battery, mock.counts, mock.picker, mock.users]
+    : await Promise.all([
+        getBuildingBatteryStatus(buildingId),
+        getBuildingSensorCounts(buildingId),
+        getDevicePickerOptions(),
+        getActivationUserOptions(),
+      ]);
 
   const canWrite = viewer.isSuperAdmin || can(viewer.permissions, "buildings", "update");
   const canDelete = viewer.isSuperAdmin || can(viewer.permissions, "buildings", "delete");
