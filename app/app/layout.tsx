@@ -24,7 +24,7 @@ export default async function AppLayout({ children }: LayoutProps<"/app">) {
             AssetGrid
           </Link>
         </div>
-        <div className="flex-1 overflow-y-auto py-3">
+        <div className="scrollbar-none flex-1 overflow-y-auto py-3">
           <SidebarNav groups={navGroups} />
         </div>
         <div className="eyebrow border-t px-5 py-3">AssetGrid v1 · Portfolio build</div>

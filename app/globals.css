@@ -186,6 +186,32 @@
     color: var(--muted-foreground);
   }
 
+  /* Same shape as .eyebrow, but for the sidebar's nav-group dividers
+     (Overview/Fleet/Sites/...) — accent-colored instead of muted, per the
+     reference. A dedicated class rather than `.eyebrow` + a Tailwind color
+     utility: both are single-class selectors emitted in the same layer, so
+     a plain `text-*` utility can't reliably out-cascade `.eyebrow`'s own
+     `color`. */
+  .sidebar-group-label {
+    font-family: var(--font-mono);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    font-size: 10.5px;
+    font-weight: 600;
+    color: var(--sidebar-primary);
+  }
+
+  /* Keeps a container scrollable while hiding its scrollbar chrome — used
+     on the sidebar's nav list so an overflowing group list doesn't show a
+     visible track/thumb next to the flat bordered layout. */
+  .scrollbar-none {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .scrollbar-none::-webkit-scrollbar {
+    display: none;
+  }
+
   /* A faint blueprint grid — reserved for literal spatial/map panels
      (FacilityMap, SiteMap) so they read as "a place", not another card. */
   .bg-grid-map {
