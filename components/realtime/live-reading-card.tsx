@@ -1,7 +1,7 @@
 "use client";
 
 import { useDeviceTelemetry } from "@/components/realtime/use-telemetry";
-import { Badge } from "@/components/ui/badge";
+import { StatusLabel } from "@/components/charts/status-dot";
 
 /**
  * A small live tile for the device detail page — updates in place whenever a
@@ -36,16 +36,14 @@ export function LiveReadingCard({
     <div className="rounded-md border p-3 text-sm">
       <div className="mb-2 flex items-center justify-between">
         <span className="font-medium">Live</span>
-        <Badge variant={connected ? "secondary" : "outline"}>
-          {connected ? "streaming" : "connecting…"}
-        </Badge>
+        <StatusLabel status={connected ? "online" : "offline"}>{connected ? "Streaming" : "Connecting…"}</StatusLabel>
       </div>
       {latest ? (
         <dl className="grid grid-cols-2 gap-x-4 gap-y-1 sm:grid-cols-3">
           {fields.map(([k, v]) => (
             <div key={k}>
               <dt className="text-muted-foreground">{k}</dt>
-              <dd>{typeof v === "boolean" ? (v ? "yes" : "no") : String(v)}</dd>
+              <dd className="font-mono">{typeof v === "boolean" ? (v ? "yes" : "no") : String(v)}</dd>
             </div>
           ))}
         </dl>

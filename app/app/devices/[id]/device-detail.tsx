@@ -19,7 +19,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Badge } from "@/components/ui/badge";
 import {
   Card,
   CardContent,
@@ -44,6 +43,9 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { LiveReadingCard } from "@/components/realtime/live-reading-card";
+import { StatusLabel } from "@/components/charts/status-dot";
+import { MetricCell } from "@/components/charts/metric-cell";
+import { Meter } from "@/components/charts/meter";
 
 const DAY_ABBR: [string, string][] = [
   ["Monday", "Mon"],
@@ -63,22 +65,35 @@ function daysList(v: unknown): string[] {
 export function DeviceDetail({
   bundle,
   canControl,
+  mock = false,
 }: {
   bundle: UserDeviceBundle;
   canControl: boolean;
   canDelete: boolean;
+  /** UI_MOCK_MODE — fake every write locally instead of hitting the (dead) backend. */
+  mock?: boolean;
 }) {
   const { device, parameters, schedules, sunsetRises, chargingTimers, chargingState, chargingDetail } =
     bundle;
   const router = useRouter();
   const [pending, start] = React.useTransition();
   const [toggle, setToggle] = React.useState(device.toggleStatus);
+  const [chargeOn, setChargeOn] = React.useState(chargingState?.isOn === true);
+  const [clockRows, setClockRows] = React.useState<ScheduleRow[]>(
+    schedules.map((s) => ({ id: s.id, summary: `${s.startTime}–${s.endTime}`, days: daysList(s.selectedDays), turnOn: s.turnOn })),
+  );
+  const [sunsetRows, setSunsetRows] = React.useState<ScheduleRow[]>(
+    sunsetRises.map((s) => ({ id: s.id, summary: `sunrise ${s.sunrise}m · sunset ${s.sunset}m`, days: daysList(s.selectedDays), turnOn: s.turnOn })),
+  );
 
   const quickTimer = chargingTimers.find((t) => t.kind === "quick") ?? null;
-  const isOn = chargingState?.isOn === true;
 
   function fieldSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    if (mock) {
+      toast.success("Saved");
+      return;
+    }
     const fd = new FormData(e.currentTarget);
     start(async () => {
       const res = await updateUserDeviceFields({
@@ -97,6 +112,10 @@ export function DeviceDetail({
 
   function onToggle(next: boolean) {
     setToggle(next);
+    if (mock) {
+      toast.success(next ? "Device turned on" : "Device turned off");
+      return;
+    }
     start(async () => {
       const res = await toggleUserDevice(device.id);
       if (res.ok) setToggle(res.toggleStatus ?? next);
@@ -108,6 +127,11 @@ export function DeviceDetail({
   }
 
   function doCharging() {
+    if (mock) {
+      setChargeOn((v) => !v);
+      toast.success(chargeOn ? "Charging stopped" : "Charging started");
+      return;
+    }
     start(async () => {
       const res = await changeChargingStatus({ user_device_id: device.id, dev_eui: device.devEui ?? undefined });
       if (res.ok) {
@@ -119,6 +143,10 @@ export function DeviceDetail({
 
   function quickTimerSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    if (mock) {
+      toast.success("Timer saved");
+      return;
+    }
     const fd = new FormData(e.currentTarget);
     const active = fd.get("timer_active") === "on";
     start(async () => {
@@ -136,6 +164,10 @@ export function DeviceDetail({
 
   function paramsSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    if (mock) {
+      toast.success("Parameters saved");
+      return;
+    }
     const fd = new FormData(e.currentTarget);
     const num = (k: string) => {
       const v = fd.get(k);
@@ -167,7 +199,13 @@ export function DeviceDetail({
       {/* --------------------------------------------------------------- */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Device</CardTitle>
+          <div className="flex items-center justify-between gap-2">
+            <div>
+              <p className="eyebrow">Device</p>
+              <CardTitle className="mt-0.5 text-base">{device.deviceName ?? `Device #${device.id}`}</CardTitle>
+            </div>
+            <StatusLabel status={toggle ? "online" : "offline"}>{toggle ? "Powered on" : "Powered off"}</StatusLabel>
+          </div>
           <CardDescription>{device.xnid ?? "no xnid"}</CardDescription>
         </CardHeader>
         <CardContent className="grid gap-4">
@@ -214,7 +252,7 @@ export function DeviceDetail({
 
           <div className="flex items-center gap-2 border-t pt-4">
             <Switch id="toggle" checked={toggle} onCheckedChange={onToggle} disabled={pending} />
-            <Label htmlFor="toggle">Device toggle (toggle_status)</Label>
+            <Label htmlFor="toggle">Device power</Label>
           </div>
         </CardContent>
       </Card>
@@ -222,26 +260,42 @@ export function DeviceDetail({
       {/* --------------------------------------------------------------- */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Charging</CardTitle>
+          <div className="flex items-center justify-between gap-2">
+            <div>
+              <p className="eyebrow">Charging</p>
+              <CardTitle className="mt-0.5 text-base">Charge control</CardTitle>
+            </div>
+            {chargingState ? (
+              <StatusLabel status={chargeOn ? "online" : "offline"}>{chargeOn ? "Charging" : "Idle"}</StatusLabel>
+            ) : null}
+          </div>
           <CardDescription>
             {chargingState
-              ? `State: ${isOn ? "on" : "off"}${chargingState.isCharging ? " · charging" : ""}${
-                  chargingState.lastCommandAt
-                    ? ` · last command ${new Date(chargingState.lastCommandAt).toLocaleString()}`
-                    : ""
-                }`
+              ? chargingState.lastCommandAt
+                ? `Last command ${new Date(chargingState.lastCommandAt).toLocaleString()}`
+                : "No commands sent yet."
               : "No charging-state row for this device yet."}
           </CardDescription>
         </CardHeader>
         <CardContent className="grid gap-4">
           {canControl && chargingState ? (
             <div className="flex flex-wrap items-center gap-3">
-              <Button onClick={doCharging} disabled={pending} variant={isOn ? "destructive" : "default"}>
-                {isOn ? "Stop charging" : "Start charging"}
+              <Button onClick={doCharging} disabled={pending} variant={chargeOn ? "destructive" : "default"}>
+                {chargeOn ? "Stop charging" : "Start charging"}
               </Button>
               <span className="text-muted-foreground text-xs">
                 Physical downlink is stubbed until LNS credentials are configured (A8).
               </span>
+            </div>
+          ) : null}
+
+          {chargingDetail.hasReading && chargingDetail.chargingProgress != null ? (
+            <div className="border-t pt-4">
+              <Meter
+                label="Charging progress"
+                value={chargingDetail.chargingProgress}
+                tone={chargeOn ? "good" : "info"}
+              />
             </div>
           ) : null}
 
@@ -272,17 +326,17 @@ export function DeviceDetail({
           </div>
 
           <div className="border-t pt-4">
-            <p className="mb-2 text-sm font-medium">Latest reading</p>
+            <p className="eyebrow mb-2">Latest reading</p>
             {chargingDetail.hasReading ? (
-              <dl className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm sm:grid-cols-3">
-                <Metric label="Charging progress" value={`${chargingDetail.chargingProgress ?? "—"}%`} />
-                <Metric label="Active energy" value={chargingDetail.activeEnergy ?? "—"} />
-                <Metric label="Charging time" value={chargingDetail.chargingTime ?? "—"} />
-                <Metric label="Power factor" value={chargingDetail.powerFactorStatus ?? "—"} />
-                <Metric label="Voltage / current" value={chargingDetail.voltageCurrentStatus ?? "—"} />
-                <Metric label="Over-current" value={chargingDetail.overcurrentStatus ?? "—"} />
-                <Metric label="Over-voltage" value={chargingDetail.overvoltageStatus ?? "—"} />
-              </dl>
+              <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+                <MetricCell label="Charging progress" value={`${chargingDetail.chargingProgress ?? "—"}%`} />
+                <MetricCell label="Active energy" value={chargingDetail.activeEnergy ?? "—"} />
+                <MetricCell label="Charging time" value={chargingDetail.chargingTime ?? "—"} />
+                <MetricCell label="Power factor" value={chargingDetail.powerFactorStatus ?? "—"} />
+                <MetricCell label="Voltage / current" value={chargingDetail.voltageCurrentStatus ?? "—"} />
+                <MetricCell label="Over-current" value={chargingDetail.overcurrentStatus ?? "—"} />
+                <MetricCell label="Over-voltage" value={chargingDetail.overvoltageStatus ?? "—"} />
+              </div>
             ) : (
               <p className="text-muted-foreground text-sm">
                 No telemetry cached for this device yet — the reading cache fills once ingestion
@@ -296,7 +350,8 @@ export function DeviceDetail({
       {/* --------------------------------------------------------------- */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Battery / charger parameters</CardTitle>
+          <p className="eyebrow">Configuration</p>
+          <CardTitle className="mt-0.5 text-base">Battery / charger parameters</CardTitle>
           <CardDescription>
             {parameters
               ? parameters.isDefault
@@ -338,14 +393,11 @@ export function DeviceDetail({
         description="Turn the device on/off between two times on selected days."
         userDeviceId={device.id}
         canControl={canControl}
-        rows={schedules.map((s) => ({
-          id: s.id,
-          summary: `${s.startTime}–${s.endTime}`,
-          days: daysList(s.selectedDays),
-          turnOn: s.turnOn,
-        }))}
+        rows={clockRows}
+        setRows={setClockRows}
         kind="clock"
         pending={pending}
+        mock={mock}
         onSaved={() => router.refresh()}
       />
 
@@ -354,25 +406,13 @@ export function DeviceDetail({
         description="Astronomical schedule — offsets in minutes from sunrise / sunset."
         userDeviceId={device.id}
         canControl={canControl}
-        rows={sunsetRises.map((s) => ({
-          id: s.id,
-          summary: `sunrise ${s.sunrise}m · sunset ${s.sunset}m`,
-          days: daysList(s.selectedDays),
-          turnOn: s.turnOn,
-        }))}
+        rows={sunsetRows}
+        setRows={setSunsetRows}
         kind="sunset"
         pending={pending}
+        mock={mock}
         onSaved={() => router.refresh()}
       />
-    </div>
-  );
-}
-
-function Metric({ label, value }: { label: string; value: React.ReactNode }) {
-  return (
-    <div>
-      <dt className="text-muted-foreground">{label}</dt>
-      <dd>{value}</dd>
     </div>
   );
 }
@@ -428,8 +468,10 @@ function ScheduleCard({
   userDeviceId,
   canControl,
   rows,
+  setRows,
   kind,
   pending,
+  mock,
   onSaved,
 }: {
   title: string;
@@ -437,8 +479,10 @@ function ScheduleCard({
   userDeviceId: number;
   canControl: boolean;
   rows: ScheduleRow[];
+  setRows: React.Dispatch<React.SetStateAction<ScheduleRow[]>>;
   kind: "clock" | "sunset";
   pending: boolean;
+  mock: boolean;
   onSaved: () => void;
 }) {
   const [open, setOpen] = React.useState(false);
@@ -454,6 +498,19 @@ function ScheduleCard({
     e.preventDefault();
     const fd = new FormData(e.currentTarget);
     setErr(null);
+
+    if (mock) {
+      const summary =
+        kind === "clock"
+          ? `${fd.get("start_time")}–${fd.get("end_time")}`
+          : `sunrise ${fd.get("sunrise")}m · sunset ${fd.get("sunset")}m`;
+      setRows((prev) => [...prev, { id: Date.now(), summary, days, turnOn: true }]);
+      toast.success("Saved");
+      setOpen(false);
+      setDays([]);
+      return;
+    }
+
     start(async () => {
       const res =
         kind === "clock"
@@ -481,6 +538,10 @@ function ScheduleCard({
   }
 
   function remove(id: number) {
+    if (mock) {
+      setRows((prev) => prev.filter((r) => r.id !== id));
+      return;
+    }
     start(async () => {
       const res =
         kind === "clock"
@@ -495,12 +556,14 @@ function ScheduleCard({
     <Card>
       <CardHeader className="flex-row items-center justify-between">
         <div>
-          <CardTitle className="text-base">{title}</CardTitle>
+          <p className="eyebrow">{kind === "clock" ? "Schedules" : "Astronomical"}</p>
+          <CardTitle className="mt-0.5 text-base">{title}</CardTitle>
           <CardDescription>{description}</CardDescription>
         </div>
         {canControl ? (
           <Button
             size="sm"
+            variant="outline"
             onClick={() => {
               setDays([]);
               setErr(null);
@@ -527,10 +590,10 @@ function ScheduleCard({
             <TableBody>
               {rows.map((r) => (
                 <TableRow key={r.id}>
-                  <TableCell>{r.summary}</TableCell>
-                  <TableCell>{r.days.join(", ") || "—"}</TableCell>
+                  <TableCell className="font-mono text-xs">{r.summary}</TableCell>
+                  <TableCell className="text-muted-foreground">{r.days.join(", ") || "—"}</TableCell>
                   <TableCell>
-                    <Badge variant={r.turnOn ? "secondary" : "outline"}>{r.turnOn ? "yes" : "no"}</Badge>
+                    <StatusLabel status={r.turnOn ? "online" : "offline"}>{r.turnOn ? "Yes" : "No"}</StatusLabel>
                   </TableCell>
                   <TableCell className="text-right">
                     {canControl ? (

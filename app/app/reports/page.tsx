@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { Cpu } from "lucide-react";
 
 import { requireUser } from "@/lib/auth/dal";
 import { can } from "@/lib/auth/permissions";
@@ -11,8 +12,10 @@ import {
   getMockRevenueReport,
   getMockOccupancyReport,
   getMockArSummary,
+  getMockProductBreakdown,
 } from "@/lib/mock/reports";
 import { Button } from "@/components/ui/button";
+import { NetworkMap } from "@/components/charts/network-map";
 import {
   Card,
   CardContent,
@@ -83,6 +86,18 @@ export default async function ReportsPage({
             <Button size="sm" variant="outline" render={<Link href="/api/export/users-full" prefetch={false} />}>
               Download users CSV
             </Button>
+          </CardContent>
+        </Card>
+      ) : null}
+
+      {UI_MOCK && canDiagnostics ? (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">Devices by product</CardTitle>
+            <CardDescription>Fleet-wide, across the entire diagnostics scope (not just this page).</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <NetworkMap nodes={getMockProductBreakdown()} icon={Cpu} />
           </CardContent>
         </Card>
       ) : null}
