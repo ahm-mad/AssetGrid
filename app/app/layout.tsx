@@ -18,7 +18,7 @@ export default async function AppLayout({ children }: LayoutProps<"/app">) {
 
   return (
     <div className="grid min-h-screen grid-rows-[auto_1fr] md:grid-cols-[15rem_1fr] md:grid-rows-none">
-      <aside className="bg-sidebar border-sidebar-border hidden border-r md:flex md:flex-col">
+      <aside className="bg-sidebar border-sidebar-border hidden border-r md:sticky md:top-0 md:flex md:h-screen md:flex-col">
         <div className="flex h-14 items-center gap-2 border-b px-5">
           <Link href="/app" className="font-heading text-sm font-semibold tracking-wide uppercase">
             AssetGrid
