@@ -115,13 +115,25 @@ export function mulberry32(seed: number) {
   }
 }
 
+/**
+ * A mean-reverting random walk, not a periodic wave — real telemetry/business
+ * metrics don't oscillate on a clean sine curve, they wander with noise
+ * around a slowly drifting trend. Deterministic per seed (mulberry32), so it
+ * still renders identically on every reload.
+ */
 export function series(n: number, base: number, amplitude: number, seed: number): number[] {
   const rand = mulberry32(seed)
   const out: number[] = []
+  // A gentle overall drift (some metrics trend up over the window, some down) —
+  // fixed per seed, not random noise added at each step.
+  const drift = (rand() - 0.5) * amplitude * 1.2
+  let value = base + (rand() - 0.5) * amplitude * 0.3
   for (let i = 0; i < n; i++) {
-    const wave = Math.sin((i / n) * Math.PI * 2.4) * amplitude
-    const noise = (rand() - 0.5) * amplitude * 0.4
-    out.push(Math.max(0, Math.round(base + wave + noise)))
+    const target = base + drift * (i / Math.max(1, n - 1))
+    const pull = (target - value) * 0.3
+    const step = (rand() - 0.5) * amplitude * 0.55
+    value = value + pull + step
+    out.push(Math.max(0, Math.round(value)))
   }
   return out
 }
