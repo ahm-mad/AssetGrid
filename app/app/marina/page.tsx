@@ -5,7 +5,7 @@ import { can } from "@/lib/auth/permissions";
 import { listMarinas } from "@/lib/marina/data";
 import { getCompanyOptions } from "@/lib/companies/data";
 import { UI_MOCK } from "@/lib/mock/enabled";
-import { listMockMarinas } from "@/lib/mock/marina";
+import { listMockMarinas, getMockMarinaOccupancy } from "@/lib/mock/marina";
 import {
   Table,
   TableBody,
@@ -15,7 +15,9 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Card } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { NetworkMap } from "@/components/charts/network-map";
+import { Anchor } from "lucide-react";
 
 import { NewMarinaButton } from "./new-marina-button";
 
@@ -38,6 +40,18 @@ export default async function MarinaPage() {
         </div>
         {canCreate ? <NewMarinaButton companies={companies} /> : null}
       </div>
+
+      {UI_MOCK ? (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">Occupancy by marina</CardTitle>
+            <CardDescription>Slip occupancy across the whole portfolio.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <NetworkMap nodes={getMockMarinaOccupancy()} icon={Anchor} unitLabel="slips" metricLabel="occupied" />
+          </CardContent>
+        </Card>
+      ) : null}
 
       <Card className="overflow-hidden py-0">
       <div className="overflow-x-auto">

@@ -6,6 +6,7 @@ import { UI_MOCK } from "@/lib/mock/enabled";
 import {
   listMockCustomers,
   getMockCustomerSummary,
+  getMockCustomersByRole,
   mapRealListToView,
   mapRealSummaryToView,
 } from "@/lib/mock/customers";
@@ -23,6 +24,8 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { StatTile } from "@/components/charts/stat-tile";
 import { BarChart } from "@/components/charts/bar-chart";
+import { NetworkMap } from "@/components/charts/network-map";
+import { Users } from "lucide-react";
 
 export const metadata = { title: "Customers" };
 
@@ -75,6 +78,18 @@ export default async function CustomersPage({ searchParams }: PageProps<"/app/cu
           </CardHeader>
           <CardContent>
             <BarChart data={summary.perCompany} color="var(--chart-2)" />
+          </CardContent>
+        </Card>
+      ) : null}
+
+      {UI_MOCK ? (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">Accounts by role</CardTitle>
+            <CardDescription>Active-rate per role cohort, across the whole account base.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <NetworkMap nodes={getMockCustomersByRole()} icon={Users} unitLabel="accounts" metricLabel="active" />
           </CardContent>
         </Card>
       ) : null}
