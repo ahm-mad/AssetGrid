@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { CreditCard } from "lucide-react";
 
 import { requirePagePermission } from "@/lib/auth/page-guards";
 import {
@@ -23,7 +22,7 @@ import {
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { StatTile } from "@/components/charts/stat-tile";
 import { BarChart } from "@/components/charts/bar-chart";
-import { NetworkMap } from "@/components/charts/network-map";
+import { Leaderboard } from "@/components/charts/leaderboard";
 import { StatusLabel, type StatusKind } from "@/components/charts/status-dot";
 
 export const metadata = { title: "Billing" };
@@ -110,10 +109,21 @@ export default async function BillingPage() {
         <Card>
           <CardHeader>
             <CardTitle className="text-base">Plan health</CardTitle>
-            <CardDescription>Active rate and cancellation risk per plan, fleet-wide.</CardDescription>
+            <CardDescription>Ranked by entitlement volume — active rate and cancellation risk per plan.</CardDescription>
           </CardHeader>
           <CardContent>
-            <NetworkMap nodes={getMockPlanHealth()} icon={CreditCard} unitLabel="entitlements" metricLabel="active" />
+            <Leaderboard
+              rows={getMockPlanHealth().map((g) => ({
+                id: g.id,
+                label: g.label,
+                sublabel: `${g.deviceCount} entitlements`,
+                value: g.onlinePct,
+                pct: g.onlinePct,
+                status: g.status,
+                statusText: g.status === "online" ? "Healthy" : g.status === "warning" ? "Attention" : "At risk",
+              }))}
+              valueLabel="% active"
+            />
           </CardContent>
         </Card>
       ) : null}

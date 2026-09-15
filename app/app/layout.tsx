@@ -1,7 +1,7 @@
 import Link from "next/link";
 
 import { requireUser } from "@/lib/auth/dal";
-import { visibleNavItems } from "@/lib/nav";
+import { visibleNavItems, groupedNavItems } from "@/lib/nav";
 import { SidebarNav } from "@/components/app-shell/sidebar-nav";
 import { UserMenu } from "@/components/app-shell/user-menu";
 import { ImpersonationBanner } from "@/components/app-shell/impersonation-banner";
@@ -13,6 +13,7 @@ export default async function AppLayout({ children }: LayoutProps<"/app">) {
     isSuperAdmin: user.isSuperAdmin,
     isCustomer: user.isCustomer,
   });
+  const navGroups = groupedNavItems(nav);
   const name = [user.firstName, user.lastName].filter(Boolean).join(" ") || user.email || "User";
 
   return (
@@ -23,9 +24,10 @@ export default async function AppLayout({ children }: LayoutProps<"/app">) {
             AssetGrid
           </Link>
         </div>
-        <div className="flex-1 overflow-y-auto py-2">
-          <SidebarNav items={nav} />
+        <div className="flex-1 overflow-y-auto py-3">
+          <SidebarNav groups={navGroups} />
         </div>
+        <div className="eyebrow border-t px-5 py-3">AssetGrid v1 · Portfolio build</div>
       </aside>
 
       <div className="flex min-w-0 flex-col">

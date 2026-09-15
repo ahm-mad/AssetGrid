@@ -92,6 +92,23 @@ export function getMockProductBreakdown(): FleetGroup[] {
   })
 }
 
+const DAY_LABELS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+const HOUR_LABELS = ["00", "04", "08", "12", "16", "20"]
+
+/** A 7-day × 6-hourly-bucket telemetry-volume heatmap — a different visual shape than any bar/card grid elsewhere. */
+export function getMockTelemetryHeatmap(): { rowLabels: string[]; colLabels: string[]; data: number[][] } {
+  const rand = mulberry32(606)
+  const data = DAY_LABELS.map((_, day) =>
+    HOUR_LABELS.map((_, hourBucket) => {
+      // Business-hours-ish curve (peaks mid-day), lighter on weekends.
+      const dayFactor = day >= 5 ? 0.55 : 1
+      const hourFactor = 1 - Math.abs(hourBucket - 2.5) / 3.5
+      return Math.round((200 + hourFactor * 900) * dayFactor * (0.75 + rand() * 0.5))
+    }),
+  )
+  return { rowLabels: DAY_LABELS, colLabels: HOUR_LABELS.map((h) => `${h}:00`), data }
+}
+
 export function getMockRevenueReport(): RevenueReport {
   const perDock = [
     { dockId: 1, dockName: "Dock A", revenue: 4200 },

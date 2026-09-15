@@ -24,8 +24,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { StatTile } from "@/components/charts/stat-tile";
 import { BarChart } from "@/components/charts/bar-chart";
-import { NetworkMap } from "@/components/charts/network-map";
-import { Users } from "lucide-react";
+import { DonutChart } from "@/components/charts/donut-chart";
 
 export const metadata = { title: "Customers" };
 
@@ -86,10 +85,17 @@ export default async function CustomersPage({ searchParams }: PageProps<"/app/cu
         <Card>
           <CardHeader>
             <CardTitle className="text-base">Accounts by role</CardTitle>
-            <CardDescription>Active-rate per role cohort, across the whole account base.</CardDescription>
+            <CardDescription>Role distribution across the whole account base.</CardDescription>
           </CardHeader>
           <CardContent>
-            <NetworkMap nodes={getMockCustomersByRole()} icon={Users} unitLabel="accounts" metricLabel="active" />
+            <DonutChart
+              data={getMockCustomersByRole().map((g, i) => ({
+                label: g.label,
+                value: g.deviceCount,
+                color: `var(--chart-${(i % 5) + 1})`,
+              }))}
+              centerLabel="Accounts"
+            />
           </CardContent>
         </Card>
       ) : null}

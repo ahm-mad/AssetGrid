@@ -13,9 +13,11 @@ import {
   getMockOccupancyReport,
   getMockArSummary,
   getMockProductBreakdown,
+  getMockTelemetryHeatmap,
 } from "@/lib/mock/reports";
 import { Button } from "@/components/ui/button";
 import { NetworkMap } from "@/components/charts/network-map";
+import { Heatmap } from "@/components/charts/heatmap";
 import {
   Card,
   CardContent,
@@ -98,6 +100,18 @@ export default async function ReportsPage({
           </CardHeader>
           <CardContent>
             <NetworkMap nodes={getMockProductBreakdown()} icon={Cpu} />
+          </CardContent>
+        </Card>
+      ) : null}
+
+      {UI_MOCK && canDiagnostics ? (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">Telemetry volume</CardTitle>
+            <CardDescription>Packets received per hourly bucket, by day of week.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Heatmap {...getMockTelemetryHeatmap()} formatValue={(n) => `${n.toLocaleString()} pkts`} />
           </CardContent>
         </Card>
       ) : null}
