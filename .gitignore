@@ -48,3 +48,12 @@ scripts/dev/
 # name throughout; kept locally for continuity across sessions, never
 # committed (see decisions.md ADR-045)
 docs/
+
+# UI design references — contains the real former client's actual branding,
+# product names, and a live API hostname; local styling inspiration only,
+# never committed
+reference/
+
+# Corpta brand font — "Demo / Trial" licensed, not cleared for this public
+# repo; safe to use locally, never committed
+public/corpta-futuristic-font/
