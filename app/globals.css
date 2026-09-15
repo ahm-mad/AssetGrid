@@ -198,7 +198,9 @@
     letter-spacing: 0.12em;
     font-size: 10.5px;
     font-weight: 600;
-    color: var(--sidebar-primary);
+    /* Blue-tinted but deliberately muted — the active nav item below is the
+       one thing in the sidebar that should read as "vivid accent." */
+    color: color-mix(in oklch, var(--sidebar-primary) 45%, var(--muted-foreground) 55%);
   }
 
   /* Keeps a container scrollable while hiding its scrollbar chrome — used
@@ -220,4 +222,43 @@
       linear-gradient(to bottom, var(--border) 1px, transparent 1px);
     background-size: 24px 24px;
   }
+}
+
+/* Leaflet's own stylesheet (`leaflet/dist/leaflet.css`, imported in
+   `app/app/layout.tsx`) ships unlayered, so it beats anything inside
+   Tailwind's `@layer utilities` regardless of specificity or source order
+   (CSS Cascade Layers: unlayered always wins over layered). These
+   overrides are deliberately placed outside any @layer, with the
+   `.map-shell` compound selector, so they out-specificity Leaflet's own
+   single-class rules instead of trying to out-order them. Scoped to
+   WorldAssetMap only. */
+.map-shell.leaflet-container {
+  background: var(--background);
+  font-family: var(--font-sans);
+}
+.map-shell .leaflet-popup-content-wrapper,
+.map-shell .leaflet-popup-tip {
+  background: var(--card);
+  color: var(--card-foreground);
+}
+.map-shell .leaflet-popup-content-wrapper {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: none;
+}
+.map-shell .leaflet-bar a {
+  background: var(--card);
+  color: var(--card-foreground);
+  border-color: var(--border) !important;
+}
+.map-shell .leaflet-bar a:hover {
+  background: var(--muted);
+}
+.map-shell .leaflet-control-attribution {
+  background: color-mix(in oklch, var(--background) 80%, transparent);
+  color: var(--muted-foreground);
+  font-size: 9.5px;
+}
+.map-shell .leaflet-control-attribution a {
+  color: var(--muted-foreground);
 }
