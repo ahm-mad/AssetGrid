@@ -93,20 +93,23 @@ export function getMockProductBreakdown(): FleetGroup[] {
 }
 
 const DAY_LABELS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
-const HOUR_LABELS = ["00", "04", "08", "12", "16", "20"]
+const HOURS_24 = Array.from({ length: 24 }, (_, h) => h)
 
-/** A 7-day × 6-hourly-bucket telemetry-volume heatmap — a different visual shape than any bar/card grid elsewhere. */
+/** A 7-day × 24-hourly telemetry-volume heatmap — a different visual shape than any bar/card grid elsewhere. */
 export function getMockTelemetryHeatmap(): { rowLabels: string[]; colLabels: string[]; data: number[][] } {
   const rand = mulberry32(606)
   const data = DAY_LABELS.map((_, day) =>
-    HOUR_LABELS.map((_, hourBucket) => {
-      // Business-hours-ish curve (peaks mid-day), lighter on weekends.
-      const dayFactor = day >= 5 ? 0.55 : 1
-      const hourFactor = 1 - Math.abs(hourBucket - 2.5) / 3.5
-      return Math.round((200 + hourFactor * 900) * dayFactor * (0.75 + rand() * 0.5))
+    HOURS_24.map((hour) => {
+      // Business-hours-ish curve (peaks ~11am–2pm), lighter overnight and on weekends.
+      const dayFactor = day >= 5 ? 0.5 : 1
+      const hourFactor = Math.max(0, 1 - Math.abs(hour - 12.5) / 9)
+      return Math.round((80 + hourFactor * 950) * dayFactor * (0.7 + rand() * 0.5))
     }),
   )
-  return { rowLabels: DAY_LABELS, colLabels: HOUR_LABELS.map((h) => `${h}:00`), data }
+  // Sparse column labels (every 4th hour) — 24 real data columns, but
+  // labeling all of them would be unreadably cramped.
+  const colLabels = HOURS_24.map((h) => (h % 4 === 0 ? String(h).padStart(2, "0") : ""))
+  return { rowLabels: DAY_LABELS, colLabels, data }
 }
 
 export function getMockRevenueReport(): RevenueReport {
