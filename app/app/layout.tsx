@@ -1,4 +1,5 @@
 import Link from "next/link";
+import "leaflet/dist/leaflet.css";
 
 import { requireUser } from "@/lib/auth/dal";
 import { visibleNavItems, groupedNavItems } from "@/lib/nav";
