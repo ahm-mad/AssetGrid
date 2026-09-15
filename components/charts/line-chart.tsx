@@ -1,6 +1,6 @@
 "use client"
 
-import { useMemo, useRef, useState } from "react"
+import { useId, useMemo, useRef, useState } from "react"
 
 export interface LinePoint {
   label: string
@@ -26,6 +26,7 @@ export function LineChart({
   const formatValue = (n: number) => `${n.toLocaleString()}${unit}`
   const [hover, setHover] = useState<number | null>(null)
   const svgRef = useRef<SVGSVGElement | null>(null)
+  const gid = useId()
 
   const width = 640
   const padLeft = 40
@@ -80,11 +81,18 @@ export function LineChart({
         onPointerMove={handleMove}
         onPointerLeave={() => setHover(null)}
       >
+        <defs>
+          <linearGradient id={`${gid}-area`} x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor={color} stopOpacity={0.32} />
+            <stop offset="100%" stopColor={color} stopOpacity={0} />
+          </linearGradient>
+        </defs>
+
         {ticks.map((t) => {
           const y = padTop + plotH - (t / niceMax) * plotH
           return (
             <g key={t}>
-              <line x1={padLeft} x2={width - padRight} y1={y} y2={y} stroke="var(--border)" strokeWidth={1} />
+              <line x1={padLeft} x2={width - padRight} y1={y} y2={y} stroke="var(--border)" strokeWidth={1} strokeDasharray="3 4" />
               <text x={padLeft - 8} y={y} textAnchor="end" dominantBaseline="middle" className="fill-muted-foreground text-[10px]">
                 {t.toLocaleString()}
               </text>
@@ -92,8 +100,8 @@ export function LineChart({
           )
         })}
 
-        <path d={areaPath} fill={color} opacity={0.1} stroke="none" />
-        <path d={linePath} fill="none" stroke={color} strokeWidth={2} strokeLinejoin="round" strokeLinecap="round" />
+        <path d={areaPath} fill={`url(#${gid}-area)`} stroke="none" />
+        <path d={linePath} fill="none" stroke={color} strokeWidth={2.25} strokeLinejoin="round" strokeLinecap="round" />
 
         {hover != null ? (
           <>
@@ -104,8 +112,9 @@ export function LineChart({
               y2={padTop + plotH}
               stroke="var(--muted-foreground)"
               strokeWidth={1}
+              strokeDasharray="2 3"
             />
-            <circle cx={points[hover].x} cy={points[hover].y} r={4} fill={color} stroke="var(--background)" strokeWidth={2} />
+            <circle cx={points[hover].x} cy={points[hover].y} r={4.5} fill={color} stroke="var(--background)" strokeWidth={2} />
           </>
         ) : null}
 
@@ -114,7 +123,7 @@ export function LineChart({
           <circle
             cx={points[points.length - 1].x}
             cy={points[points.length - 1].y}
-            r={4}
+            r={4.5}
             fill={color}
             stroke="var(--background)"
             strokeWidth={2}

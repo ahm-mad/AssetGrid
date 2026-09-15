@@ -12,6 +12,8 @@ import {
 import { getOccupancyReport } from "@/lib/marina/pms/reports";
 import { getDevicePickerOptions } from "@/lib/inventory/data";
 import { getActivationUserOptions } from "@/lib/billing/data";
+import { UI_MOCK } from "@/lib/mock/enabled";
+import { getMockMarinaBundle } from "@/lib/mock/marina";
 import {
   Card,
   CardContent,
@@ -46,17 +48,20 @@ export default async function MarinaDetailPage({ params }: PageProps<"/app/marin
   const marinaId = Number(id);
   if (!Number.isInteger(marinaId)) notFound();
 
-  const marina = await getMarina(marinaId);
+  const mock = UI_MOCK ? getMockMarinaBundle(marinaId) : null;
+  const marina = mock ? mock.marina : await getMarina(marinaId);
   if (!marina) notFound();
 
-  const [battery, counts, alerts, picker, users, occupancy] = await Promise.all([
-    getMarinaBatteryStatus(marinaId),
-    getMarinaSensorCounts(marinaId),
-    getMarinaAlerts(marinaId, 20),
-    getDevicePickerOptions(),
-    getActivationUserOptions(),
-    getOccupancyReport({ marinaId }),
-  ]);
+  const [battery, counts, alerts, picker, users, occupancy] = mock
+    ? [mock.battery, mock.counts, mock.alerts, mock.picker, mock.users, mock.occupancy]
+    : await Promise.all([
+        getMarinaBatteryStatus(marinaId),
+        getMarinaSensorCounts(marinaId),
+        getMarinaAlerts(marinaId, 20),
+        getDevicePickerOptions(),
+        getActivationUserOptions(),
+        getOccupancyReport({ marinaId }),
+      ]);
 
   const canWrite = viewer.isSuperAdmin || can(viewer.permissions, "marina", "update");
   const canDelete = viewer.isSuperAdmin || can(viewer.permissions, "marina", "delete");
@@ -86,10 +91,10 @@ export default async function MarinaDetailPage({ params }: PageProps<"/app/marin
       </div>
 
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-        <StatTile label="Sensors total" value={counts.total} />
-        <StatTile label="Reporting" value={counts.reporting} />
-        <StatTile label="Silent" value={counts.silent} status={counts.silent > 0 ? "warning" : undefined} />
-        <StatTile label="Alarm active" value={counts.alarmActive} status={counts.alarmActive > 0 ? "critical" : undefined} />
+        <StatTile label="Sensors total" value={counts.total} status="online" />
+        <StatTile label="Reporting" value={counts.reporting} status="online" />
+        <StatTile label="Silent" value={counts.silent} status={counts.silent > 0 ? "warning" : "online"} />
+        <StatTile label="Alarm active" value={counts.alarmActive} status={counts.alarmActive > 0 ? "critical" : "online"} />
       </div>
 
       {occupancy.perDock.length > 0 ? (
@@ -103,6 +108,7 @@ export default async function MarinaDetailPage({ params }: PageProps<"/app/marin
               data={occupancy.perDock.map((d) => ({ label: d.dockName, value: d.occupancyPercent }))}
               format="percent"
               yMax={100}
+              color="var(--chart-1)"
             />
           </CardContent>
         </Card>
@@ -154,7 +160,7 @@ export default async function MarinaDetailPage({ params }: PageProps<"/app/marin
                   <TableRow key={i}>
                     <TableCell>{b.boatName}</TableCell>
                     <TableCell>{b.deviceName ?? "—"}</TableCell>
-                    <TableCell>{b.voltage ?? "—"}</TableCell>
+                    <TableCell className="font-mono">{b.voltage ?? "—"}</TableCell>
                     <TableCell className="text-muted-foreground text-xs">
                       {b.readingAt ? new Date(b.readingAt).toLocaleString() : "never"}
                     </TableCell>

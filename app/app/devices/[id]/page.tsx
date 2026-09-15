@@ -5,10 +5,12 @@ import { requireUser } from "@/lib/auth/dal";
 import { can } from "@/lib/auth/permissions";
 import { getUserDevice } from "@/lib/devices/data";
 import { getDeviceTelemetrySeries } from "@/lib/telemetry/data";
-import { Badge } from "@/components/ui/badge";
+import { UI_MOCK } from "@/lib/mock/enabled";
+import { getMockDeviceBundle, getMockTelemetrySeries } from "@/lib/mock/device-detail";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { LineChart } from "@/components/charts/line-chart";
+import { StatusLabel } from "@/components/charts/status-dot";
 
 import { DeviceDetail } from "./device-detail";
 
@@ -24,14 +26,14 @@ export default async function DeviceDetailPage({ params }: PageProps<"/app/devic
   const deviceId = Number(id);
   if (!Number.isInteger(deviceId)) notFound();
 
-  const bundle = await getUserDevice(deviceId);
+  const bundle = UI_MOCK ? getMockDeviceBundle(deviceId) : await getUserDevice(deviceId);
   if (!bundle) notFound();
 
   const canControl = viewer.isSuperAdmin || can(viewer.permissions, "inventory", "update");
   const canDelete = viewer.isSuperAdmin || can(viewer.permissions, "inventory", "delete");
 
   const { device } = bundle;
-  const series = await getDeviceTelemetrySeries(device.id, "weekly", 250);
+  const series = UI_MOCK ? getMockTelemetrySeries(device.id) : await getDeviceTelemetrySeries(device.id, "weekly", 250);
 
   const hasPower = series.some((p) => p.activePower != null);
   const hasTemp = series.some((p) => p.temperature != null);
@@ -49,9 +51,11 @@ export default async function DeviceDetailPage({ params }: PageProps<"/app/devic
         <Button variant="ghost" size="sm" render={<Link href="/app/devices" />}>
           ← Devices
         </Button>
-        <h1 className="text-lg font-semibold">{device.deviceName ?? `Device #${device.id}`}</h1>
+        <h1 className="text-xl font-semibold tracking-tight">{device.deviceName ?? `Device #${device.id}`}</h1>
         <p className="text-muted-foreground flex flex-wrap items-center gap-2 text-sm">
-          <Badge variant={device.status === "captured" ? "secondary" : "outline"}>{device.status}</Badge>
+          <StatusLabel status={device.status === "captured" ? "online" : "critical"}>
+            {device.status === "captured" ? "Online" : "Offline"}
+          </StatusLabel>
           {device.productName ? <span>{device.productName}</span> : null}
           {device.ownerName ? <span>· {device.ownerName}</span> : null}
           {device.devEui ? <span className="font-mono">· {device.devEui}</span> : null}
@@ -65,7 +69,7 @@ export default async function DeviceDetailPage({ params }: PageProps<"/app/devic
             <CardDescription>Last 7 days of telemetry for this device.</CardDescription>
           </CardHeader>
           <CardContent>
-            <LineChart data={chartData} unit={hasPower ? " W" : "°F"} />
+            <LineChart data={chartData} unit={hasPower ? " W" : "°F"} color="var(--chart-1)" />
           </CardContent>
         </Card>
       ) : null}

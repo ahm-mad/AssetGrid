@@ -8,6 +8,8 @@ import { createClient } from '@/utils/supabase/server'
 import { getEffectivePermissions } from './permissions'
 import { readImpersonation } from './impersonation'
 import type { CurrentUser } from './types'
+import { UI_MOCK } from '@/lib/mock/enabled'
+import { MOCK_USER } from '@/lib/mock/user'
 
 /**
  * The raw Supabase auth claims for this request (from the cookie session),
@@ -25,6 +27,8 @@ export const getClaims = cache(async () => {
  * Component / Route Handler / Server Action that needs identity calls this.
  */
 export const getCurrentUser = cache(async (): Promise<CurrentUser | null> => {
+  if (UI_MOCK) return MOCK_USER
+
   const claims = await getClaims()
   if (!claims?.sub) return null
 

@@ -5,6 +5,7 @@ import { visibleNavItems } from "@/lib/nav";
 import { SidebarNav } from "@/components/app-shell/sidebar-nav";
 import { UserMenu } from "@/components/app-shell/user-menu";
 import { ImpersonationBanner } from "@/components/app-shell/impersonation-banner";
+import { StatusDot } from "@/components/charts/status-dot";
 
 export default async function AppLayout({ children }: LayoutProps<"/app">) {
   const user = await requireUser();
@@ -16,9 +17,9 @@ export default async function AppLayout({ children }: LayoutProps<"/app">) {
 
   return (
     <div className="grid min-h-screen grid-rows-[auto_1fr] md:grid-cols-[15rem_1fr] md:grid-rows-none">
-      <aside className="bg-card hidden border-r md:flex md:flex-col">
-        <div className="flex h-14 items-center px-5">
-          <Link href="/app" className="font-semibold tracking-tight">
+      <aside className="bg-sidebar border-sidebar-border hidden border-r md:flex md:flex-col">
+        <div className="flex h-14 items-center gap-2 border-b px-5">
+          <Link href="/app" className="font-heading text-sm font-semibold tracking-wide uppercase">
             AssetGrid
           </Link>
         </div>
@@ -28,11 +29,18 @@ export default async function AppLayout({ children }: LayoutProps<"/app">) {
       </aside>
 
       <div className="flex min-w-0 flex-col">
-        <header className="bg-card/80 supports-[backdrop-filter]:bg-card/60 sticky top-0 z-10 flex h-14 items-center justify-between gap-3 border-b px-4 backdrop-blur md:justify-end">
+        <header className="bg-background sticky top-0 z-10 flex h-14 items-center justify-between gap-3 border-b px-4 md:justify-end">
           <Link href="/app" className="font-semibold tracking-tight md:hidden">
             AssetGrid
           </Link>
-          {user.impersonatorId ? <ImpersonationBanner /> : null}
+          {user.impersonatorId ? (
+            <ImpersonationBanner />
+          ) : (
+            <span className="eyebrow hidden items-center gap-2 md:mr-auto md:flex">
+              <StatusDot status="online" />
+              All systems operational
+            </span>
+          )}
           <UserMenu name={name} email={user.email} roleTitle={user.roleTitle} />
         </header>
 
