@@ -2,6 +2,7 @@ import { mulberry32 } from "@/lib/mock/dashboard"
 import type { MarinaTree, BoatNode, DockNode, SlipNode } from "@/lib/marina/data"
 import type { MarinaBatteryRow, MarinaSensorCounts, MarinaAlertRow } from "@/lib/marina/dashboard"
 import type { OccupancyReport } from "@/lib/marina/pms/reports"
+import type { FleetGroup } from "@/components/charts/network-map"
 
 const MARINA_NAMES = ["Harborline Marina", "Northstar Yacht Basin", "BlueWater Cove", "Summit Point Marina", "Coastal Ops Dock"]
 const BOAT_NAMES = ["Sea Breeze", "Wanderlust", "Blue Horizon", "Tidal Drift", "Anchor's Away", "Salt Runner", "Nimbus", "Windward", "Reef Runner", "Northern Star"]
@@ -18,6 +19,22 @@ export interface MockMarinaBundle {
 
 export function listMockMarinas(): MarinaTree[] {
   return MARINA_NAMES.map((_, i) => getMockMarinaBundle(i + 1).marina)
+}
+
+/** Slip occupancy across every marina — the marina list page's own natural grouping. */
+export function getMockMarinaOccupancy(): FleetGroup[] {
+  return MARINA_NAMES.map((_, i) => {
+    const { marina, counts } = getMockMarinaBundle(i + 1)
+    const occupiedSlips = marina.docks.reduce((s, d) => s + d.slips.filter((sl) => sl.boats.length > 0).length, 0)
+    const occupancyPct = Math.round((occupiedSlips / marina.slipCount) * 100)
+    return {
+      id: String(i + 1),
+      label: marina.marinaName ?? marina.marinaCode,
+      deviceCount: marina.slipCount,
+      onlinePct: occupancyPct,
+      status: counts.alarmActive > 0 ? "critical" : occupancyPct > 90 ? "warning" : "online",
+    }
+  })
 }
 
 export function getMockMarinaBundle(id: number): MockMarinaBundle {

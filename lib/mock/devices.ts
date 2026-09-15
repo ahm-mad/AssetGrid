@@ -1,6 +1,7 @@
 import { mulberry32, series } from "@/lib/mock/dashboard"
 import type { StatusKind } from "@/components/charts/status-dot"
 import type { UserDeviceListResult, DeviceFleetSummary } from "@/lib/devices/data"
+import type { FleetGroup } from "@/components/charts/network-map"
 
 export interface MockDeviceRow {
   id: number
@@ -101,6 +102,31 @@ export function getMockFleetSummary(): MockFleetSummary {
       alerting: series(14, alerting, 2, 19),
     },
   }
+}
+
+/**
+ * Fleet health grouped by managed account, across the *entire* device set
+ * (not just the current page/search filter) — reuses the reference's
+ * "Product Estate" grid pattern for this page's own natural grouping.
+ */
+export function getMockFleetByCompany(): FleetGroup[] {
+  const groups = new Map<string, MockDeviceRow[]>()
+  for (const d of DEVICES) {
+    const list = groups.get(d.company) ?? []
+    list.push(d)
+    groups.set(d.company, list)
+  }
+  return [...groups.entries()].map(([label, rows]) => {
+    const healthy = rows.filter((r) => r.status !== "critical").length
+    const criticalShare = (rows.length - healthy) / rows.length
+    return {
+      id: label,
+      label,
+      deviceCount: rows.length,
+      onlinePct: Math.round((healthy / rows.length) * 100),
+      status: criticalShare > 0.25 ? "critical" : criticalShare > 0 ? "warning" : "online",
+    }
+  })
 }
 
 /** Real-data fallback for when UI_MOCK_MODE is off — see STATUS.md §2 pattern. */
