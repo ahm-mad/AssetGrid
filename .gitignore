@@ -53,3 +53,10 @@ docs/
 # product names, and a live API hostname; local styling inspiration only,
 # never committed (see docs/ui-redesign/decisions.md)
 reference/
+
+# Corpta brand font — a "Demo / Trial" licensed font (see its own
+# Befonts-License.txt), not a personal/commercial-use grant. Fine to use
+# locally for screenshots/recording, but this repo is public, so the font
+# FILE itself doesn't get committed — only next/app/layout.tsx's reference
+# to it (see docs/ui-redesign/decisions.md ADR-UX012 addendum).
+public/corpta-futuristic-font/
