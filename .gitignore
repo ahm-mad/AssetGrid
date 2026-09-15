@@ -48,3 +48,8 @@ scripts/dev/
 # name throughout; kept locally for continuity across sessions, never
 # committed (see decisions.md ADR-045)
 docs/
+
+# UI design references — contains the real former client's actual branding,
+# product names, and a live API hostname; local styling inspiration only,
+# never committed (see docs/ui-redesign/decisions.md)
+reference/

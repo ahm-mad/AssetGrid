@@ -2,6 +2,13 @@ import Link from "next/link";
 
 import { requirePagePermission } from "@/lib/auth/page-guards";
 import { listUsers, getCustomerSummary } from "@/lib/users/data";
+import { UI_MOCK } from "@/lib/mock/enabled";
+import {
+  listMockCustomers,
+  getMockCustomerSummary,
+  mapRealListToView,
+  mapRealSummaryToView,
+} from "@/lib/mock/customers";
 import {
   Table,
   TableBody,
@@ -30,10 +37,10 @@ export default async function CustomersPage({ searchParams }: PageProps<"/app/cu
   const search = typeof sp.q === "string" ? sp.q : "";
   const roleTypeId = sp.role ? Number(sp.role) : undefined;
 
-  const [result, summary] = await Promise.all([
-    listUsers({ page, search, roleTypeId, perPage: 20 }),
-    getCustomerSummary(),
-  ]);
+  const result = UI_MOCK
+    ? listMockCustomers({ page, search, perPage: 20 })
+    : mapRealListToView(await listUsers({ page, search, roleTypeId, perPage: 20 }));
+  const summary = UI_MOCK ? getMockCustomerSummary() : mapRealSummaryToView(await getCustomerSummary());
 
   const mkHref = (p: number) => {
     const params = new URLSearchParams();
@@ -47,8 +54,8 @@ export default async function CustomersPage({ searchParams }: PageProps<"/app/cu
     <div className="grid gap-4">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-lg font-semibold">Customers</h1>
-          <p className="text-muted-foreground text-sm">{result.total} users</p>
+          <h1 className="text-xl font-semibold tracking-tight">Customers</h1>
+          <p className="text-muted-foreground text-sm">{result.total} users across {summary.companyCount} companies</p>
         </div>
         {canCreate ? (
           <Button render={<Link href="/app/customers/new" />}>New user</Button>
@@ -56,8 +63,8 @@ export default async function CustomersPage({ searchParams }: PageProps<"/app/cu
       </div>
 
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-        <StatTile label="Total customers" value={summary.total} />
-        <StatTile label="Companies" value={summary.companyCount} />
+        <StatTile label="Total customers" value={summary.total} history={summary.history} status="online" />
+        <StatTile label="Companies" value={summary.companyCount} status="info" />
       </div>
 
       {summary.perCompany.length > 0 ? (
@@ -67,62 +74,64 @@ export default async function CustomersPage({ searchParams }: PageProps<"/app/cu
             <CardDescription>Distribution across the account portfolio.</CardDescription>
           </CardHeader>
           <CardContent>
-            <BarChart data={summary.perCompany} />
+            <BarChart data={summary.perCompany} color="var(--chart-2)" />
           </CardContent>
         </Card>
       ) : null}
 
       <form className="flex gap-2" action="/app/customers">
-        <Input name="q" placeholder="Search name or xnid…" defaultValue={search} className="max-w-xs" />
+        <Input name="q" placeholder="Search name or company…" defaultValue={search} className="max-w-xs" />
         {roleTypeId ? <input type="hidden" name="role" value={roleTypeId} /> : null}
         <Button type="submit" variant="outline">
           Search
         </Button>
       </form>
 
-      <div className="overflow-x-auto rounded-md border">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Name</TableHead>
-              <TableHead>Role</TableHead>
-              <TableHead>Company</TableHead>
-              <TableHead>Joined</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {result.rows.length === 0 ? (
+      <Card className="overflow-hidden py-0">
+        <div className="overflow-x-auto">
+          <Table>
+            <TableHeader>
               <TableRow>
-                <TableCell colSpan={4} className="text-muted-foreground text-center">
-                  No users found.
-                </TableCell>
+                <TableHead>Name</TableHead>
+                <TableHead>Role</TableHead>
+                <TableHead>Company</TableHead>
+                <TableHead>Joined</TableHead>
               </TableRow>
-            ) : (
-              result.rows.map((u) => (
-                <TableRow key={u.id}>
-                  <TableCell className="font-medium">
-                    <Link href={`/app/customers/${u.id}`} className="hover:underline">
-                      {[u.firstName, u.lastName].filter(Boolean).join(" ") || "—"}
-                    </Link>
-                    {u.deletedAt ? (
-                      <Badge variant="outline" className="ml-2">
-                        deleted
-                      </Badge>
-                    ) : null}
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant="secondary">{u.roleTitle}</Badge>
-                  </TableCell>
-                  <TableCell>{u.companyName ?? "—"}</TableCell>
-                  <TableCell className="text-muted-foreground">
-                    {new Date(u.createdAt).toLocaleDateString()}
+            </TableHeader>
+            <TableBody>
+              {result.rows.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={4} className="text-muted-foreground text-center">
+                    No users found.
                   </TableCell>
                 </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
-      </div>
+              ) : (
+                result.rows.map((u) => (
+                  <TableRow key={u.id}>
+                    <TableCell className="font-medium">
+                      <Link href={`/app/customers/${u.id}`} className="hover:text-primary hover:underline">
+                        {u.name}
+                      </Link>
+                      {u.deletedAt ? (
+                        <Badge variant="outline" className="ml-2">
+                          deleted
+                        </Badge>
+                      ) : null}
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant="secondary">{u.roleTitle}</Badge>
+                    </TableCell>
+                    <TableCell className="text-muted-foreground">{u.companyName}</TableCell>
+                    <TableCell className="text-muted-foreground">
+                      {new Date(u.createdAt).toLocaleDateString()}
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </div>
+      </Card>
 
       <div className="flex items-center justify-between text-sm">
         <span className="text-muted-foreground">

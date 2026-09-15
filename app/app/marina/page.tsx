@@ -4,6 +4,8 @@ import { requirePagePermission } from "@/lib/auth/page-guards";
 import { can } from "@/lib/auth/permissions";
 import { listMarinas } from "@/lib/marina/data";
 import { getCompanyOptions } from "@/lib/companies/data";
+import { UI_MOCK } from "@/lib/mock/enabled";
+import { listMockMarinas } from "@/lib/mock/marina";
 import {
   Table,
   TableBody,
@@ -13,6 +15,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { Card } from "@/components/ui/card";
 
 import { NewMarinaButton } from "./new-marina-button";
 
@@ -20,14 +23,15 @@ export const metadata = { title: "Marinas" };
 
 export default async function MarinaPage() {
   const viewer = await requirePagePermission("marina", "read", { allowCustomer: true });
-  const [marinas, companies] = await Promise.all([listMarinas(), getCompanyOptions()]);
+  const companies = UI_MOCK ? [] : await getCompanyOptions();
+  const marinas = UI_MOCK ? listMockMarinas() : await listMarinas();
   const canCreate = viewer.isSuperAdmin || can(viewer.permissions, "marina", "create");
 
   return (
     <div className="grid gap-4">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-lg font-semibold">Marinas</h1>
+          <h1 className="text-xl font-semibold tracking-tight">Marinas</h1>
           <p className="text-muted-foreground text-sm">
             {marinas.length} marinas · marina → dock → slip → boat.
           </p>
@@ -35,7 +39,8 @@ export default async function MarinaPage() {
         {canCreate ? <NewMarinaButton companies={companies} /> : null}
       </div>
 
-      <div className="overflow-x-auto rounded-md border">
+      <Card className="overflow-hidden py-0">
+      <div className="overflow-x-auto">
         <Table>
           <TableHeader>
             <TableRow>
@@ -77,6 +82,7 @@ export default async function MarinaPage() {
           </TableBody>
         </Table>
       </div>
+      </Card>
     </div>
   );
 }

@@ -5,6 +5,13 @@ import { requireUser } from "@/lib/auth/dal";
 import { can } from "@/lib/auth/permissions";
 import { listDeviceDiagnostics } from "@/lib/analytics/data";
 import { getArSummary, getRevenueReport, getOccupancyReport } from "@/lib/marina/pms/reports";
+import { UI_MOCK } from "@/lib/mock/enabled";
+import {
+  listMockDeviceDiagnostics,
+  getMockRevenueReport,
+  getMockOccupancyReport,
+  getMockArSummary,
+} from "@/lib/mock/reports";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -21,8 +28,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
 import { BarChart } from "@/components/charts/bar-chart";
+import { StatusLabel } from "@/components/charts/status-dot";
 
 export const metadata = { title: "Reports" };
 
@@ -44,17 +51,24 @@ export default async function ReportsPage({
   const search = typeof sp.q === "string" ? sp.q : undefined;
   const page = typeof sp.page === "string" ? Math.max(1, Number(sp.page) || 1) : 1;
 
-  const [diagnostics, revenue, occupancy, arSummary] = await Promise.all([
-    canDiagnostics ? listDeviceDiagnostics({ page, perPage: 25, search }) : null,
-    canMarina ? getRevenueReport({}) : null,
-    canMarina ? getOccupancyReport({}) : null,
-    canMarina ? getArSummary() : null,
-  ]);
+  const [diagnostics, revenue, occupancy, arSummary] = UI_MOCK
+    ? [
+        canDiagnostics ? listMockDeviceDiagnostics({ page, perPage: 25, search }) : null,
+        canMarina ? getMockRevenueReport() : null,
+        canMarina ? getMockOccupancyReport() : null,
+        canMarina ? getMockArSummary() : null,
+      ]
+    : await Promise.all([
+        canDiagnostics ? listDeviceDiagnostics({ page, perPage: 25, search }) : null,
+        canMarina ? getRevenueReport({}) : null,
+        canMarina ? getOccupancyReport({}) : null,
+        canMarina ? getArSummary() : null,
+      ]);
 
   return (
     <div className="grid gap-4">
       <div>
-        <h1 className="text-lg font-semibold">Reports &amp; diagnostics</h1>
+        <h1 className="text-xl font-semibold tracking-tight">Reports &amp; diagnostics</h1>
         <p className="text-muted-foreground text-sm">
           Device diagnostics, marina financials, and data exports.
         </p>
@@ -123,13 +137,15 @@ export default async function ReportsPage({
                         <TableCell className="text-xs">{d.placeInfo || "—"}</TableCell>
                         <TableCell>
                           {d.alertCount > 0 ? (
-                            <Badge variant="destructive">{d.alertCount}</Badge>
+                            <span className="text-status-critical font-mono text-xs font-semibold">{d.alertCount}</span>
                           ) : (
-                            <span className="text-muted-foreground text-xs">0</span>
+                            <span className="text-muted-foreground font-mono text-xs">0</span>
                           )}
                         </TableCell>
-                        <TableCell className="text-xs">
-                          {d.malfunction ? d.malfunctionActiveStatus : d.totalPackets ? "reporting" : "silent"}
+                        <TableCell>
+                          <StatusLabel status={d.malfunction ? "critical" : d.totalPackets ? "online" : "offline"}>
+                            {d.malfunction ? d.malfunctionActiveStatus : d.totalPackets ? "Reporting" : "Silent"}
+                          </StatusLabel>
                         </TableCell>
                       </TableRow>
                     ))}

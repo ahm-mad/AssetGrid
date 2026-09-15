@@ -8,6 +8,15 @@ import {
   listDeviceTypes,
   listProducts,
 } from "@/lib/catalog/data";
+import { UI_MOCK } from "@/lib/mock/enabled";
+import {
+  MOCK_ATTRIBUTES,
+  MOCK_XUPS,
+  MOCK_APPS,
+  MOCK_NOTIFIES,
+  MOCK_DEVICE_TYPES,
+  MOCK_PRODUCTS,
+} from "@/lib/mock/catalog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { StatTile } from "@/components/charts/stat-tile";
 
@@ -20,14 +29,16 @@ export const metadata = { title: "Catalog" };
 export default async function CatalogPage() {
   const user = await requirePagePermission("catalog", "read");
 
-  const [attributes, xups, apps, notifies, deviceTypes, products] = await Promise.all([
-    listAttributes(),
-    listXups(),
-    listApps(),
-    listNotifies(),
-    listDeviceTypes(),
-    listProducts(),
-  ]);
+  const [attributes, xups, apps, notifies, deviceTypes, products] = UI_MOCK
+    ? [MOCK_ATTRIBUTES, MOCK_XUPS, MOCK_APPS, MOCK_NOTIFIES, MOCK_DEVICE_TYPES, MOCK_PRODUCTS]
+    : await Promise.all([
+        listAttributes(),
+        listXups(),
+        listApps(),
+        listNotifies(),
+        listDeviceTypes(),
+        listProducts(),
+      ]);
 
   const canEdit = user.isSuperAdmin || can(user.permissions, "catalog", "update");
   const canCreate = user.isSuperAdmin || can(user.permissions, "catalog", "create");
@@ -38,19 +49,19 @@ export default async function CatalogPage() {
   return (
     <div className="grid gap-4">
       <div>
-        <h1 className="text-lg font-semibold">Catalog</h1>
+        <h1 className="text-xl font-semibold tracking-tight">Catalog</h1>
         <p className="text-muted-foreground text-sm">
           Products, alert attributes, telemetry channels (xUP), app profiles, device types.
         </p>
       </div>
 
       <div className="grid grid-cols-2 gap-3 md:grid-cols-6">
-        <StatTile label="Products" value={products.length} />
-        <StatTile label="Device types" value={deviceTypes.length} />
-        <StatTile label="Attributes" value={attributes.length} />
-        <StatTile label="xUPs" value={xups.length} />
-        <StatTile label="Apps" value={apps.length} />
-        <StatTile label="Notifies" value={notifies.length} />
+        <StatTile label="Products" value={products.length} status="online" />
+        <StatTile label="Device types" value={deviceTypes.length} status="info" />
+        <StatTile label="Attributes" value={attributes.length} status="info" />
+        <StatTile label="xUPs" value={xups.length} status="info" />
+        <StatTile label="Apps" value={apps.length} status="info" />
+        <StatTile label="Notifies" value={notifies.length} status="info" />
       </div>
 
       <Tabs defaultValue="attributes">
