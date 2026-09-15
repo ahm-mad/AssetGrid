@@ -7,6 +7,7 @@ import { SidebarNav } from "@/components/app-shell/sidebar-nav";
 import { UserMenu } from "@/components/app-shell/user-menu";
 import { ImpersonationBanner } from "@/components/app-shell/impersonation-banner";
 import { StatusDot } from "@/components/charts/status-dot";
+import { Logo } from "@/components/brand/logo";
 
 export default async function AppLayout({ children }: LayoutProps<"/app">) {
   const user = await requireUser();
@@ -21,8 +22,8 @@ export default async function AppLayout({ children }: LayoutProps<"/app">) {
     <div className="grid min-h-screen grid-rows-[auto_1fr] md:grid-cols-[15rem_1fr] md:grid-rows-none">
       <aside className="bg-sidebar border-sidebar-border hidden border-r md:sticky md:top-0 md:flex md:h-screen md:flex-col">
         <div className="flex h-14 items-center gap-2 border-b px-5">
-          <Link href="/app" className="font-heading text-sm font-semibold tracking-wide uppercase">
-            AssetGrid
+          <Link href="/app">
+            <Logo />
           </Link>
         </div>
         <div className="scrollbar-none flex-1 overflow-y-auto py-3">
@@ -33,8 +34,8 @@ export default async function AppLayout({ children }: LayoutProps<"/app">) {
 
       <div className="flex min-w-0 flex-col">
         <header className="bg-background sticky top-0 z-10 flex h-14 items-center justify-between gap-3 border-b px-4 md:justify-end">
-          <Link href="/app" className="font-semibold tracking-tight md:hidden">
-            AssetGrid
+          <Link href="/app" className="md:hidden">
+            <Logo />
           </Link>
           {user.impersonatorId ? (
             <ImpersonationBanner />
