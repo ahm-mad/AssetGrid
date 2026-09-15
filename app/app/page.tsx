@@ -1,44 +1,73 @@
+import { Cpu } from "lucide-react";
+
 import { getCurrentUser } from "@/lib/auth/dal";
 import { getDashboardSummary } from "@/lib/analytics/dashboard";
+import { UI_MOCK } from "@/lib/mock/enabled";
+import { getMockDashboardData, mapRealSummaryToViewModel } from "@/lib/mock/dashboard";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { StatTile } from "@/components/charts/stat-tile";
 import { LineChart } from "@/components/charts/line-chart";
-
-function timeAgo(iso: string): string {
-  const ms = Date.now() - new Date(iso).getTime();
-  const mins = Math.round(ms / 60000);
-  if (mins < 1) return "just now";
-  if (mins < 60) return `${mins}m ago`;
-  const hrs = Math.round(mins / 60);
-  if (hrs < 24) return `${hrs}h ago`;
-  return `${Math.round(hrs / 24)}d ago`;
-}
+import { BarChart } from "@/components/charts/bar-chart";
+import { RadialGauge } from "@/components/charts/radial-gauge";
+import { DonutChart } from "@/components/charts/donut-chart";
+import { NetworkMap } from "@/components/charts/network-map";
+import { LiveFeed } from "@/components/charts/live-feed";
 
 export default async function DashboardPage() {
   const user = await getCurrentUser();
   const granted = user?.permissions.filter((p) => p.can_read) ?? [];
-  const summary = await getDashboardSummary();
+  const data = UI_MOCK ? getMockDashboardData() : mapRealSummaryToViewModel(await getDashboardSummary());
+  const { kpis } = data;
+  const totalDevices = data.sites.reduce((s, n) => s + n.deviceCount, 0);
 
   return (
     <div className="grid gap-4">
-      <div>
-        <h1 className="text-lg font-semibold">Dashboard</h1>
-        <p className="text-muted-foreground text-sm">
-          Welcome back{user?.firstName ? `, ${user.firstName}` : ""}.
-        </p>
+      <div className="flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <p className="eyebrow">
+            Dashboard · <span className="text-foreground">Overview</span>
+          </p>
+          <h1 className="mt-1 text-xl font-semibold tracking-tight">Operations overview</h1>
+          <p className="text-muted-foreground text-sm">
+            {totalDevices} devices · {data.sites.length} sites · {data.deviceTypes.length} product lines · live
+          </p>
+        </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-3 md:grid-cols-5">
-        <StatTile label="Devices" value={summary.deviceCount} />
+      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         <StatTile
-          label="Open alerts"
-          value={summary.openAlertCount}
-          status={summary.openAlertCount > 0 ? "warning" : undefined}
+          label={kpis.devices.label}
+          value={kpis.devices.value}
+          delta={kpis.devices.delta}
+          history={kpis.devices.history}
+          status={kpis.devices.status}
         />
-        <StatTile label="Buildings" value={summary.buildingCount} />
-        <StatTile label="Marinas" value={summary.marinaCount} />
-        <StatTile label="Customers" value={summary.customerCount} />
+        <StatTile
+          label={kpis.openAlerts.label}
+          value={kpis.openAlerts.value}
+          delta={kpis.openAlerts.delta}
+          history={kpis.openAlerts.history}
+          status={kpis.openAlerts.status}
+        />
+        <StatTile
+          label={kpis.telemetryRate.label}
+          value={kpis.telemetryRate.value}
+          unit={kpis.telemetryRate.unit}
+          delta={kpis.telemetryRate.delta}
+          history={kpis.telemetryRate.history}
+          status={kpis.telemetryRate.status}
+        />
+        <div className="flex items-center justify-between rounded-lg border bg-card p-4">
+          <div>
+            <p className="eyebrow">{kpis.uptime.label}</p>
+            <p className="text-status-online mt-1.5 text-xs font-medium">
+              {kpis.uptime.delta >= 0 ? "+" : ""}
+              {kpis.uptime.delta.toFixed(2)}% vs last period
+            </p>
+          </div>
+          <RadialGauge value={kpis.uptime.value} size={64} stroke={6} color="var(--status-online)" />
+        </div>
       </div>
 
       <div className="grid gap-4 lg:grid-cols-3">
@@ -48,37 +77,75 @@ export default async function DashboardPage() {
             <CardDescription>Packets received per hour, most recent ingestion window.</CardDescription>
           </CardHeader>
           <CardContent>
-            {summary.activity.length === 0 ? (
+            {data.telemetry.length === 0 ? (
               <p className="text-muted-foreground text-sm">No telemetry in range.</p>
             ) : (
-              <LineChart data={summary.activity} unit=" packets" />
+              <LineChart data={data.telemetry} unit=" pkts" color="var(--chart-1)" />
             )}
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader>
-            <CardTitle className="text-base">Recent alerts</CardTitle>
-            <CardDescription>Latest notifications across the fleet.</CardDescription>
+            <CardTitle className="text-base">Live feed</CardTitle>
+            <CardDescription>Latest events across the fleet.</CardDescription>
           </CardHeader>
           <CardContent>
-            {summary.recentAlerts.length === 0 ? (
-              <p className="text-muted-foreground text-sm">No recent alerts.</p>
+            {data.feed.length === 0 ? (
+              <p className="text-muted-foreground text-sm">No recent events.</p>
             ) : (
-              <ul className="grid gap-3">
-                {summary.recentAlerts.map((a) => (
-                  <li key={a.id} className="grid gap-0.5 border-b pb-2 text-sm last:border-b-0 last:pb-0">
-                    <div className="flex items-center justify-between gap-2">
-                      <span className="font-medium">{a.deviceName ?? "Device"}</span>
-                      <span className="text-muted-foreground text-xs whitespace-nowrap">{timeAgo(a.createdAt)}</span>
-                    </div>
-                    <span className="text-muted-foreground text-xs">{a.message}</span>
-                  </li>
-                ))}
-              </ul>
+              <LiveFeed items={data.feed} />
             )}
           </CardContent>
         </Card>
+      </div>
+
+      {data.sites.length > 0 ? (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">Fleet by site</CardTitle>
+            <CardDescription>Device health per managed account.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <NetworkMap nodes={data.sites} />
+          </CardContent>
+        </Card>
+      ) : null}
+
+      {data.deviceTypes.length > 0 ? (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">Fleet by product line</CardTitle>
+            <CardDescription>Device health per product / device type.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <NetworkMap nodes={data.deviceTypes} icon={Cpu} />
+          </CardContent>
+        </Card>
+      ) : null}
+
+      <div className="grid gap-4 lg:grid-cols-3">
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">Fleet status</CardTitle>
+            <CardDescription>Device health across the whole fleet.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <DonutChart data={data.statusBreakdown} centerLabel="Devices" />
+          </CardContent>
+        </Card>
+
+        {data.byCompany.length > 0 ? (
+          <Card className="lg:col-span-2">
+            <CardHeader>
+              <CardTitle className="text-base">Devices by company</CardTitle>
+              <CardDescription>Fleet distribution across managed accounts.</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <BarChart data={data.byCompany} color="var(--chart-2)" />
+            </CardContent>
+          </Card>
+        ) : null}
       </div>
 
       <Card>

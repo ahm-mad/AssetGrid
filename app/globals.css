@@ -39,6 +39,14 @@
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
+  --color-status-online: var(--status-online);
+  --color-status-warning: var(--status-warning);
+  --color-status-critical: var(--status-critical);
+  --color-status-offline: var(--status-offline);
+  --color-status-info: var(--status-info);
+  --color-glass: var(--glass-bg);
+  --color-glass-border: var(--glass-border);
+  --color-line-strong: var(--line-strong);
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);
@@ -48,73 +56,95 @@
   --radius-4xl: calc(var(--radius) * 2.6);
 }
 
+/*
+ * "Ops Console" — flat, bordered, restrained (ADR-UX005). Borders do the
+ * separation work, not shadows or glow. Glow/blur is reserved for the
+ * login page only (see .glass below) — never apply it to an internal
+ * dashboard surface.
+ */
 :root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: #2a78d6;
-  --chart-2: #eb6834;
-  --chart-3: #1baf7a;
-  --chart-4: #eda100;
-  --chart-5: #e87ba4;
+  --background: #f4f6f9;
+  --foreground: #0e1319;
+  --card: #ffffff;
+  --card-foreground: #0e1319;
+  --popover: #ffffff;
+  --popover-foreground: #0e1319;
+  --primary: #1683d4;
+  --primary-foreground: #ffffff;
+  --secondary: #eef1f5;
+  --secondary-foreground: #0e1319;
+  --muted: #fafbfd;
+  --muted-foreground: #57606d;
+  --accent: #e6f1fb;
+  --accent-foreground: #106aad;
+  --destructive: #cf2f2f;
+  --border: #e5e9ef;
+  --line-strong: #d3d9e2;
+  --input: #e5e9ef;
+  --ring: #1683d4;
+  --chart-1: #1683d4;
+  --chart-2: #e07b39;
+  --chart-3: #13a58a;
+  --chart-4: #8b5cf6;
+  --chart-5: #d94a6a;
+  --status-online: #17914a;
+  --status-warning: #b9750a;
+  --status-critical: #cf2f2f;
+  --status-offline: #8a929f;
+  --status-info: #1683d4;
+  --glass-bg: rgba(16, 22, 34, 0.62);
+  --glass-border: rgba(120, 150, 190, 0.14);
   --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  --sidebar: #ffffff;
+  --sidebar-foreground: #0e1319;
+  --sidebar-primary: #1683d4;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #e6f1fb;
+  --sidebar-accent-foreground: #106aad;
+  --sidebar-border: #e5e9ef;
+  --sidebar-ring: #1683d4;
 }
 
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: #3987e5;
-  --chart-2: #d95926;
-  --chart-3: #199e70;
-  --chart-4: #c98500;
-  --chart-5: #d55181;
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+  --background: #070b12;
+  --foreground: #e8ecf2;
+  --card: #13171e;
+  --card-foreground: #e8ecf2;
+  --popover: #161b23;
+  --popover-foreground: #e8ecf2;
+  --primary: #3f9ae8;
+  --primary-foreground: #04121e;
+  --secondary: #1a2029;
+  --secondary-foreground: #e8ecf2;
+  --muted: #161b23;
+  --muted-foreground: #96a0af;
+  --accent: #14263a;
+  --accent-foreground: #78b6f0;
+  --destructive: #f06a62;
+  --border: #212832;
+  --line-strong: #2b323e;
+  --input: #212832;
+  --ring: #3f9ae8;
+  --chart-1: #3f9ae8;
+  --chart-2: #cf6f2c;
+  --chart-3: #17a98d;
+  --chart-4: #9070e6;
+  --chart-5: #e05874;
+  --status-online: #35c26a;
+  --status-warning: #e8a02a;
+  --status-critical: #f06a62;
+  --status-offline: #67707e;
+  --status-info: #3f9ae8;
+  --glass-bg: rgba(16, 22, 34, 0.62);
+  --glass-border: rgba(120, 150, 190, 0.14);
+  --sidebar: #13171e;
+  --sidebar-foreground: #e8ecf2;
+  --sidebar-primary: #3f9ae8;
+  --sidebar-primary-foreground: #04121e;
+  --sidebar-accent: #14263a;
+  --sidebar-accent-foreground: #78b6f0;
+  --sidebar-border: #212832;
+  --sidebar-ring: #3f9ae8;
 }
 
 @layer base {
@@ -126,5 +156,33 @@
   }
   html {
     @apply font-sans;
+  }
+}
+
+/* A barely-there top glow behind the whole page — the one piece of
+   atmosphere an internal page keeps; everything else is flat. */
+.dark body {
+  background-image: radial-gradient(110% 45% at 50% -6%, rgba(63, 154, 232, 0.07), transparent 55%);
+  background-attachment: fixed;
+}
+
+@layer utilities {
+  /* Login page only — never apply to an internal dashboard card (ADR-UX005). */
+  .glass {
+    background-color: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    backdrop-filter: blur(18px) saturate(1.2);
+    -webkit-backdrop-filter: blur(18px) saturate(1.2);
+  }
+
+  /* Uppercase, letter-spaced, monospace label — the technical accent used
+     for section/KPI labels, ids, and timestamps instead of any glow. */
+  .eyebrow {
+    font-family: var(--font-mono);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    font-size: 10.5px;
+    font-weight: 500;
+    color: var(--muted-foreground);
   }
 }

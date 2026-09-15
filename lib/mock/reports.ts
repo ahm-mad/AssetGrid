@@ -1,0 +1,99 @@
+import { mulberry32 } from "@/lib/mock/dashboard"
+import type { DeviceDiagnosticRow, Paginated } from "@/lib/analytics/data"
+import type { RevenueReport, OccupancyReport, ArSummaryReport } from "@/lib/marina/pms/reports"
+
+const COMPANIES = ["Harborline Marinas", "Northstar Facilities", "BlueWater Group", "Summit Property Co.", "Coastal Ops"]
+const PRODUCTS = ["eMAX Duplex", "MAX Switch", "Bilgemax Monitoring Kit", "Command Charge Controller", "Sensor Node"]
+
+function buildDiagnostics(): DeviceDiagnosticRow[] {
+  const rand = mulberry32(4242)
+  return Array.from({ length: 48 }, (_, i) => {
+    const alertCount = rand() > 0.85 ? Math.round(rand() * 3) + 1 : 0
+    const malfunction = rand() > 0.93
+    return {
+      deveui: `EUI${(1000000000000000 + i).toString(16).toUpperCase()}`,
+      email: `owner${i}@assetgrid.test`,
+      xnid: `XN-${String(i + 1).padStart(4, "0")}`,
+      companyName: COMPANIES[i % COMPANIES.length],
+      placeInfo: `Dock ${1 + (i % 5)}, Slip ${1 + (i % 12)}`,
+      productId: (i % PRODUCTS.length) + 1,
+      productName: PRODUCTS[i % PRODUCTS.length],
+      notifiName: "SMS + Email",
+      notifiId: 1,
+      attributeIds: [],
+      appName: null,
+      userDeviceId: i + 1,
+      inventoryDeviceId: i + 1,
+      alertCount,
+      normalCount: Math.round(rand() * 500),
+      totalPackets: Math.round(rand() * 5000),
+      latestPacket: null,
+      malfunction,
+      bypassActive: false,
+      malfunctionActiveStatus: malfunction ? "active" : "none",
+      malfunctionAttributes: malfunction ? ["Low battery voltage"] : [],
+      xupJsonBody: null,
+    }
+  })
+}
+
+const DIAGNOSTICS = buildDiagnostics()
+
+export function listMockDeviceDiagnostics({
+  page = 1,
+  perPage = 25,
+  search = "",
+}: {
+  page?: number
+  perPage?: number
+  search?: string
+}): Paginated<DeviceDiagnosticRow> {
+  const q = search.trim().toLowerCase()
+  const filtered = q
+    ? DIAGNOSTICS.filter((d) => `${d.deveui} ${d.xnid} ${d.email}`.toLowerCase().includes(q))
+    : DIAGNOSTICS
+  const total = filtered.length
+  const start = (page - 1) * perPage
+  return {
+    rows: filtered.slice(start, start + perPage),
+    total,
+    page,
+    perPage,
+    totalPages: Math.max(1, Math.ceil(total / perPage)),
+  }
+}
+
+export function getMockRevenueReport(): RevenueReport {
+  const perDock = [
+    { dockId: 1, dockName: "Dock A", revenue: 4200 },
+    { dockId: 2, dockName: "Dock B", revenue: 3150 },
+    { dockId: 3, dockName: "Dock C", revenue: 5680 },
+  ]
+  return { perSlip: [], perDock }
+}
+
+export function getMockOccupancyReport(): OccupancyReport {
+  return {
+    perDock: [
+      { dockId: 1, dockName: "Dock A", occupancyPercent: 78 },
+      { dockId: 2, dockName: "Dock B", occupancyPercent: 62 },
+      { dockId: 3, dockName: "Dock C", occupancyPercent: 91 },
+    ],
+  }
+}
+
+export function getMockArSummary(): ArSummaryReport {
+  return {
+    perCompany: COMPANIES.map((companyName, i) => ({
+      companyId: i + 1,
+      companyName,
+      totalAr: [1200, 850, 2100, 430, 0][i] ?? 0,
+      aging: {
+        "0-30": [800, 500, 1400, 200, 0][i] ?? 0,
+        "31-60": [300, 200, 500, 130, 0][i] ?? 0,
+        "61-90": [100, 100, 150, 100, 0][i] ?? 0,
+        "90+": [0, 50, 50, 0, 0][i] ?? 0,
+      },
+    })),
+  }
+}

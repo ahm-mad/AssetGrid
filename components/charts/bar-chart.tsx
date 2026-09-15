@@ -71,6 +71,13 @@ export function BarChart({
         className="w-full overflow-visible"
         onMouseLeave={() => setHover(null)}
       >
+        <defs>
+          <linearGradient id={`${gid}-bar`} x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor={color} stopOpacity={1} />
+            <stop offset="100%" stopColor={color} stopOpacity={0.55} />
+          </linearGradient>
+        </defs>
+
         {/* gridlines */}
         {ticks.map((t) => {
           const y = padTop + plotH - (t / niceMax) * plotH
@@ -83,6 +90,7 @@ export function BarChart({
                 y2={y}
                 stroke="var(--border)"
                 strokeWidth={1}
+                strokeDasharray="3 4"
               />
               <text x={padLeft - 8} y={y} textAnchor="end" dominantBaseline="middle" className="fill-muted-foreground text-[10px]">
                 {t.toLocaleString()}
@@ -115,8 +123,8 @@ export function BarChart({
                 width={barWidth}
                 height={barH}
                 rx={4}
-                fill={color}
-                opacity={isHover ? 0.85 : 1}
+                fill={`url(#${gid}-bar)`}
+                opacity={isHover ? 0.8 : 1}
                 style={{ pointerEvents: "none" }}
               />
               {barH > 18 ? (

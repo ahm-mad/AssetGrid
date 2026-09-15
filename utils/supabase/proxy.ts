@@ -2,6 +2,7 @@ import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
 import type { Database } from '@/lib/database.types'
+import { UI_MOCK } from '@/lib/mock/enabled'
 
 /** Route-group prefixes that require an authenticated session. */
 const PROTECTED_PREFIXES = ['/app', '/admin']
@@ -17,6 +18,11 @@ const AUTH_PREFIXES = ['/login', '/register', '/forgot-password', '/reset-passwo
  * Real authorization happens in `lib/auth` (DAL + guards).
  */
 export async function updateSession(request: NextRequest) {
+  // UI-only session (see lib/mock/enabled.ts) — the real Supabase project is
+  // torn down, so skip the network round-trip and route gating entirely and
+  // let every request through; the mock DAL supplies a Super Admin identity.
+  if (UI_MOCK) return NextResponse.next({ request })
+
   let response = NextResponse.next({ request })
 
   const supabase = createServerClient<Database>(

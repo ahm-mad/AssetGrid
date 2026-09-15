@@ -4,6 +4,8 @@ import { requirePagePermission } from "@/lib/auth/page-guards";
 import { can } from "@/lib/auth/permissions";
 import { listBuildings } from "@/lib/buildings/data";
 import { getCompanyOptions } from "@/lib/companies/data";
+import { UI_MOCK } from "@/lib/mock/enabled";
+import { MOCK_BUILDINGS, mapRealToView } from "@/lib/mock/buildings";
 import {
   Table,
   TableBody,
@@ -12,10 +14,10 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { StatTile } from "@/components/charts/stat-tile";
 import { BarChart } from "@/components/charts/bar-chart";
+import { StatusLabel } from "@/components/charts/status-dot";
 
 import { NewBuildingButton } from "./new-building-button";
 
@@ -23,7 +25,8 @@ export const metadata = { title: "Buildings" };
 
 export default async function BuildingsPage() {
   const viewer = await requirePagePermission("buildings", "read");
-  const [buildings, companies] = await Promise.all([listBuildings(), getCompanyOptions()]);
+  const companies = UI_MOCK ? [] : await getCompanyOptions();
+  const buildings = UI_MOCK ? MOCK_BUILDINGS : mapRealToView(await listBuildings());
   const canCreate = viewer.isSuperAdmin || can(viewer.permissions, "buildings", "create");
   const totalDevices = buildings.reduce((sum, b) => sum + b.siteCount, 0);
   const deviceChart = buildings.map((b) => ({ label: b.buildingCode, value: b.siteCount }));
@@ -32,7 +35,7 @@ export default async function BuildingsPage() {
     <div className="grid gap-4">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-lg font-semibold">Buildings</h1>
+          <h1 className="text-xl font-semibold tracking-tight">Buildings</h1>
           <p className="text-muted-foreground text-sm">
             {buildings.length} monitored locations · building → floor → unit → area → site.
           </p>
@@ -41,8 +44,8 @@ export default async function BuildingsPage() {
       </div>
 
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-        <StatTile label="Buildings" value={buildings.length} />
-        <StatTile label="Monitored sites" value={totalDevices} />
+        <StatTile label="Buildings" value={buildings.length} status="online" />
+        <StatTile label="Monitored sites" value={totalDevices} status="info" />
       </div>
 
       {deviceChart.length > 0 ? (
@@ -57,46 +60,52 @@ export default async function BuildingsPage() {
         </Card>
       ) : null}
 
-      <div className="overflow-x-auto rounded-md border">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Code</TableHead>
-              <TableHead>Type</TableHead>
-              <TableHead>Company</TableHead>
-              <TableHead>Location</TableHead>
-              <TableHead>Sites</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {buildings.length === 0 ? (
+      <Card className="overflow-hidden py-0">
+        <div className="overflow-x-auto">
+          <Table>
+            <TableHeader>
               <TableRow>
-                <TableCell colSpan={5} className="text-muted-foreground text-center">
-                  No buildings yet.
-                </TableCell>
+                <TableHead>Code</TableHead>
+                <TableHead>Type</TableHead>
+                <TableHead>Company</TableHead>
+                <TableHead>Location</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead>Sites</TableHead>
               </TableRow>
-            ) : (
-              buildings.map((b) => (
-                <TableRow key={b.id}>
-                  <TableCell className="font-mono text-xs">
-                    <Link href={`/app/buildings/${b.id}`} className="hover:underline">
-                      {b.buildingCode}
-                    </Link>
+            </TableHeader>
+            <TableBody>
+              {buildings.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={6} className="text-muted-foreground text-center">
+                    No buildings yet.
                   </TableCell>
-                  <TableCell>
-                    <Badge variant="secondary">{b.onNetType || "—"}</Badge>
-                  </TableCell>
-                  <TableCell>{b.companyName ?? "—"}</TableCell>
-                  <TableCell className="text-muted-foreground">
-                    {[b.city, b.stateProvince, b.country].filter(Boolean).join(", ") || "—"}
-                  </TableCell>
-                  <TableCell>{b.siteCount}</TableCell>
                 </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
-      </div>
+              ) : (
+                buildings.map((b) => (
+                  <TableRow key={b.id}>
+                    <TableCell className="font-mono text-xs">
+                      <Link href={`/app/buildings/${b.id}`} className="hover:text-primary hover:underline">
+                        {b.buildingCode}
+                      </Link>
+                    </TableCell>
+                    <TableCell className="text-muted-foreground">{b.onNetType || "—"}</TableCell>
+                    <TableCell>{b.companyName ?? "—"}</TableCell>
+                    <TableCell className="text-muted-foreground">
+                      {[b.city, b.stateProvince, b.country].filter(Boolean).join(", ") || "—"}
+                    </TableCell>
+                    <TableCell>
+                      <StatusLabel status={b.status}>
+                        {b.status === "online" ? "Nominal" : b.status === "warning" ? "Attention" : "Critical"}
+                      </StatusLabel>
+                    </TableCell>
+                    <TableCell>{b.siteCount}</TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </div>
+      </Card>
     </div>
   );
 }
