@@ -1,5 +1,6 @@
 import { mulberry32, series } from "@/lib/mock/dashboard"
 import type { UserListResult, CustomerSummary } from "@/lib/users/data"
+import type { CompanyOption } from "@/lib/companies/data"
 import type { FleetGroup } from "@/components/charts/network-map"
 
 export interface MockCustomerRow {
@@ -27,6 +28,8 @@ const COMPANIES = ["Harborline Marinas", "Northstar Facilities", "BlueWater Grou
 const ROLES = ["Customer", "Manager", "Dealer", "Partner", "Admin"]
 const FIRST = ["Alicia", "Marcus", "Priya", "Tomas", "Jade", "Diego", "Fatima", "Owen", "Nadia", "Sam", "Elena", "Kai", "Rosa", "Iris", "Noah", "Maya", "Leo", "Zara", "Finn", "Aya"]
 const LAST = ["Ferreira", "Wei", "Nair", "Bergström", "Whitfield", "Ramos", "Al-Sayed", "Chalmers", "Volkov", "Okafor"]
+
+export const MOCK_COMPANY_OPTIONS: CompanyOption[] = COMPANIES.map((name, i) => ({ id: i + 1, name }))
 
 const CUSTOMERS: MockCustomerRow[] = buildCustomers()
 
