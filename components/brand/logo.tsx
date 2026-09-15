@@ -21,12 +21,9 @@ export function LogoMark({ className }: { className?: string }) {
  * component so the sidebar, the login page, and the landing page (once
  * built) all render literally the same logo instead of three near-copies.
  *
- * Font: `font-brand` resolves to `--font-brand`, which currently falls
- * back to the app's sans stack (see `--font-brand` in `app/globals.css`'s
- * `@theme inline` block). Once a licensed Corpta font file exists, load it
- * with `next/font/local` in `app/layout.tsx` and point that file's CSS
- * variable at `--font-brand` in `:root` — every usage of <Logo> picks it
- * up automatically, no call-site changes needed.
+ * Font: `font-brand` resolves to `--font-brand` (`"Corpta", var(--font-sans)`)
+ * — see the `@font-face` + `--font-brand` comments in `app/globals.css` for
+ * why Corpta is loaded that way (local-machine-only file, gitignored).
  */
 export function Logo({
   className,
@@ -38,11 +35,10 @@ export function Logo({
   textClassName?: string;
 }) {
   return (
-    <span className={cn("inline-flex items-center gap-2", className)}>
-      <LogoMark className={cn("text-primary size-5 shrink-0", markClassName)} />
-      <span className={cn("font-brand text-sm font-semibold tracking-wide uppercase", textClassName)}>
-        <span className="text-foreground">Asset</span>
-        <span className="text-primary">Grid</span>
+    <span className={cn("inline-flex items-center gap-2.5", className)}>
+      <LogoMark className={cn("text-primary size-6 shrink-0", markClassName)} />
+      <span className={cn("font-brand text-lg font-semibold tracking-wider uppercase", textClassName)}>
+        <span className="text-foreground">Asset</span> <span className="text-primary">Grid</span>
       </span>
     </span>
   );
