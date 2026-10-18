@@ -9,7 +9,9 @@
 
 ### Contents
 
-[What this is](#what-this-is) · [At a glance](#at-a-glance) · [Architecture](#architecture) · [Data model](#the-data-model) · [IoT packet handling](#iot-telemetry--packet-handling) · [Scale](#built-for-millions-of-rows-not-thousands) · [Security](#security-row-level-security-is-the-authorization-system) · [Typing](#strong-typing-end-to-end) · [Getting started](#getting-started)
+[What this is](#what-this-is) · [At a glance](#at-a-glance) · [Architecture](#architecture) · [Data model](#the-data-model) · [IoT packet handling](#iot-telemetry--packet-handling) · [Predictive risk intelligence](#predictive-risk-intelligence) · [Scale](#built-for-millions-of-rows-not-thousands) · [Security](#security-row-level-security-is-the-authorization-system) · [Typing](#strong-typing-end-to-end) · [Getting started](#getting-started)
+
+<p align="center"><img src="docs/screenshots/fleet-dashboard.png" alt="AssetGrid fleet dashboard — live device, alert and packet overview" width="100%" /></p>
 
 ## What this is
 
@@ -23,7 +25,9 @@ It's built for **portfolio purposes** — the working system is real, the code i
 |---|---|
 | **Data model** | 118 Postgres tables, generated TypeScript types, zero hand-maintained schema drift |
 | **Security** | 140 Row-Level Security policies, 7 reusable auth functions — the database enforces access, not the app |
-| **Scale** | `telemetry` range-partitioned by month (41 partitions), architected for 10M+ readings without query degradation |
+| **Scale** | `telemetry` range-partitioned by month (41 partitions) and tiered into hot / 1-min / 15-min rollups, architected for 10M+ readings without query degradation |
+| **Throughput** | ~127K telemetry readings/day on the live instance — ~892K/week, ~3.8M/month at the same rate |
+| **Predictive AI** | Risk engines forecast *forward* (e.g. "~3 days to threshold" per device), not just score the current reading — see [Predictive risk intelligence](#predictive-risk-intelligence) |
 | **Automation** | 5 `pg_cron` jobs (30s–monthly) drive charging control, health sweeps, PMS maintenance, partition roll-forward |
 | **Type safety** | Strict TypeScript, zero `any`, Zod validation on every Server Action input |
 | **Architecture** | No REST layer — Server Components read, Server Actions write, RLS authorizes |
@@ -143,9 +147,25 @@ sequenceDiagram
 
 `devEUI` and the gateway ID arrive base64-encoded and are decoded to upper-hex before the row is written. The **alerting engine** (`lib/alerts/engine.ts`) evaluates the device's threshold rules (`attributes` catalog), applies suppression windows (`alert_windows`) and a per-device throttle state machine (`safeguard_configurations` + `alert_state`) to stop alert storms, then fans notifications out over email/SMS and logs every send to `alert_log` — so "what did the system actually notify, and why" is always answerable after the fact, not just "what did it currently think."
 
+**Current observed throughput:** the live instance processes roughly **127,440 telemetry readings a day** (derived from the time-series engine's own stat tiles: 1,784,164 hot observations over a trailing 14-day window) — at that rate, **~892,080/week** and **~3,823,200/month**. The partitioned, RLS-scoped architecture below is built to carry that comfortably, with headroom to spare.
+
+<p align="center"><img src="docs/screenshots/noc-live-throughput.png" alt="NOC dashboard — live ingestion rate and alert throughput" width="100%" /></p>
+
+## Predictive risk intelligence
+
+AssetGrid's risk engines — MOLD-AI™, CondensationIQ™, Freeze Guard™, ComfortIQ™, and their siblings — don't just score the current reading, they **forecast forward**. Each flagged device carries a projected time-to-threshold ("~3.2 days to visible mold," "~2.8 days") derived from the trend in its own recent temperature/humidity history, not a static rule-of-thumb. The same historical telemetry is mined in aggregate too — rolling 30/90-day trend charts per engine — to surface portfolio-wide risk drift before it shows up as a wave of individual alerts.
+
+<p align="center"><img src="docs/screenshots/mold-ai-critical-board.png" alt="MOLD-AI Critical Board — per-device forecasted days-to-threshold, not just current reading" width="100%" /></p>
+
+This is **applied predictive/analytical modeling against real sensor history** — not a generative AI or chat feature. There's no LLM and no natural-language interface here; the engines run automatically across the fleet and surface a number and a trend, not a conversation.
+
 ## Built for millions of rows, not thousands
 
 Telemetry is the highest-volume table in the system by a wide margin, so it's architected for scale from day one. `telemetry` is **range-partitioned by month** (41 partitions currently provisioned, into 2027), with a `pg_cron` job (`telemetry-partition-maintenance`) rolling a new partition forward automatically — so `INSERT`s and time-window queries stay fast indefinitely without a manual DBA step, well past 10M+ rows. A batched data-loading pipeline (`scripts/etl/`) streams source data through Node rather than loading it into memory, is fully idempotent (safe to re-run), and ships its own reconciliation report (`verify.ts`) that diffs row counts and checksums to prove correctness — not "it looked right," a script that proves it.
+
+<p align="center"><img src="docs/screenshots/etl-reconciliation-parity.png" alt="ETL reconciliation — correctness, freshness and availability checks, all passing" width="100%" /></p>
+
+On top of monthly partitioning, live telemetry is organized into a **tiered time-series pipeline** on Postgres — hot readings roll up automatically into 1-minute and 15-minute aggregates, so a 30/90-day trend chart queries a few thousand rollup rows instead of millions of raw readings. On the live instance this tier alone holds **11,929,795 pre-aggregated rollups** behind the hot data. A cold-archive tier (longer-retention, cheaper storage) is designed and on the roadmap — tracked honestly as **planned**, not shipped yet.
 
 Five other `pg_cron` jobs run against the live database on their own schedule (30s–monthly), calling back into the app's own Next.js Route Handlers via `pg_net` rather than standing up duplicate Postgres Edge Functions: device charging control, fleet health sweeps, marina PMS maintenance, stale-activation cleanup, and the partition roll-forward above.
 
