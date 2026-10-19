@@ -17,7 +17,7 @@
 
 A tenant (a company) onboards IoT devices — temperature/humidity sensors, smart charging outlets, bilge and water-leak monitors, generator and power monitors, motion sensors — and assigns them to a physical location: a room inside a monitored building, or a boat in a marina slip. Devices report over LoRaWAN; every packet is decoded, stored, and evaluated against alert rules in real time. On top of that sits everything a company needs to actually run the business: a CRM for customers, a device catalog/storefront, Stripe-backed subscriptions and one-time device activation, role-based access control, and a full marina property-management module (reservations → quotes → contracts → invoices → ledgers).
 
-It's built for **portfolio purposes** — the working system is real, the code is real, but it runs on a synthetic dataset (no real customer data anywhere in the app or its history).
+It is a **production system, built solo from scratch** and used by real marina and property operators, replacing manual monitoring with continuous sensor monitoring, alerting and predictive early warnings. The screenshots and the data in this repository are a **synthetic dataset**, so no customer data appears anywhere in the code, the screenshots or the history.
 
 ## At a glance
 
@@ -229,4 +229,4 @@ scripts/etl/             Batched, idempotent data-loading pipeline (Node, stream
 
 ---
 
-*A portfolio project — architecture and code are real and fully functional; the data behind it is synthetic.*
+*A production system built solo from scratch. Screenshots and data in this repository are synthetic; no customer data appears anywhere in it.*
