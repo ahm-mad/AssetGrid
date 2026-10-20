@@ -19,6 +19,8 @@ A tenant (a company) onboards IoT devices — temperature/humidity sensors, smar
 
 It is a **production system, built solo from scratch** and used by real marina and property operators, replacing manual monitoring with continuous sensor monitoring, alerting and predictive early warnings. The screenshots and the data in this repository are a **synthetic dataset**, so no customer data appears anywhere in the code, the screenshots or the history.
 
+> **About this repository.** This is the public showcase edition of a system I built and ran in production, rebranded and loaded with a synthetic dataset. It moved to my personal GitHub account in September 2026, so the commit history here begins then; the original working history is in a private repository.
+
 ## At a glance
 
 | | |
